@@ -4,18 +4,11 @@ import {SanityDocument} from 'next-sanity'
 import {useOptimistic} from 'next-sanity/hooks'
 
 import BlockRenderer from '@/app/components/BlockRenderer'
-import {GetPageQueryResult} from '@/sanity.types'
 import {dataAttr} from '@/sanity/lib/utils'
-import {PageBuilderSection} from '@/sanity/lib/types'
+import {PageBuilderSection, PageDocumentForBuilder} from '@/sanity/lib/types'
 
 type PageBuilderPageProps = {
-  page: GetPageQueryResult
-}
-
-type PageData = {
-  _id: string
-  _type: string
-  pageBuilder?: PageBuilderSection[]
+  page: PageDocumentForBuilder
 }
 
 /**
@@ -27,7 +20,7 @@ function RenderSections({
   page,
 }: {
   pageBuilderSections: PageBuilderSection[]
-  page: GetPageQueryResult
+  page: PageDocumentForBuilder
 }) {
   if (!page) {
     return null
@@ -53,7 +46,7 @@ function RenderSections({
   )
 }
 
-function RenderEmptyState({page}: {page: GetPageQueryResult}) {
+function RenderEmptyState({page}: {page: PageDocumentForBuilder}) {
   if (!page) {
     return null
   }
@@ -76,9 +69,15 @@ function RenderEmptyState({page}: {page: GetPageQueryResult}) {
 }
 
 export default function PageBuilder({page}: PageBuilderPageProps) {
+  type OptimisticPageData = {
+    _id: string
+    _type: string
+    pageBuilder?: PageBuilderSection[] | null
+  }
+
   const pageBuilderSections = useOptimistic<
     PageBuilderSection[] | undefined,
-    SanityDocument<PageData>
+    SanityDocument<OptimisticPageData>
   >(page?.pageBuilder || [], (currentSections, action) => {
     // The action contains updated document data from Sanity
     // when someone makes an edit in the Studio
@@ -89,7 +88,7 @@ export default function PageBuilder({page}: PageBuilderPageProps) {
     }
 
     // If there are sections in the updated document, use them
-    if (action.document.pageBuilder) {
+    if (action.document?.pageBuilder) {
       // Reconcile References. https://www.sanity.io/docs/enabling-drag-and-drop#ffe728eea8c1
       return action.document.pageBuilder.map(
         (section) => currentSections?.find((s) => s._key === section?._key) || section,

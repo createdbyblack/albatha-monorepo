@@ -9,10 +9,6 @@
     "Live Content API (LCAPI)",
     "Real-time"
   ],
-  "homepage": "https://github.com/sanity-io/sanity-template-nextjs-clean#readme",
-  "bugs": {
-    "url": "https://github.com/sanity-io/sanity-template-nextjs-clean/issues"
-  },
   "workspaces": [
     "studio",
     "frontend"

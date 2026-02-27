@@ -20,11 +20,40 @@ const linkReference = /* groq */ `
   }
 `
 
-const linkFields = /* groq */ `
-  link {
+const cbButtonWithLinkProjection = /* groq */ `
+  _type == "cbButton" => {
+    ...,
+    link{
       ...,
-      ${linkReference}
+      "internalPageSlug": internalPage->slug.current
+    }
+  }
+`
+
+const cbButtonsWithLinksProjection = /* groq */ `
+  _type == "cbButtons" => {
+    ...,
+    items[]{
+      ...,
+      link{
+        ...,
+        "internalPageSlug": internalPage->slug.current
       }
+    }
+  }
+`
+
+const cbNavigationWithLinksProjection = /* groq */ `
+  _type == "cbNavigation" => {
+    ...,
+    links[]{
+      ...,
+      link{
+        ...,
+        "internalPageSlug": internalPage->slug.current
+      }
+    }
+  }
 `
 
 export const getPageQuery = defineQuery(`
@@ -33,27 +62,51 @@ export const getPageQuery = defineQuery(`
     _type,
     name,
     slug,
-    heading,
-    subheading,
     "pageBuilder": pageBuilder[]{
       ...,
-      _type == "callToAction" => {
+      ${cbButtonWithLinkProjection},
+      ${cbButtonsWithLinksProjection},
+      ${cbNavigationWithLinksProjection},
+      _type == "cbGroup" => {
         ...,
-        button {
+        children[]{
           ...,
-          ${linkFields}
+          ${cbButtonWithLinkProjection},
+          ${cbButtonsWithLinksProjection},
+          ${cbNavigationWithLinksProjection}
         }
       },
-      _type == "infoSection" => {
+      _type == "cbColumn" => {
+        ...,
+        children[]{
+          ...,
+          ${cbButtonWithLinkProjection},
+          ${cbButtonsWithLinksProjection},
+          ${cbNavigationWithLinksProjection}
+        }
+      },
+      _type == "cbCover" => {
+        ...,
         content[]{
           ...,
-          markDefs[]{
-            ...,
-            ${linkReference}
-          }
+          ${cbButtonWithLinkProjection},
+          ${cbButtonsWithLinksProjection},
+          ${cbNavigationWithLinksProjection}
         }
       },
-    },
+      _type == "cbColumns" => {
+        ...,
+        columns[]{
+          ...,
+          children[]{
+            ...,
+            ${cbButtonWithLinkProjection},
+            ${cbButtonsWithLinksProjection},
+            ${cbNavigationWithLinksProjection}
+          }
+        }
+      }
+    }
   }
 `)
 

@@ -1,21 +1,29 @@
 import {defineField, defineType} from 'sanity'
 
 export default defineType({
-  name: 'button',
+  name: 'cbButton',
+  title: 'Content Button',
   type: 'object',
-  description: 'The button of the call to action',
   fields: [
+    defineField({name: 'label', title: 'Label', type: 'string'}),
     defineField({
-      name: 'buttonText',
-      title: 'Button Text',
+      name: 'actionType',
+      title: 'Action Type',
       type: 'string',
+      initialValue: 'button',
+      options: {
+        list: [
+          {title: 'Button', value: 'button'},
+          {title: 'Link', value: 'link'},
+        ],
+        layout: 'radio',
+      },
     }),
     defineField({
       name: 'link',
-      title: 'Button Link',
-      type: 'link',
-      options: {collapsible: true, collapsed: false},
+      title: 'Link',
+      type: 'cbLink',
+      hidden: ({parent}) => parent?.actionType !== 'link',
     }),
   ],
-  options: {collapsible: true},
 })
