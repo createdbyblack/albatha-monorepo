@@ -4,18 +4,12 @@ import {SanityDocument} from 'next-sanity'
 import {useDraftModeEnvironment, useOptimistic} from 'next-sanity/hooks'
 
 import BlockRenderer from '@/app/components/BlockRenderer'
-import {dataAttr} from '@/sanity/lib/utils'
+import type {OptimisticPageDocument} from '@/app/lib/page-types'
 import {PageBuilderSection, PageDocumentForBuilder} from '@/sanity/lib/types'
+import {getSanityDataAttribute, toArrayItemPath} from '@/sanity/lib/visual-editing'
 
 type PageBuilderPageProps = {
   page: PageDocumentForBuilder
-}
-
-function toArrayItemPath(arrayPath: string, key: string | undefined, index: number): string {
-  if (key) {
-    return `${arrayPath}[_key=="${key}"]`
-  }
-  return `${arrayPath}[${index}]`
 }
 
 /**
@@ -37,13 +31,7 @@ function RenderSections({
   return (
     <div
       data-sanity={
-        isDraftMode
-          ? dataAttr({
-              id: page._id,
-              type: page._type,
-              path: `pageBuilder`,
-            }).toString()
-          : undefined
+        getSanityDataAttribute(isDraftMode, {id: page._id, type: page._type}, 'pageBuilder')
       }
     >
       {pageBuilderSections.map((block: PageBuilderSection, index: number) => (
@@ -70,13 +58,7 @@ function RenderEmptyState({page, isDraftMode}: {page: PageDocumentForBuilder; is
     <div
       className="container mt-10"
       data-sanity={
-        isDraftMode
-          ? dataAttr({
-              id: page._id,
-              type: 'page',
-              path: `pageBuilder`,
-            }).toString()
-          : undefined
+        getSanityDataAttribute(isDraftMode, {id: page._id, type: page._type}, 'pageBuilder')
       }
     >
       <div className="prose">
@@ -88,15 +70,9 @@ function RenderEmptyState({page, isDraftMode}: {page: PageDocumentForBuilder; is
 }
 
 export default function PageBuilder({page}: PageBuilderPageProps) {
-  type OptimisticPageData = {
-    _id: string
-    _type: string
-    pageBuilder?: PageBuilderSection[] | null
-  }
-
   const pageBuilderSections = useOptimistic<
     PageBuilderSection[] | undefined,
-    SanityDocument<OptimisticPageData>
+    SanityDocument<OptimisticPageDocument>
   >(page?.pageBuilder || [], (currentSections, action) => {
     // The action contains updated document data from Sanity
     // when someone makes an edit in the Studio

@@ -1,6 +1,7 @@
 import type {Metadata, ResolvingMetadata} from 'next'
 import {notFound} from 'next/navigation'
 
+import type {BuilderPageData, LegalPageData, RoutePageParams} from '@/app/lib/page-types'
 import {PageOnboarding} from '@/app/components/Onboarding'
 import PageBuilderPage from '@/app/components/PageBuilder'
 import PortableText from '@/app/components/PortableText'
@@ -19,40 +20,6 @@ import {
 import {DEFAULT_LANGUAGE} from '@/sanity/lib/i18n'
 import {parseJsonObject, resolveOpenGraphImage} from '@/sanity/lib/utils'
 
-type Props = {
-  params: Promise<{segments?: string[]}>
-}
-
-type PageWithSeo = {
-  _id?: string
-  name?: string
-  pageBuilder?: unknown[]
-  structuredData?: string | null
-  seo?: {
-    metaTitle?: string | null
-    metaDescription?: string | null
-    canonicalUrl?: string | null
-    noIndex?: boolean | null
-    ogTitle?: string | null
-    ogDescription?: string | null
-    ogImage?: unknown
-  } | null
-}
-
-type LegalPageData = {
-  _id?: string
-  title?: string
-  content?: any[]
-  seo?: {
-    metaDescription?: string | null
-    canonicalUrl?: string | null
-    noIndex?: boolean | null
-    ogTitle?: string | null
-    ogDescription?: string | null
-    ogImage?: unknown
-  } | null
-}
-
 export async function generateStaticParams(): Promise<Array<{segments?: string[]}>> {
   const {data} = await sanityFetch({
     query: sitemapData,
@@ -63,7 +30,7 @@ export async function generateStaticParams(): Promise<Array<{segments?: string[]
   return buildCatchAllStaticParams((data as SitemapRow[] | null) || [])
 }
 
-export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
+export async function generateMetadata(props: RoutePageParams, parent: ResolvingMetadata): Promise<Metadata> {
   const params = await props.params
   const match = resolveCatchAllRoute(params.segments)
   if (!match) {
@@ -93,7 +60,7 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
       }),
     ])
 
-    const pageWithSeo = page as PageWithSeo | null
+    const pageWithSeo = page as BuilderPageData | null
     if (!pageWithSeo?._id) {
       return {}
     }
@@ -173,7 +140,7 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
     }),
   ])
 
-  const pageWithSeo = page as PageWithSeo | null
+  const pageWithSeo = page as BuilderPageData | null
   if (!pageWithSeo?._id) {
     return {}
   }
@@ -199,7 +166,7 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
   })
 }
 
-export default async function CatchAllPage(props: Props) {
+export default async function CatchAllPage(props: RoutePageParams) {
   const params = await props.params
   const match = resolveCatchAllRoute(params.segments)
   if (!match) {
@@ -211,7 +178,7 @@ export default async function CatchAllPage(props: Props) {
       query: homePageQuery,
       params: {language: match.language},
     })
-    const pageWithSeo = page as PageWithSeo | null
+    const pageWithSeo = page as BuilderPageData | null
     const customStructuredData = parseJsonObject(pageWithSeo?.structuredData)
 
     if (!pageWithSeo?._id) {
@@ -222,24 +189,24 @@ export default async function CatchAllPage(props: Props) {
       )
     }
 
-    return (
-      <>
-        {customStructuredData ? (
-          <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify(customStructuredData)}} />
-        ) : null}
-        <div className="my-12 lg:my-24">
-          <div className="container">
-            <div className="pb-6 border-b border-gray-100">
-              <div className="max-w-3xl">
-                <h1 className="text-4xl text-gray-900 sm:text-5xl lg:text-7xl">{pageWithSeo.name}</h1>
-              </div>
+  return (
+    <>
+      {customStructuredData ? (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify(customStructuredData)}} />
+      ) : null}
+      <div className="my-12 lg:my-24">
+        <div className="container">
+          <div className="border-b border-border pb-6">
+            <div className="max-w-3xl">
+              <h1 className="text-4xl text-foreground sm:text-5xl lg:text-7xl">{pageWithSeo.name}</h1>
             </div>
           </div>
-          <PageBuilderPage page={page as any} />
         </div>
-      </>
-    )
-  }
+        <PageBuilderPage page={page as BuilderPageData} />
+      </div>
+    </>
+  )
+}
 
   if (match.kind === 'legal') {
     const {data} = await sanityFetch({
@@ -253,7 +220,7 @@ export default async function CatchAllPage(props: Props) {
 
     return (
       <div className="container py-16 lg:py-24">
-        <article className="max-w-3xl prose prose-gray">
+        <article className="prose prose-gray max-w-3xl">
           <h1>{page.title || (match.slug === 'privacy-policy' ? 'Privacy Policy' : 'Terms and Conditions')}</h1>
           {page.content?.length ? <PortableText value={page.content as any} /> : null}
         </article>
@@ -265,7 +232,7 @@ export default async function CatchAllPage(props: Props) {
     query: getPageQuery,
     params: {slug: match.slug, language: match.language},
   })
-  const pageWithSeo = page as PageWithSeo | null
+  const pageWithSeo = page as BuilderPageData | null
   const customStructuredData = parseJsonObject(pageWithSeo?.structuredData)
 
   if (!pageWithSeo?._id) {
@@ -284,15 +251,15 @@ export default async function CatchAllPage(props: Props) {
       {customStructuredData ? (
         <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify(customStructuredData)}} />
       ) : null}
-      <div className="my-12 lg:my-24">
-        <div className="container">
-          <div className="pb-6 border-b border-gray-100">
-            <div className="max-w-3xl">
-              <h1 className="text-4xl text-gray-900 sm:text-5xl lg:text-7xl">{pageWithSeo.name}</h1>
+        <div className="my-12 lg:my-24">
+          <div className="container">
+            <div className="border-b border-border pb-6">
+              <div className="max-w-3xl">
+                <h1 className="text-4xl text-foreground sm:text-5xl lg:text-7xl">{pageWithSeo.name}</h1>
+              </div>
             </div>
           </div>
-        </div>
-        <PageBuilderPage page={page as any} />
+        <PageBuilderPage page={page as BuilderPageData} />
       </div>
     </>
   )

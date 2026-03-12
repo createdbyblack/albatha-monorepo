@@ -3,16 +3,23 @@
 @plugin "@tailwindcss/typography";
 
 @layer base {
+  html {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+
   body {
-    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
   }
 
   html[dir='rtl'] body {
-    font-family: var(--font-arabic), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-sans-rtl), ui-sans-serif, system-ui, sans-serif;
   }
 
   html[dir='rtl'] .font-mono {
-    font-family: var(--font-arabic), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-sans-rtl), ui-sans-serif, system-ui, sans-serif;
     letter-spacing: normal;
   }
 
@@ -36,6 +43,10 @@
 @theme {
   --shadow-layer: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
 
+  --font-sans: var(--font-inter);
+  --font-sans-rtl: var(--font-arabic), var(--font-inter);
+  --font-mono: var(--font-ibm-plex-mono);
+
   --color-framework: #000;
   --color-black: #0b0b0b;
   --color-white: #fff;
@@ -53,6 +64,17 @@
   --color-gray-800: #252837;
   --color-gray-900: #1b1d27;
   --color-gray-950: #13141b;
+
+  --color-background: var(--color-white);
+  --color-foreground: var(--color-black);
+  --color-surface: var(--color-gray-50);
+  --color-surface-strong: var(--color-white);
+  --color-border: var(--color-gray-100);
+  --color-muted-foreground: var(--color-gray-600);
+  --color-accent: var(--color-blue);
+  --color-accent-foreground: var(--color-white);
+  --color-primary: var(--color-black);
+  --color-primary-foreground: var(--color-white);
 
   --default-transition-duration: 250ms;
 }

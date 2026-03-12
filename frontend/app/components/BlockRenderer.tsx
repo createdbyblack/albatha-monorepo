@@ -26,7 +26,7 @@ import {
   type CbMedia,
   type PageBuilderSection,
 } from '@/sanity/lib/types'
-import {dataAttr} from '@/sanity/lib/utils'
+import {getSanityDataAttribute, toArrayItemPath} from '@/sanity/lib/visual-editing'
 
 type BlockRendererProps = {
   block: PageBuilderSection
@@ -35,13 +35,6 @@ type BlockRendererProps = {
   pageId: string
   blockPath: string
   isDraftMode: boolean
-}
-
-function toArrayItemPath(arrayPath: string, key: string | undefined, index: number): string {
-  if (key) {
-    return `${arrayPath}[_key=="${key}"]`
-  }
-  return `${arrayPath}[${index}]`
 }
 
 function resolveLinkHref(link?: CbLink | null, fallbackUrl?: string | null): string | null {
@@ -198,13 +191,7 @@ function renderColumnContent(
   return (
     <div
       data-sanity={
-        isDraftMode
-          ? dataAttr({
-              id: pageId,
-              type: pageType,
-              path: `${columnPath}.children`,
-            }).toString()
-          : undefined
+        getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, `${columnPath}.children`)
       }
     >
       {(column.children || []).map((child, childIndex) => (
@@ -232,13 +219,7 @@ function renderGroupContent(
   return (
     <div
       data-sanity={
-        isDraftMode
-          ? dataAttr({
-              id: pageId,
-              type: pageType,
-              path: `${groupPath}.children`,
-            }).toString()
-          : undefined
+        getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, `${groupPath}.children`)
       }
     >
       {(group.children || []).map((child, childIndex) => (
@@ -266,13 +247,7 @@ function renderCoverContent(
   return (
     <div
       data-sanity={
-        isDraftMode
-          ? dataAttr({
-              id: pageId,
-              type: pageType,
-              path: `${coverPath}.content`,
-            }).toString()
-          : undefined
+        getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, `${coverPath}.content`)
       }
     >
       {(cover.content || []).map((child, childIndex) => (
@@ -300,11 +275,7 @@ export default function BlockRenderer({
 }: BlockRendererProps) {
   const key = block._key || `${block._type}-${index}`
   const blockDataAttr = isDraftMode
-    ? dataAttr({
-        id: pageId,
-        type: pageType,
-        path: blockPath,
-      }).toString()
+    ? getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, blockPath)
     : undefined
 
   switch (block._type) {
@@ -393,13 +364,11 @@ export default function BlockRenderer({
               <span
                 key={item._key || `${key}-${i}`}
                 data-sanity={
-                  isDraftMode
-                    ? dataAttr({
-                        id: pageId,
-                        type: pageType,
-                        path: toArrayItemPath(`${blockPath}.items`, item._key, i),
-                      }).toString()
-                    : undefined
+                  getSanityDataAttribute(
+                    isDraftMode,
+                    {id: pageId, type: pageType},
+                    toArrayItemPath(`${blockPath}.items`, item._key, i),
+                  )
                 }
               >
                 {renderButton(item, item._key || `${key}-${i}`)}
@@ -421,13 +390,11 @@ export default function BlockRenderer({
               <ListItem
                 key={item._key || `${key}-${i}`}
                 data-sanity={
-                  isDraftMode
-                    ? dataAttr({
-                        id: pageId,
-                        type: pageType,
-                        path: toArrayItemPath(`${blockPath}.items`, item._key, i),
-                      }).toString()
-                    : undefined
+                  getSanityDataAttribute(
+                    isDraftMode,
+                    {id: pageId, type: pageType},
+                    toArrayItemPath(`${blockPath}.items`, item._key, i),
+                  )
                 }
               >
                 {item.content || ''}
@@ -450,13 +417,11 @@ export default function BlockRenderer({
                 <NavigationLink
                   key={link._key || `${key}-${i}`}
                   data-sanity={
-                    isDraftMode
-                      ? dataAttr({
-                          id: pageId,
-                          type: pageType,
-                          path: toArrayItemPath(`${blockPath}.links`, link._key, i),
-                        }).toString()
-                      : undefined
+                    getSanityDataAttribute(
+                      isDraftMode,
+                      {id: pageId, type: pageType},
+                      toArrayItemPath(`${blockPath}.links`, link._key, i),
+                    )
                   }
                   href={resolveLinkHref(link.link, link.url) || '#'}
                   target={
@@ -515,13 +480,11 @@ export default function BlockRenderer({
                 key={column._key || `${key}-${i}`}
                 className="col-span-12 md:col-span-6 space-y-4"
                 data-sanity={
-                  isDraftMode
-                    ? dataAttr({
-                        id: pageId,
-                        type: pageType,
-                        path: toArrayItemPath(`${blockPath}.columns`, column._key, i),
-                      }).toString()
-                    : undefined
+                  getSanityDataAttribute(
+                    isDraftMode,
+                    {id: pageId, type: pageType},
+                    toArrayItemPath(`${blockPath}.columns`, column._key, i),
+                  )
                 }
               >
                 {renderColumnContent(

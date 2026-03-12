@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import type {LayoutSettings} from '@/app/components/Header'
+import type {LayoutSettings} from '@/sanity/lib/settings-types'
 import {isExternalContentLink, resolveContentLinkHref} from '@/sanity/lib/utils'
 
 export default function Footer({settings}: {settings?: LayoutSettings | null}) {
@@ -12,7 +12,7 @@ export default function Footer({settings}: {settings?: LayoutSettings | null}) {
 
   return (
     <footer
-      className="bg-gray-50 relative"
+      className="relative bg-surface"
       data-menu-group-id={footerConfig?.menu?.menuId || footerMenuGroup?.menuId || undefined}
     >
       <div className="absolute inset-0 bg-[url(/images/tile-grid-black.png)] bg-size-[17px] opacity-20 bg-position-[0_1]" />
@@ -21,7 +21,7 @@ export default function Footer({settings}: {settings?: LayoutSettings | null}) {
           <h3 className="mb-10 text-center text-4xl font-mono leading-tight tracking-tighter lg:mb-0 lg:w-1/2 lg:pr-4 lg:text-left lg:text-2xl">
             {footerConfig?.heading || 'Brand Logo'}
           </h3>
-          <div className="flex flex-col gap-3 items-center justify-center lg:w-1/2 lg:flex-row lg:pl-4">
+          <div className="flex flex-col items-center justify-center gap-3 lg:w-1/2 lg:flex-row lg:pl-4">
             {footerLinks?.map((item) => {
               const href = resolveContentLinkHref(item.link)
               if (!href) {
@@ -75,7 +75,7 @@ export default function Footer({settings}: {settings?: LayoutSettings | null}) {
           </div>
         </div>
         {footerConfig?.copyrightText ? (
-          <div className="pb-8 text-center text-xs text-gray-600 font-mono">
+          <div className="pb-8 text-center font-mono text-xs text-muted-foreground">
             {footerConfig.copyrightText}
           </div>
         ) : null}

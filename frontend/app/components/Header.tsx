@@ -1,54 +1,8 @@
 import Link from 'next/link'
 
 import Image from '@/app/components/SanityImage'
+import type {LayoutSettings, MenuLink} from '@/sanity/lib/settings-types'
 import {isExternalContentLink, resolveContentLinkHref} from '@/sanity/lib/utils'
-
-type MenuLink = {
-  _key?: string
-  itemId?: string | null
-  label?: string | null
-  link?: ContentLink | null
-  subLinks?: MenuLink[] | null
-}
-
-type MenuGroup = {
-  menuId?: string | null
-  title?: string | null
-  links?: MenuLink[] | null
-}
-
-type ContentLink = {
-  linkType?: 'external' | 'internal' | null
-  internalTargetType?: 'page' | 'path' | null
-  internalPageSlug?: string | null
-  externalUrl?: string | null
-  internalPath?: string | null
-  openInNewTab?: boolean | null
-}
-
-export type LayoutSettings = {
-  title?: string | null
-  logo?: {
-    asset?: {_ref?: string} | null
-    alt?: string | null
-  } | null
-  header?: {
-    primaryMenu?: MenuGroup | null
-    secondaryMenu?: MenuGroup | null
-    ctaLabel?: string | null
-    ctaLink?: ContentLink | null
-  } | null
-  footer?: {
-    heading?: string | null
-    menu?: MenuGroup | null
-    legalMenu?: MenuGroup | null
-    showDefaultLegalLinks?: boolean | null
-    copyrightText?: string | null
-  } | null
-  primaryMenu?: MenuGroup | null
-  secondaryMenu?: MenuGroup | null
-  menuGroups?: MenuGroup[] | null
-}
 
 function MenuLinks({items}: {items?: MenuLink[] | null}) {
   if (!items?.length) {
@@ -80,7 +34,7 @@ function MenuLinks({items}: {items?: MenuLink[] | null}) {
           {item.label || 'Link'}
         </Link>
         {hasSubLinks ? (
-          <ul className="absolute left-0 mt-2 hidden min-w-48 rounded-md border border-gray-100 bg-white p-2 shadow-md group-hover:block">
+          <ul className="absolute left-0 mt-2 hidden min-w-48 rounded-md border border-border bg-surface-strong p-2 shadow-md group-hover:block">
             {item.subLinks?.map((subLink, subIndex) => {
               const subHref = resolveContentLinkHref(subLink.link)
               if (!subHref) {
@@ -95,7 +49,7 @@ function MenuLinks({items}: {items?: MenuLink[] | null}) {
                 >
                   <Link
                     href={subHref}
-                    className="block rounded px-2 py-1 text-sm hover:bg-gray-50"
+                    className="block rounded px-2 py-1 text-sm hover:bg-surface"
                     target={subIsExternal ? '_blank' : undefined}
                     rel={subIsExternal ? 'noopener noreferrer' : undefined}
                   >
@@ -126,9 +80,9 @@ export default function Header({settings}: {settings?: LayoutSettings | null}) {
     isExternalContentLink(headerConfig?.ctaLink || null) && headerConfig?.ctaLink?.openInNewTab
 
   return (
-    <header className="fixed z-50 inset-x-0 top-0 bg-white/90 backdrop-blur-lg border-b border-gray-100">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/90 backdrop-blur-lg">
       <div className="container px-2 sm:px-6">
-        <div className="flex items-center justify-end gap-5 py-2 border-b border-gray-100 text-xs font-mono text-gray-600">
+        <div className="flex items-center justify-end gap-5 border-b border-border py-2 font-mono text-xs text-muted-foreground">
           <nav
             aria-label="Secondary navigation"
             data-menu-group-id={secondaryMenu?.menuId || 'secondary'}
@@ -156,19 +110,16 @@ export default function Header({settings}: {settings?: LayoutSettings | null}) {
             )}
           </Link>
 
-          <nav
-            aria-label="Primary navigation"
-            data-menu-group-id={primaryMenu?.menuId || 'primary'}
-          >
+          <nav aria-label="Primary navigation" data-menu-group-id={primaryMenu?.menuId || 'primary'}>
             <ul
               role="list"
               className="flex items-center gap-4 md:gap-6 leading-5 text-xs sm:text-base tracking-tight font-mono"
             >
               <MenuLinks items={primaryLinks} />
 
-              <li className="sm:before:w-[1px] sm:before:bg-gray-200 before:block flex sm:gap-4 md:gap-6">
+              <li className="flex sm:gap-4 md:gap-6 sm:before:block sm:before:w-px sm:before:bg-border">
                 <Link
-                  className="rounded-full flex gap-4 items-center bg-black hover:bg-blue focus:bg-blue py-2 px-4 justify-center sm:py-3 sm:px-6 text-white transition-colors duration-200"
+                  className="flex items-center justify-center gap-4 rounded-full bg-foreground px-4 py-2 text-primary-foreground transition-colors duration-200 hover:bg-accent focus:bg-accent sm:px-6 sm:py-3"
                   href={ctaHref}
                   target={isCtaExternal ? '_blank' : undefined}
                   rel={isCtaExternal ? 'noopener noreferrer' : undefined}

@@ -11,11 +11,12 @@ import {Toaster} from 'sonner'
 
 import DraftModeToast from '@/app/components/DraftModeToast'
 import Footer from '@/app/components/Footer'
-import Header, {type LayoutSettings} from '@/app/components/Header'
+import Header from '@/app/components/Header'
 import LocaleDocumentController from '@/app/components/LocaleDocumentController'
 import * as demo from '@/sanity/lib/demo'
 import {sanityFetch, SanityLive} from '@/sanity/lib/live'
 import {settingsQuery} from '@/sanity/lib/queries'
+import type {LayoutSettings} from '@/sanity/lib/settings-types'
 import {normalizeInlineScript, resolveOpenGraphImage} from '@/sanity/lib/utils'
 import {handleError} from '@/app/client-utils'
 import {buildLanguageAlternates, SUPPORTED_LANGUAGES} from '@/sanity/lib/i18n'
@@ -114,12 +115,12 @@ export default async function RootLayout({children}: {children: React.ReactNode}
   const cookiePolicyScript = normalizeInlineScript(layoutSettings?.cookiePolicyScript)
 
   return (
-    <html
-      lang={lang}
-      dir="ltr"
-      className={`${inter.variable} ${ibmPlexMono.variable} ${notoSansArabic.variable} bg-white text-black`}
-    >
-      <body>
+      <html
+        lang={lang}
+        dir="ltr"
+        className={`${inter.variable} ${ibmPlexMono.variable} ${notoSansArabic.variable} bg-background text-foreground`}
+      >
+      <body className="bg-background text-foreground">
         <LocaleDocumentController />
         {gtmScript ? <Script id="settings-gtm-script" strategy="afterInteractive">{gtmScript}</Script> : null}
         {gaScript ? <Script id="settings-ga-script" strategy="afterInteractive">{gaScript}</Script> : null}
@@ -141,7 +142,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
           {/* The <SanityLive> component is responsible for making all sanityFetch calls in your application live, so should always be rendered. */}
           <SanityLive onError={handleError} />
           <Header settings={layoutSettings} />
-          <main className="">{children}</main>
+          <main>{children}</main>
           <Footer settings={layoutSettings} />
         </section>
         <SpeedInsights />

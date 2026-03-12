@@ -3,6 +3,7 @@ import {createDataAttribute, CreateDataAttributeProps} from 'next-sanity'
 import imageUrlBuilder from '@sanity/image-url'
 import type {SanityImageSource} from '@sanity/image-url/lib/types/types'
 import {DereferencedLink} from '@/sanity/lib/types'
+import type {ContentLink} from '@/sanity/lib/content-link'
 
 const builder = imageUrlBuilder({
   projectId: projectId || '',
@@ -64,15 +65,6 @@ export function dataAttr(config: DataAttributeConfig) {
     baseUrl: studioUrl,
   }).combine(config)
 }
-
-type ContentLink = {
-  linkType?: 'external' | 'internal' | null
-  internalTargetType?: 'page' | 'path' | null
-  internalPageSlug?: string | null
-  externalUrl?: string | null
-  internalPath?: string | null
-  openInNewTab?: boolean | null
-} | null
 
 export function resolveContentLinkHref(link?: ContentLink): string | null {
   if (!link) {

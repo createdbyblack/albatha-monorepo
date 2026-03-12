@@ -11,9 +11,11 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "rounded-md border px-4 py-2 font-medium",
-  secondary: "rounded-md border px-4 py-2 font-medium opacity-90",
-  ghost: "rounded-md px-4 py-2 font-medium"
+  primary:
+    "rounded-md border border-primary bg-primary px-4 py-2 font-medium text-primary-foreground transition-colors hover:bg-accent focus:bg-accent",
+  secondary:
+    "rounded-md border border-border bg-surface px-4 py-2 font-medium text-foreground transition-colors hover:bg-surface-strong",
+  ghost: "rounded-md px-4 py-2 font-medium text-foreground transition-colors hover:bg-surface"
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
