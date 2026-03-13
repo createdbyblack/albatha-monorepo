@@ -1,108 +1,225 @@
-# Clean Next.js + Sanity app
+# 🚀 Next.js + Sanity Boilerplate
 
-This template includes a [Next.js](https://nextjs.org/) app with a [Sanity Studio](https://www.sanity.io/) – an open-source React application that connects to your Sanity project’s hosted dataset. The Studio is configured locally and can then be deployed for content collaboration.
+A production-ready starter combining [Next.js](https://nextjs.org/) App Router with [Sanity Studio](https://www.sanity.io/) — includes real-time visual editing, a drag-and-drop page builder, live content updates, and an AI-powered setup workflow.
 
-![Screenshot of Sanity Studio using Presentation Tool to do Visual Editing](/sanity-next-preview.png)
+---
 
-## Features
+## ✨ Features
 
-- **Next.js 16 for Performance:** Leverage the power of Next.js 16 App Router for blazing-fast performance and SEO-friendly static sites.
-- **Real-time Visual Editing:** Edit content live with Sanity's [Presentation Tool](https://www.sanity.io/docs/presentation) and see updates in real time.
-- **Live Content:** The [Live Content API](https://www.sanity.io/live) allows you to deliver live, dynamic experiences to your users without the complexity and scalability challenges that typically come with building real-time functionality.
-- **Customizable Pages with Drag-and-Drop:** Create and manage pages using a page builder with dynamic components and [Drag-and-Drop Visual Editing](https://www.sanity.io/visual-editing-for-structured-content).
-- **Powerful Content Management:** Collaborate with team members in real-time, with fine-grained revision history.
-- **AI-powered Media Support:** Auto-generate alt text with [Sanity AI Assist](https://www.sanity.io/ai-assist).
-- **On-demand Publishing:** No waiting for rebuilds—new content is live instantly with Incremental Static Revalidation.
-- **Easy Media Management:** [Integrated Unsplash support](https://www.sanity.io/plugins/sanity-plugin-asset-source-unsplash) for seamless media handling.
+- **Next.js App Router** — Blazing-fast performance with SSR, SSG, and ISR support
+- **Sanity Studio (embedded)** — Real-time CMS running at `/studio`
+- **Live Content API** — Dynamic experiences without polling or rebuilds
+- **Drag-and-Drop Page Builder** — Modular components with visual editing
+- **AI Assist** — Auto-generate image alt text via Sanity AI Assist
+- **On-demand Revalidation** — Instant publishing without full rebuilds
 
-## Demo
+---
 
-https://template-nextjs-clean.sanity.dev
+## 📋 Prerequisites
 
-## Getting Started
+- Node.js 18+
+- A [Sanity account](https://www.sanity.io/login) (free tier works)
+- Sanity CLI: `npm install -g sanity@latest`
 
-### Installing the template
+---
 
-> **Already deployed with Vercel?** If you've already deployed using the **Sanity + Vercel Integration** or **one-click Vercel button**, please visit our [Vercel deployment instructions](vercel-installation-instructions.md) to set up your local environment and deploy Sanity Studio.
+## 🛠 Setup Guide
 
-#### 1. Initialize template with Sanity CLI
+### Step 1 — Clone & Install
 
-Run the command in your Terminal to initialize this template on your local computer.
-
-```shell
+```bash
+# Initialize from the Sanity template
 npm create sanity@latest -- --template sanity-io/sanity-template-nextjs-clean
+
+# Or clone this repo directly
+git clone <your-repo-url>
+cd <your-app-name>
+npm install
 ```
 
-See the documentation if you are [having issues with the CLI](https://www.sanity.io/help/cli-errors).
+---
 
-#### 2. Run Studio and Next.js app locally
+### Step 2 — Create a Sanity Project
 
-Navigate to the template directory using `cd <your app name>`, and start the development servers by running the following command
+If you don't have a Sanity project yet, create one now:
 
-```shell
+```bash
+# Login to Sanity CLI
+npx sanity login
+
+# Create a new project (follow the prompts)
+npx sanity init --create-project "<Your Project Name>" --dataset production
+```
+
+You'll receive a **Project ID** — save it, you'll need it for the `.env` files.
+
+Alternatively, create a project from the dashboard:
+1. Go to [sanity.io/manage](https://www.sanity.io/manage)
+2. Click **"New project"**
+3. Note your **Project ID** from the project settings
+
+---
+
+### Step 3 — Generate API Tokens
+
+You need two tokens: one **read-only** (for the Next.js frontend) and one **read+write** (for Sanity Studio mutations and previews).
+
+#### Via Sanity Dashboard (recommended)
+
+1. Go to [sanity.io/manage](https://www.sanity.io/manage) → select your project
+2. Navigate to **API** → **Tokens**
+3. Click **"Add API token"**
+
+**Read Token (for frontend):**
+- Name: `frontend-read-token`
+- Permissions: **Viewer**
+- Click **Save** → copy the token immediately (it won't be shown again)
+
+**Read+Write Token (for Studio/mutations):**
+- Name: `studio-write-token`
+- Permissions: **Editor**
+- Click **Save** → copy the token immediately
+
+#### Via CLI
+
+```bash
+# Read token
+npx sanity token create --label "frontend-read-token" --role viewer
+
+# Read+Write token
+npx sanity token create --label "studio-write-token" --role editor
+```
+
+---
+
+### Step 4 — Configure Environment Variables
+
+#### Frontend (`/frontend/.env.local`)
+
+```bash
+# Copy the example file
+cp frontend/.env.example frontend/.env.local
+```
+
+Then fill in your values:
+
+```env
+# ── Sanity Project Config ──────────────────────────────────────────
+NEXT_PUBLIC_SANITY_PROJECT_ID="your-project-id"
+NEXT_PUBLIC_SANITY_DATASET="production"
+NEXT_PUBLIC_SANITY_API_VERSION="2024-01-01"
+
+# ── Sanity Tokens ──────────────────────────────────────────────────
+# Read-only token (Viewer role) — used for fetching published content
+SANITY_API_READ_TOKEN="your-read-token-here"
+
+# Read+Write token (Editor role) — used for draft previews & mutations
+SANITY_API_WRITE_TOKEN="your-write-token-here"
+
+# ── App Config ─────────────────────────────────────────────────────
+NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+
+# ── Sanity Preview Secret ──────────────────────────────────────────
+# Generate with: openssl rand -base64 32
+SANITY_PREVIEW_SECRET="your-random-secret-here"
+```
+
+#### Studio (`/studio/.env`)
+
+```bash
+cp studio/.env.example studio/.env
+```
+
+```env
+# ── Sanity Project Config ──────────────────────────────────────────
+SANITY_STUDIO_PROJECT_ID="your-project-id"
+SANITY_STUDIO_DATASET="production"
+
+# ── Preview URL ────────────────────────────────────────────────────
+SANITY_STUDIO_PREVIEW_URL="http://localhost:3000"
+```
+
+> ⚠️ **Never commit `.env.local` or `.env` files.** Both are already in `.gitignore`.
+
+---
+
+### Step 5 — Start Development Servers
+
+```bash
+# From the project root — starts both Next.js and Sanity Studio
 npm run dev
 ```
 
-#### 3. Open the app and sign in to the Studio
+| Service | URL |
+|---|---|
+| Next.js App | http://localhost:3000 |
+| Sanity Studio | http://localhost:3333 |
 
-Open the Next.js app running locally in your browser on [http://localhost:3000](http://localhost:3000).
+---
 
-Open the Studio running locally in your browser on [http://localhost:3333](http://localhost:3333). You should now see a screen prompting you to log in to the Studio. Use the same service (Google, GitHub, or email) that you used when you logged in to the CLI.
+## 📁 Project Structure
 
-### Adding content with Sanity
-
-#### 1. Publish your first document
-
-The template comes pre-defined with a schema containing `Home Page`, `Page`, `Legal Page`, and `Settings` document types.
-
-From the Studio, click "+ Create" and select the `Page` document type. Go ahead and create and publish the document.
-
-Your content should now appear in your Next.js app ([http://localhost:3000](http://localhost:3000)) as well as in the Studio on the "Presentation" Tab
-
-#### 2. Import Sample Data (optional)
-
-You may want to start with some sample content and we've got you covered. Run this command from the root of your project to import the provided dataset (sample-data.tar.gz) into your Sanity project. This step is optional but can be helpful for getting started quickly.
-
-```shell
-npm run import-sample-data
+```
+.
+├── frontend/                  # Next.js app
+│   ├── app/                   # App Router pages & layouts
+│   ├── components/            # Reusable UI components
+│   ├── sanity/                # Sanity client, queries, utils
+│   └── .env.local             # ← your frontend env vars (git-ignored)
+│
+├── studio/                    # Sanity Studio
+│   ├── src/
+│   │   └── schemaTypes/       # Content schema definitions
+│   └── .env                   # ← your studio env vars (git-ignored)
+│
+└── README.md
 ```
 
-#### 3. Extending the Sanity schema
+---
 
-The schema for the `Page` document type is defined in the `studio/src/schemaTypes/documents/page.ts` file. You can [add more document types](https://www.sanity.io/docs/studio/schema-types) to the schema to suit your needs.
+## 🚢 Deployment
 
-### Deploying your application and inviting editors
+### Deploy Sanity Studio
 
-#### 1. Deploy Sanity Studio
-
-Your Next.js frontend (`/frontend`) and Sanity Studio (`/studio`) are still only running on your local computer. It's time to deploy and get it into the hands of other content editors.
-
-Back in your Studio directory (`/studio`), run the following command to deploy your Sanity Studio.
-
-```shell
+```bash
+cd studio
 npx sanity deploy
 ```
 
-#### 2. Deploy Next.js app to Vercel
+Studio will be live at `https://<your-project-name>.sanity.studio`.
 
-You have the freedom to deploy your Next.js app to your hosting provider of choice. With Vercel and GitHub being a popular choice, we'll cover the basics of that approach.
+### Deploy Next.js to Vercel
 
-1. Create a GitHub repository from this project. [Learn more](https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/adding-locally-hosted-code-to-github).
-2. Create a new Vercel project and connect it to your Github repository.
-3. Set the `Root Directory` to your Next.js app.
-4. Configure your Environment Variables.
+1. Push your repo to GitHub
+2. Import into [Vercel](https://vercel.com/new)
+3. Set **Root Directory** to `frontend`
+4. Add all environment variables from `frontend/.env.local` into Vercel's project settings
+5. Deploy 🎉
 
-#### 3. Invite a collaborator
+---
 
-Now that you’ve deployed your Next.js application and Sanity Studio, you can optionally invite a collaborator to your Studio. Open up [Manage](https://www.sanity.io/manage), select your project and click "Invite project members"
+## 👥 Inviting Collaborators
 
-They will be able to access the deployed Studio, where you can collaborate together on creating content.
+1. Go to [sanity.io/manage](https://www.sanity.io/manage) → select your project
+2. Click **"Invite project members"**
+3. Share the deployed Studio URL with your team
 
-## Resources
+---
 
-- [Sanity documentation](https://www.sanity.io/docs)
-- [Next.js documentation](https://nextjs.org/docs)
+## 📚 Resources
+
+- [Sanity Documentation](https://www.sanity.io/docs)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Sanity CLI Reference](https://www.sanity.io/docs/cli)
+- [Sanity AI Assist](https://www.sanity.io/ai-assist)
 - [Join the Sanity Community](https://slack.sanity.io)
-- [Learn Sanity](https://www.sanity.io/learn)
+- [Sanity + Vercel Guide](https://www.sanity.io/guides/vercel-integration)
 
-[vercel-deploy]: https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsanity-io%2Fsanity-template-nextjs-clean&project-name=nextjs-clean-website-sanity-template&repository-name=nextjs-clean-website-sanity-template&demo-title=Clean%20Next.js%20%2B%20Sanity%20app&demo-description=A%20clean%20Next.js%20plus%20Sanity%20starter%20with%20real-time%20visual%20editing%2C%20drag-and-drop%20page%20builder%2C%20AI%20media%20support%2C%20and%20live%20content%20updates.&demo-url=https%3A%2F%2Ftemplate-nextjs-clean.sanity.build%2F&demo-image=https%3A%2F%2Fraw.githubusercontent.com%2Fsanity-io%2Fsanity-template-nextjs-clean%2Frefs%2Fheads%2Fmain%2Fsanity-next-preview.png&products=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22sanity%22%2C%22productSlug%22%3A%22project%22%2C%22protocol%22%3A%22other%22%7D%5D&root-directory=frontend
+---
+
+## 🔐 Security Notes
+
+- Use the **Viewer** (read-only) token for the frontend — never expose write tokens to the client
+- Rotate tokens via [sanity.io/manage](https://www.sanity.io/manage) if they are ever leaked
+- Add CORS origins for your production domain under **API** → **CORS origins** in your Sanity project settings
+- The `SANITY_PREVIEW_SECRET` should be a long, random string — generate one with `openssl rand -base64 32`
