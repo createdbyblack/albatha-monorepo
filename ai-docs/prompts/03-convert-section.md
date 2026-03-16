@@ -12,7 +12,6 @@ Task:
 Rules:
 
 - Use this layouting pattern section -> container -> rows -> row -> columns -> column -> contents
-- contents can also include smaller sections
 - Do not assemble full pages in this step.
 - Do not invent or rename tokens.
 - Avoid arbitrary values; use only when unavoidable and justify each one.
@@ -24,6 +23,12 @@ Rules:
 - Use Tailwind utility classes in JSX and consume shared values through existing/new tokens; do not rely on component-specific class selectors defined in `globals.css`.
 - Keep shared non-trivial types in separate importable files when they are reused outside the component.
 - Add correct `data-sanity` paths and preserve `_key`/identity fields required for Visual Editing drag and drop.
+- Use stegaClean for the texts or add some visual padding to the array child to create space for the “draggable” area.
+- Custom sections must model draggable content as `rows[]`, and each row must be an object with a `content[]` field that stores the draggable items for that row.
+- Keep only non-draggable section data such as background media or fixed configuration on direct section fields; draggable images, text, stats, cards, and similar visible content belong in row `content[]`.
+- If the section supports nested CMS-managed content, allow only composable non-section blocks inside row `content[]`.
+- If a styled control should be reusable sitewide, create a standalone composable object schema and render it through the shared block mapping instead of hardcoding it only inside one section.
+- If a draggable content item needs extra descriptors such as variant, size, color, animation, or layout metadata, wrap the reusable block in a dedicated object schema and map those descriptor fields in the frontend renderer.
 - If the section contains nested reorderable children, follow Sanity's nested array pattern by wrapping child arrays inside `object` types. Reference: https://www.sanity.io/docs/visual-editing/enabling-drag-and-drop
 - Default nesting shape for this repo:
   - `pageBuilder[]` for sections
@@ -51,3 +56,4 @@ Required Output:
 6. Manual assets needed (if any).
 7. Arbitrary value justifications (if any).
 8. Drag-and-drop verification notes, including nested array behavior when applicable.
+
