@@ -38,6 +38,24 @@
   padding: 0 2rem;
 }
 
+@utility max-w-content {
+  max-width: var(--content-width);
+}
+
+@utility max-w-wide {
+  max-width: var(--wide-width);
+}
+
+@utility paragraph-drop-cap {
+  &::first-letter {
+    float: left;
+    margin-right: 0.5rem;
+    font-size: 3.5rem;
+    line-height: 0.85;
+    font-weight: 600;
+  }
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
@@ -75,6 +93,46 @@
   --color-accent-foreground: var(--color-white);
   --color-primary: var(--color-black);
   --color-primary-foreground: var(--color-white);
+  --color-secondary: var(--color-gray-100);
+  --color-secondary-foreground: var(--color-black);
+  --color-ring: var(--color-blue);
+
+  --color-button-primary: var(--color-primary);
+  --color-button-primary-foreground: var(--color-primary-foreground);
+  --color-button-primary-hover: var(--color-accent);
+  --color-button-secondary: var(--color-secondary);
+  --color-button-secondary-foreground: var(--color-secondary-foreground);
+  --color-button-secondary-hover: var(--color-gray-200);
+
+  --content-width: 48rem;
+  --wide-width: 80rem;
+
+  --spacing-gutenberg-gap-sm: 0.75rem;
+  --spacing-gutenberg-gap-md: 1.5rem;
+  --spacing-gutenberg-gap-lg: 2.5rem;
+
+  --spacing-button-sm-x: 1rem;
+  --spacing-button-sm-y: 0.5rem;
+  --spacing-button-md-x: 1.5rem;
+  --spacing-button-md-y: 0.875rem;
+  --spacing-button-lg-x: 2rem;
+  --spacing-button-lg-y: 1rem;
+
+  --spacing-site-logo-sm: 5rem;
+  --spacing-site-logo-md: 7.5rem;
+  --spacing-site-logo-lg: 12.5rem;
+
+  --spacing-cover-sm: 12.5rem;
+  --spacing-cover-md: 25rem;
+  --spacing-cover-lg: 37.5rem;
+
+  --text-button-sm: 0.75rem;
+  --text-button-md: 0.875rem;
+  --text-button-lg: 1rem;
+  --text-copy-sm: 0.875rem;
+  --text-copy-md: 1rem;
+  --text-copy-lg: 1.125rem;
+  --text-copy-xl: 1.25rem;
 
   --default-transition-duration: 250ms;
 }

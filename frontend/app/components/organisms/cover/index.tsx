@@ -1,5 +1,6 @@
 import { forwardRef, type HTMLAttributes } from "react";
 import { cn } from "../../../lib/cn";
+import { coverMinHeightClasses, coverPositionClasses, resolveOverlayStyle } from "../../../lib/page-builder-theme";
 
 export interface CoverMedia {
   mediaType?: "image" | "video" | null;
@@ -9,6 +10,12 @@ export interface CoverMedia {
 export interface CoverProps extends HTMLAttributes<HTMLDivElement> {
   imageUrl?: string;
   backgroundMedia?: CoverMedia | null;
+  alt?: string;
+  dimRatio?: number;
+  overlayColor?: string;
+  contentPosition?: keyof typeof coverPositionClasses;
+  minHeight?: keyof typeof coverMinHeightClasses;
+  hasParallax?: boolean;
   mediaClassName?: string;
   overlayClassName?: string;
   contentClassName?: string;
@@ -25,6 +32,12 @@ export const Cover = forwardRef<HTMLDivElement, CoverProps>(
       mediaClassName,
       overlayClassName,
       contentClassName,
+      alt,
+      dimRatio = 50,
+      overlayColor = "#000000",
+      contentPosition = "center-center",
+      minHeight = "md",
+      hasParallax = false,
       unstyled = false,
       ...props
     },
@@ -37,7 +50,16 @@ export const Cover = forwardRef<HTMLDivElement, CoverProps>(
         : null;
 
     return (
-      <div ref={ref} className={cn(unstyled ? undefined : "relative overflow-hidden rounded-lg border", className)} {...props}>
+      <div
+        ref={ref}
+        aria-label={alt || undefined}
+        className={cn(
+          unstyled ? undefined : "relative overflow-hidden rounded-xl border border-border",
+          unstyled ? undefined : coverMinHeightClasses[minHeight],
+          className
+        )}
+        {...props}
+      >
         {media?.url && media.mediaType === "video" ? (
           <video
             src={media.url}
@@ -45,13 +67,41 @@ export const Cover = forwardRef<HTMLDivElement, CoverProps>(
             muted
             loop
             playsInline
-            className={cn(unstyled ? undefined : "block w-full object-cover", mediaClassName)}
+            className={cn(unstyled ? undefined : "absolute inset-0 h-full w-full object-cover", mediaClassName)}
           />
         ) : media?.url ? (
-          <img src={media.url} alt="" aria-hidden className={cn(unstyled ? undefined : "block w-full object-cover", mediaClassName)} />
+          hasParallax ? (
+            <div
+              aria-hidden
+              className={cn(
+                unstyled ? undefined : "absolute inset-0 bg-cover bg-center bg-fixed",
+                mediaClassName
+              )}
+              style={{ backgroundImage: `url(${media.url})` }}
+            />
+          ) : (
+            <img
+              src={media.url}
+              alt=""
+              aria-hidden
+              className={cn(unstyled ? undefined : "absolute inset-0 h-full w-full object-cover", mediaClassName)}
+            />
+          )
         ) : null}
-        <div className={cn(unstyled ? undefined : "absolute inset-0 bg-black/30", overlayClassName)} aria-hidden />
-        <div className={cn(unstyled ? undefined : "relative p-6", contentClassName)}>{children}</div>
+        <div
+          className={cn(unstyled ? undefined : "absolute inset-0", overlayClassName)}
+          style={resolveOverlayStyle(overlayColor, dimRatio)}
+          aria-hidden
+        />
+        <div
+          className={cn(
+            unstyled ? undefined : "relative z-10 flex h-full p-6 md:p-8",
+            unstyled ? undefined : coverPositionClasses[contentPosition],
+            contentClassName
+          )}
+        >
+          {children}
+        </div>
       </div>
     );
   }

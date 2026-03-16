@@ -1,5 +1,8 @@
+'use client'
+
 import CTA from '@/app/components/Cta'
 import InfoSection from '@/app/components/InfoSection'
+import {useLayoutSettings} from '@/app/components/LayoutSettingsProvider'
 import CustomPortableText from '@/app/components/PortableText'
 import type {PortableTextBlock} from 'next-sanity'
 import {Button} from '@/app/components/atoms/button'
@@ -9,6 +12,9 @@ import {Image} from '@/app/components/atoms/image'
 import {ListItem} from '@/app/components/atoms/list-item'
 import {NavigationLink} from '@/app/components/atoms/navigation-link'
 import {Paragraph} from '@/app/components/atoms/paragraph'
+import {Shortcode} from '@/app/components/atoms/shortcode'
+import {SiteLogo} from '@/app/components/atoms/site-logo'
+import {Video} from '@/app/components/atoms/video'
 import {Buttons} from '@/app/components/molecules/buttons'
 import {Column} from '@/app/components/molecules/column'
 import {Group} from '@/app/components/molecules/group'
@@ -17,19 +23,22 @@ import {Navigation} from '@/app/components/molecules/navigation'
 import {BlockSlot} from '@/app/components/organisms/block-slot'
 import {Columns} from '@/app/components/organisms/columns'
 import {Cover} from '@/app/components/organisms/cover'
+import {ReusablePattern} from '@/app/components/organisms/reusable-pattern'
 import {
+  type CbBlock,
   type CbButton,
   type CbColumn,
   type CbCover,
   type CbGroup,
   type CbLink,
   type CbMedia,
-  type PageBuilderSection,
+  type CbNavigationLink,
+  type PageBuilderBlock,
 } from '@/sanity/lib/types'
 import {getSanityDataAttribute, toArrayItemPath} from '@/sanity/lib/visual-editing'
 
 type BlockRendererProps = {
-  block: PageBuilderSection
+  block: PageBuilderBlock
   index: number
   pageType: string
   pageId: string
@@ -57,8 +66,19 @@ function resolveLinkHref(link?: CbLink | null, fallbackUrl?: string | null): str
   return fallbackUrl || null
 }
 
-function isExternalLink(link?: CbLink | null): boolean {
-  return link?.linkType === 'external'
+function resolveLinkTarget(
+  explicitTarget?: '_self' | '_blank' | string | null,
+  openInNewTab?: boolean | null,
+): '_self' | '_blank' | undefined {
+  if (explicitTarget === '_blank') {
+    return '_blank'
+  }
+
+  if (openInNewTab) {
+    return '_blank'
+  }
+
+  return explicitTarget === '_self' ? '_self' : undefined
 }
 
 function normalizeHeadingLevel(
@@ -135,30 +155,11 @@ function resolveMediaUrls(media?: CbMedia | null) {
   }
 }
 
-function renderMedia(
-  media?: CbMedia | null,
-  fallbackUrl?: string | null,
-  fallbackAlt?: string | null,
-) {
-  const resolved = resolveMediaUrls(media)
-  const mediaType = resolved.mediaType
-  const url = (mediaType === 'video' ? resolved.videoUrl : resolved.imageUrl) || fallbackUrl || ''
-  const alt = resolved.alt || fallbackAlt || ''
-
-  if (!url) {
-    return null
-  }
-
-  if (mediaType === 'video') {
-    return <video src={url} controls className="h-auto max-w-full rounded-md" />
-  }
-
-  return <Image src={url} alt={alt} className="h-auto max-w-full" />
-}
-
 function renderButton(button: CbButton, key?: string) {
   const text = button.label || button.text || 'Button'
   const href = resolveLinkHref(button.link, button.url)
+  const target = resolveLinkTarget(button.linkTarget, button.link?.openInNewTab)
+  const rel = target === '_blank' ? 'noopener noreferrer' : undefined
 
   if (button.actionType === 'link' || href) {
     return (
@@ -166,19 +167,25 @@ function renderButton(button: CbButton, key?: string) {
         key={key}
         href={href || '#'}
         className="inline-flex"
-        target={isExternalLink(button.link) && button.link?.openInNewTab ? '_blank' : undefined}
-        rel={
-          isExternalLink(button.link) && button.link?.openInNewTab
-            ? 'noopener noreferrer'
-            : undefined
-        }
+        target={target}
+        rel={rel}
       >
-        <Button>{text}</Button>
+        <Button size={button.size || 'md'} variant={button.variant || 'primary'}>
+          {text}
+        </Button>
       </NavigationLink>
     )
   }
 
-  return <Button key={key}>{text}</Button>
+  return (
+    <Button key={key} size={button.size || 'md'} variant={button.variant || 'primary'}>
+      {text}
+    </Button>
+  )
+}
+
+function resolveNavigationLinkTarget(link: CbNavigationLink): '_self' | '_blank' | undefined {
+  return resolveLinkTarget(undefined, link.opensInNewTab || link.link?.openInNewTab)
 }
 
 function renderColumnContent(
@@ -273,12 +280,19 @@ export default function BlockRenderer({
   blockPath,
   isDraftMode,
 }: BlockRendererProps) {
+  const layoutSettings = useLayoutSettings()
   const key = block._key || `${block._type}-${index}`
   const blockDataAttr = isDraftMode
     ? getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, blockPath)
     : undefined
 
   switch (block._type) {
+    case 'cbBlock':
+      return (
+        <BlockSlot refId={key} data-page-id={pageId} data-page-type={pageType} data-sanity={blockDataAttr}>
+          <ReusablePattern patternRef={(block as CbBlock).ref} />
+        </BlockSlot>
+      )
     case 'cbHeading': {
       const as = normalizeHeadingLevel(block.level)
       return (
@@ -287,8 +301,11 @@ export default function BlockRenderer({
           data-page-id={pageId}
           data-page-type={pageType}
           data-sanity={blockDataAttr}
+          data-placeholder={block.placeholder || undefined}
         >
-          <Heading as={as}>{block.content || ''}</Heading>
+          <Heading as={as} textAlign={block.textAlign || 'left'}>
+            {block.content || ''}
+          </Heading>
         </BlockSlot>
       )
     }
@@ -299,8 +316,14 @@ export default function BlockRenderer({
           data-page-id={pageId}
           data-page-type={pageType}
           data-sanity={blockDataAttr}
+          data-placeholder={block.placeholder || undefined}
         >
-          <Paragraph>{block.content || ''}</Paragraph>
+          <Paragraph
+            html={block.content || ''}
+            dropCap={block.dropCap || false}
+            textAlign={block.textAlign || 'left'}
+            fontSize={block.fontSize || 'md'}
+          />
         </BlockSlot>
       )
     case 'cbWysiwyg':
@@ -329,7 +352,8 @@ export default function BlockRenderer({
           <Html html={block.content || ''} />
         </BlockSlot>
       )
-    case 'cbImage':
+    case 'cbImage': {
+      const resolvedImage = resolveMediaUrls(block.media)
       return (
         <BlockSlot
           refId={key}
@@ -337,9 +361,18 @@ export default function BlockRenderer({
           data-page-type={pageType}
           data-sanity={blockDataAttr}
         >
-          {renderMedia(block.media, block.url, block.alt)}
+          <Image
+            src={resolvedImage.imageUrl || block.url || ''}
+            alt={resolvedImage.alt || block.alt || ''}
+            caption={block.caption || undefined}
+            href={block.href || undefined}
+            linkTarget={block.linkTarget || '_self'}
+            aspectRatio={block.aspectRatio || 'auto'}
+            scale={block.scale || 'cover'}
+          />
         </BlockSlot>
       )
+    }
     case 'cbButton':
       return (
         <BlockSlot
@@ -359,7 +392,7 @@ export default function BlockRenderer({
           data-page-type={pageType}
           data-sanity={blockDataAttr}
         >
-          <Buttons>
+          <Buttons align={block.align || 'left'} orientation={block.orientation || 'horizontal'}>
             {(block.items || []).map((item, i) => (
               <span
                 key={item._key || `${key}-${i}`}
@@ -385,15 +418,27 @@ export default function BlockRenderer({
           data-page-type={pageType}
           data-sanity={blockDataAttr}
         >
-          <List kind={block.ordered ? 'ordered' : 'unordered'}>
-            {(block.items || []).map((item, i) => (
+          <List
+            kind={block.ordered ? 'ordered' : 'unordered'}
+            start={block.ordered ? block.start || 1 : undefined}
+            reversed={block.ordered ? block.reversed || false : undefined}
+          >
+            {((block.items && block.items.length
+              ? block.items.map((item) => ({_key: item._key, content: item.content}))
+              : (block.values || []).map((value) => ({
+                  content: value,
+                }))) || []).map((item, i) => (
               <ListItem
                 key={item._key || `${key}-${i}`}
                 data-sanity={
                   getSanityDataAttribute(
                     isDraftMode,
                     {id: pageId, type: pageType},
-                    toArrayItemPath(`${blockPath}.items`, item._key, i),
+                    toArrayItemPath(
+                      block.items && block.items.length ? `${blockPath}.items` : `${blockPath}.values`,
+                      item._key,
+                      i,
+                    ),
                   )
                 }
               >
@@ -411,8 +456,12 @@ export default function BlockRenderer({
           data-page-type={pageType}
           data-sanity={blockDataAttr}
         >
-          <Navigation>
-            <div className="flex flex-wrap gap-3">
+          <Navigation
+            overlayMenu={block.overlayMenu || 'mobile'}
+            icon={block.icon || 'menu'}
+            layout={block.layout || 'horizontal'}
+          >
+            <div className="contents">
               {(block.links || []).map((link, i) => (
                 <NavigationLink
                   key={link._key || `${key}-${i}`}
@@ -424,14 +473,10 @@ export default function BlockRenderer({
                     )
                   }
                   href={resolveLinkHref(link.link, link.url) || '#'}
-                  target={
-                    isExternalLink(link.link) && link.link?.openInNewTab ? '_blank' : undefined
-                  }
-                  rel={
-                    isExternalLink(link.link) && link.link?.openInNewTab
-                      ? 'noopener noreferrer'
-                      : undefined
-                  }
+                  target={resolveNavigationLinkTarget(link)}
+                  rel={resolveNavigationLinkTarget(link) === '_blank' ? 'noopener noreferrer' : undefined}
+                  title={link.description || undefined}
+                  className="inline-flex items-center"
                 >
                   {link.label || 'Link'}
                 </NavigationLink>
@@ -448,7 +493,11 @@ export default function BlockRenderer({
           data-page-type={pageType}
           data-sanity={blockDataAttr}
         >
-          <Group className="flex flex-wrap items-start gap-4">
+          <Group
+            as={block.tagName || 'div'}
+            layout={block.layout || 'default'}
+            align={block.align || 'left'}
+          >
             {renderGroupContent(block, pageId, pageType, blockPath, isDraftMode)}
           </Group>
         </BlockSlot>
@@ -461,7 +510,11 @@ export default function BlockRenderer({
           data-page-type={pageType}
           data-sanity={blockDataAttr}
         >
-          <Column className="space-y-4">
+          <Column
+            className="space-y-gutenberg-gap-md"
+            width={block.width || 'auto'}
+            verticalAlignment={block.verticalAlignment || 'top'}
+          >
             {renderColumnContent(block, pageId, pageType, blockPath, isDraftMode)}
           </Column>
         </BlockSlot>
@@ -474,11 +527,18 @@ export default function BlockRenderer({
           data-page-type={pageType}
           data-sanity={blockDataAttr}
         >
-          <Columns>
+          <Columns
+            gap={block.gap || 'md'}
+            verticalAlignment={block.verticalAlignment || 'top'}
+            isStackedOnMobile={block.isStackedOnMobile ?? true}
+          >
             {(block.columns || []).map((column, i) => (
               <Column
                 key={column._key || `${key}-${i}`}
-                className="col-span-12 md:col-span-6 space-y-4"
+                className="space-y-gutenberg-gap-md"
+                width={column.width || 'auto'}
+                verticalAlignment={column.verticalAlignment || 'top'}
+                stackedOnMobile={block.isStackedOnMobile ?? true}
                 data-sanity={
                   getSanityDataAttribute(
                     isDraftMode,
@@ -514,16 +574,62 @@ export default function BlockRenderer({
                 ? {mediaType: 'video', url: coverMedia.videoUrl}
                 : coverMedia.imageUrl
                   ? {mediaType: 'image', url: coverMedia.imageUrl}
-                  : undefined
+                  : block.url
+                    ? {mediaType: block.backgroundType || 'image', url: block.url}
+                    : undefined
             }
             imageUrl={block.url || undefined}
-            contentClassName="space-y-4 text-white"
+            alt={block.alt || coverMedia.alt}
+            dimRatio={block.dimRatio ?? 50}
+            overlayColor={block.overlayColor || '#000000'}
+            contentPosition={block.contentPosition || 'center-center'}
+            minHeight={block.minHeight || 'md'}
+            hasParallax={block.hasParallax || false}
+            contentClassName="space-y-gutenberg-gap-md text-white"
           >
             {renderCoverContent(block, pageId, pageType, blockPath, isDraftMode)}
           </Cover>
         </BlockSlot>
       )
     }
+    case 'cbShortcode':
+      return (
+        <BlockSlot refId={key} data-page-id={pageId} data-page-type={pageType} data-sanity={blockDataAttr}>
+          <Shortcode value={block.text || ''} />
+        </BlockSlot>
+      )
+    case 'cbSiteLogo': {
+      const logoRef = layoutSettings?.logo?.asset?._ref
+      const logoSrc = imageAssetRefToUrl(logoRef)
+      return (
+        <BlockSlot refId={key} data-page-id={pageId} data-page-type={pageType} data-sanity={blockDataAttr}>
+          <SiteLogo
+            src={logoSrc || undefined}
+            alt={layoutSettings?.logo?.alt || layoutSettings?.title || 'Site logo'}
+            fallbackLabel={layoutSettings?.title || 'Site logo'}
+            widthPreset={block.width || 'md'}
+            isLink={block.isLink ?? true}
+            href={(block.isLink ?? true) ? '/' : undefined}
+            linkTarget={block.linkTarget || '_self'}
+          />
+        </BlockSlot>
+      )
+    }
+    case 'cbVideo':
+      return (
+        <BlockSlot refId={key} data-page-id={pageId} data-page-type={pageType} data-sanity={blockDataAttr}>
+          <Video
+            src={block.src || undefined}
+            poster={block.poster || undefined}
+            caption={block.caption || undefined}
+            autoPlay={block.autoplay || false}
+            loop={block.loop || false}
+            muted={block.muted || false}
+            controls={block.controls ?? true}
+            playsInline={block.playsInline || false}
+          />
+        </BlockSlot>
+      )
     case 'callToAction':
       return (
         <BlockSlot

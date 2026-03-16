@@ -23,5 +23,20 @@ export default defineType({
         layout: 'dropdown',
       },
     }),
+    defineField({
+      name: 'textAlign',
+      title: 'Text Align',
+      type: 'string',
+      initialValue: 'left',
+      options: {
+        list: [
+          {title: 'Left', value: 'left'},
+          {title: 'Center', value: 'center'},
+          {title: 'Right', value: 'right'},
+        ],
+        layout: 'radio',
+      },
+    }),
+    defineField({name: 'placeholder', title: 'Placeholder', type: 'string', initialValue: 'Heading...'}),
   ],
 })

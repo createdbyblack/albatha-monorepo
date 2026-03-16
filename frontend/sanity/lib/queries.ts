@@ -123,6 +123,51 @@ const cbWysiwygWithResolvedLinksProjection = /* groq */ `
   }
 `
 
+const MAX_PAGE_BUILDER_NESTING = 4
+
+function createPageBuilderBlockProjection(depth = 0): string {
+  const baseProjection = `
+    ...,
+    ${cbButtonWithLinkProjection},
+    ${cbButtonsWithLinksProjection},
+    ${cbNavigationWithLinksProjection},
+    ${cbWysiwygWithResolvedLinksProjection}
+  `
+
+  if (depth >= MAX_PAGE_BUILDER_NESTING) {
+    return baseProjection
+  }
+
+  const nestedProjection = createPageBuilderBlockProjection(depth + 1)
+
+  return `
+    ${baseProjection},
+    _type == "cbGroup" => {
+      ...,
+      children[]{
+        ${nestedProjection}
+      }
+    },
+    _type == "cbCover" => {
+      ...,
+      content[]{
+        ${nestedProjection}
+      }
+    },
+    _type == "cbColumns" => {
+      ...,
+      columns[]{
+        ...,
+        children[]{
+          ${nestedProjection}
+        }
+      }
+    }
+  `
+}
+
+const pageBuilderBlockProjection = createPageBuilderBlockProjection()
+
 export const getPageQuery = defineQuery(`
   *[
     _type == 'page' &&
@@ -143,54 +188,7 @@ export const getPageQuery = defineQuery(`
     },
     structuredData,
     "pageBuilder": pageBuilder[]{
-      ...,
-      ${cbButtonWithLinkProjection},
-      ${cbButtonsWithLinksProjection},
-      ${cbNavigationWithLinksProjection},
-      ${cbWysiwygWithResolvedLinksProjection},
-      _type == "cbGroup" => {
-        ...,
-        children[]{
-          ...,
-          ${cbButtonWithLinkProjection},
-          ${cbButtonsWithLinksProjection},
-          ${cbNavigationWithLinksProjection},
-          ${cbWysiwygWithResolvedLinksProjection}
-        }
-      },
-      _type == "cbColumn" => {
-        ...,
-        children[]{
-          ...,
-          ${cbButtonWithLinkProjection},
-          ${cbButtonsWithLinksProjection},
-          ${cbNavigationWithLinksProjection},
-          ${cbWysiwygWithResolvedLinksProjection}
-        }
-      },
-      _type == "cbCover" => {
-        ...,
-        content[]{
-          ...,
-          ${cbButtonWithLinkProjection},
-          ${cbButtonsWithLinksProjection},
-          ${cbNavigationWithLinksProjection},
-          ${cbWysiwygWithResolvedLinksProjection}
-        }
-      },
-      _type == "cbColumns" => {
-        ...,
-        columns[]{
-          ...,
-          children[]{
-            ...,
-            ${cbButtonWithLinkProjection},
-            ${cbButtonsWithLinksProjection},
-            ${cbNavigationWithLinksProjection},
-            ${cbWysiwygWithResolvedLinksProjection}
-          }
-        }
-      }
+      ${pageBuilderBlockProjection}
     }
   }
 `)
@@ -212,54 +210,7 @@ export const homePageQuery = defineQuery(`
     },
     structuredData,
     "pageBuilder": pageBuilder[]{
-      ...,
-      ${cbButtonWithLinkProjection},
-      ${cbButtonsWithLinksProjection},
-      ${cbNavigationWithLinksProjection},
-      ${cbWysiwygWithResolvedLinksProjection},
-      _type == "cbGroup" => {
-        ...,
-        children[]{
-          ...,
-          ${cbButtonWithLinkProjection},
-          ${cbButtonsWithLinksProjection},
-          ${cbNavigationWithLinksProjection},
-          ${cbWysiwygWithResolvedLinksProjection}
-        }
-      },
-      _type == "cbColumn" => {
-        ...,
-        children[]{
-          ...,
-          ${cbButtonWithLinkProjection},
-          ${cbButtonsWithLinksProjection},
-          ${cbNavigationWithLinksProjection},
-          ${cbWysiwygWithResolvedLinksProjection}
-        }
-      },
-      _type == "cbCover" => {
-        ...,
-        content[]{
-          ...,
-          ${cbButtonWithLinkProjection},
-          ${cbButtonsWithLinksProjection},
-          ${cbNavigationWithLinksProjection},
-          ${cbWysiwygWithResolvedLinksProjection}
-        }
-      },
-      _type == "cbColumns" => {
-        ...,
-        columns[]{
-          ...,
-          children[]{
-            ...,
-            ${cbButtonWithLinkProjection},
-            ${cbButtonsWithLinksProjection},
-            ${cbNavigationWithLinksProjection},
-            ${cbWysiwygWithResolvedLinksProjection}
-          }
-        }
-      }
+      ${pageBuilderBlockProjection}
     }
   }
 `)

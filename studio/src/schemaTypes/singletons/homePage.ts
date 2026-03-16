@@ -1,7 +1,7 @@
 import {DocumentIcon} from '@sanity/icons'
 import {defineField, defineType} from 'sanity'
 
-import {pageBuilderContainerBlockTypes} from '../objects/pageBuilderBlockTypes'
+import {pageBuilderRowBlockTypes} from '../objects/pageBuilderBlockTypes'
 
 export const homePage = defineType({
   name: 'homePage',
@@ -37,7 +37,8 @@ export const homePage = defineType({
       title: 'Page builder',
       type: 'array',
       group: 'content',
-      of: pageBuilderContainerBlockTypes,
+      description: 'Home page content is row-based. Place blocks inside columns and recurse with another row only when needed.',
+      of: pageBuilderRowBlockTypes,
       options: {
         insertMenu: {
           views: [

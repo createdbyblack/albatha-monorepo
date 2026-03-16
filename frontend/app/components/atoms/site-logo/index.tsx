@@ -1,23 +1,38 @@
 import { forwardRef, type AnchorHTMLAttributes, type ImgHTMLAttributes } from "react";
 import { cn } from "../../../lib/cn";
+import { siteLogoWidthClasses } from "../../../lib/page-builder-theme";
 
 export interface SiteLogoProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> {
-  src: string;
+  src?: string;
   href?: string;
+  widthPreset?: "sm" | "md" | "lg";
+  isLink?: boolean;
+  linkTarget?: "_self" | "_blank";
+  fallbackLabel?: string;
   anchorProps?: AnchorHTMLAttributes<HTMLAnchorElement>;
   unstyled?: boolean;
 }
 
 export const SiteLogo = forwardRef<HTMLImageElement, SiteLogoProps>(
-  ({ className, src, href, anchorProps, alt = "Site logo", unstyled = false, ...props }, ref) => {
-    const logo = <img ref={ref} src={src} alt={alt} className={cn(unstyled ? undefined : "block", className)} {...props} />;
+  ({ className, src, href, widthPreset = "md", isLink = true, linkTarget = "_self", fallbackLabel, anchorProps, alt = "Site logo", unstyled = false, ...props }, ref) => {
+    const logo = src ? (
+      <img
+        ref={ref}
+        src={src}
+        alt={alt}
+        className={cn(unstyled ? undefined : "block h-auto", unstyled ? undefined : siteLogoWidthClasses[widthPreset], className)}
+        {...props}
+      />
+    ) : fallbackLabel ? (
+      <span className={cn(unstyled ? undefined : "inline-flex text-lg font-semibold", className)}>{fallbackLabel}</span>
+    ) : null;
 
-    if (!href) {
+    if (!logo || !isLink || !href) {
       return logo;
     }
 
     return (
-      <a href={href} {...anchorProps}>
+      <a href={href} target={linkTarget} rel={linkTarget === "_blank" ? "noopener noreferrer" : undefined} {...anchorProps}>
         {logo}
       </a>
     );

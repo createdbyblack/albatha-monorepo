@@ -12,6 +12,7 @@ import {Toaster} from 'sonner'
 import DraftModeToast from '@/app/components/DraftModeToast'
 import Footer from '@/app/components/Footer'
 import Header from '@/app/components/Header'
+import {LayoutSettingsProvider} from '@/app/components/LayoutSettingsProvider'
 import LocaleDocumentController from '@/app/components/LocaleDocumentController'
 import * as demo from '@/sanity/lib/demo'
 import {sanityFetch, SanityLive} from '@/sanity/lib/live'
@@ -123,30 +124,32 @@ export default async function RootLayout({children}: {children: React.ReactNode}
         className={`${inter.variable} ${ibmPlexMono.variable} ${notoSansArabic.variable} bg-background text-foreground`}
       >
       <body className="bg-background text-foreground">
-        <LocaleDocumentController />
-        {gtmScript ? <Script id="settings-gtm-script" strategy="afterInteractive">{gtmScript}</Script> : null}
-        {gaScript ? <Script id="settings-ga-script" strategy="afterInteractive">{gaScript}</Script> : null}
-        {cookiePolicyScript ? (
-          <Script id="settings-cookie-policy-script" strategy="afterInteractive">
-            {cookiePolicyScript}
-          </Script>
-        ) : null}
-        <section className="min-h-screen pt-24">
-          {/* The <Toaster> component is responsible for rendering toast notifications used in /app/client-utils.ts and /app/components/DraftModeToast.tsx */}
-          <Toaster />
-          {isDraftMode && (
-            <>
-              <DraftModeToast />
-              {/*  Enable Visual Editing, only to be rendered when Draft Mode is enabled */}
-              <VisualEditing />
-            </>
-          )}
-          {/* The <SanityLive> component is responsible for making all sanityFetch calls in your application live, so should always be rendered. */}
-          <SanityLive onError={handleError} />
-          <Header settings={layoutSettings} />
-          <main>{children}</main>
-          <Footer settings={layoutSettings} />
-        </section>
+        <LayoutSettingsProvider settings={layoutSettings}>
+          <LocaleDocumentController />
+          {gtmScript ? <Script id="settings-gtm-script" strategy="afterInteractive">{gtmScript}</Script> : null}
+          {gaScript ? <Script id="settings-ga-script" strategy="afterInteractive">{gaScript}</Script> : null}
+          {cookiePolicyScript ? (
+            <Script id="settings-cookie-policy-script" strategy="afterInteractive">
+              {cookiePolicyScript}
+            </Script>
+          ) : null}
+          <section className="min-h-screen pt-24">
+            {/* The <Toaster> component is responsible for rendering toast notifications used in /app/client-utils.ts and /app/components/DraftModeToast.tsx */}
+            <Toaster />
+            {isDraftMode && (
+              <>
+                <DraftModeToast />
+                {/*  Enable Visual Editing, only to be rendered when Draft Mode is enabled */}
+                <VisualEditing />
+              </>
+            )}
+            {/* The <SanityLive> component is responsible for making all sanityFetch calls in your application live, so should always be rendered. */}
+            <SanityLive onError={handleError} />
+            <Header settings={layoutSettings} />
+            <main>{children}</main>
+            <Footer settings={layoutSettings} />
+          </section>
+        </LayoutSettingsProvider>
         <SpeedInsights />
       </body>
     </html>

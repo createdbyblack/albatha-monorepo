@@ -1,17 +1,21 @@
 export type CbButton = {
   _key?: string
   _type: 'cbButton'
+  text?: string | null
+  url?: string | null
+  linkTarget?: '_self' | '_blank' | null
+  size?: 'sm' | 'md' | 'lg' | null
+  variant?: 'primary' | 'secondary' | 'ghost' | null
   label?: string | null
   actionType?: 'button' | 'link' | null
   link?: CbLink | null
-  // Legacy fields
-  text?: string | null
-  url?: string | null
 }
 
 export type CbButtons = {
   _key?: string
   _type: 'cbButtons'
+  align?: 'left' | 'center' | 'right' | null
+  orientation?: 'horizontal' | 'vertical' | null
   items?: CbButton[] | null
 }
 
@@ -20,12 +24,18 @@ export type CbHeading = {
   _type: 'cbHeading'
   content?: string | null
   level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | number | null
+  textAlign?: 'left' | 'center' | 'right' | null
+  placeholder?: string | null
 }
 
 export type CbParagraph = {
   _key?: string
   _type: 'cbParagraph'
   content?: string | null
+  dropCap?: boolean | null
+  textAlign?: 'left' | 'center' | 'right' | null
+  placeholder?: string | null
+  fontSize?: 'sm' | 'md' | 'lg' | 'xl' | null
 }
 
 export type CbWysiwyg = {
@@ -71,9 +81,14 @@ export type CbImage = {
   _key?: string
   _type: 'cbImage'
   media?: CbMedia | null
-  // Legacy fields
   url?: string | null
   alt?: string | null
+  caption?: string | null
+  href?: string | null
+  linkTarget?: '_self' | '_blank' | null
+  aspectRatio?: 'auto' | '1/1' | '4/3' | '16/9' | '3/4' | '9/16' | null
+  scale?: 'cover' | 'contain' | null
+  sizeSlug?: string | null
 }
 
 export type CbListItem = {
@@ -86,6 +101,9 @@ export type CbList = {
   _key?: string
   _type: 'cbList'
   ordered?: boolean | null
+  values?: string[] | null
+  start?: number | null
+  reversed?: boolean | null
   items?: CbListItem[] | null
 }
 
@@ -93,15 +111,55 @@ export type CbNavigationLink = {
   _key?: string
   _type: 'cbNavigationLink'
   label?: string | null
-  link?: CbLink | null
-  // Legacy field
   url?: string | null
+  opensInNewTab?: boolean | null
+  description?: string | null
+  type?: 'custom' | 'page' | null
+  link?: CbLink | null
 }
 
 export type CbNavigation = {
   _key?: string
   _type: 'cbNavigation'
+  overlayMenu?: 'never' | 'mobile' | 'always' | null
+  openSubmenusOnClick?: boolean | null
+  showSubmenuIcon?: boolean | null
+  icon?: 'menu' | 'dots' | null
+  layout?: 'horizontal' | 'vertical' | null
   links?: CbNavigationLink[] | null
+}
+
+export type CbBlock = {
+  _key?: string
+  _type: 'cbBlock'
+  ref?: string | null
+}
+
+export type CbShortcode = {
+  _key?: string
+  _type: 'cbShortcode'
+  text?: string | null
+}
+
+export type CbSiteLogo = {
+  _key?: string
+  _type: 'cbSiteLogo'
+  width?: 'sm' | 'md' | 'lg' | null
+  isLink?: boolean | null
+  linkTarget?: '_self' | '_blank' | null
+}
+
+export type CbVideo = {
+  _key?: string
+  _type: 'cbVideo'
+  src?: string | null
+  poster?: string | null
+  caption?: string | null
+  autoplay?: boolean | null
+  loop?: boolean | null
+  muted?: boolean | null
+  controls?: boolean | null
+  playsInline?: boolean | null
 }
 
 export type LegacyCallToAction = {
@@ -130,14 +188,25 @@ export type LegacyInfoSection = {
   content?: unknown[] | null
 }
 
-export type PageBuilderSection =
+export type PageBuilderBlock =
   | PageBuilderAtom
-  | CbButton
   | PageBuilderContainer
   | LegacyCallToAction
   | LegacyInfoSection
 
-export type PageBuilderAtom = CbHeading | CbParagraph | CbWysiwyg | CbHtml | CbImage
+export type PageBuilderSection = CbColumns | LegacyCallToAction | LegacyInfoSection
+
+export type PageBuilderAtom =
+  | CbBlock
+  | CbButton
+  | CbHeading
+  | CbParagraph
+  | CbWysiwyg
+  | CbHtml
+  | CbImage
+  | CbShortcode
+  | CbSiteLogo
+  | CbVideo
 
 export type PageBuilderContainer =
   | CbButtons
@@ -151,18 +220,26 @@ export type PageBuilderContainer =
 export type CbGroup = {
   _key?: string
   _type: 'cbGroup'
-  children?: PageBuilderSection[] | null
+  tagName?: 'div' | 'section' | 'article' | 'aside' | 'header' | 'footer' | 'main' | null
+  layout?: 'default' | 'constrained' | 'flex' | 'grid' | null
+  align?: 'left' | 'center' | 'right' | 'wide' | 'full' | null
+  children?: PageBuilderBlock[] | null
 }
 
 export type CbColumn = {
   _key?: string
   _type: 'cbColumn'
-  children?: PageBuilderSection[] | null
+  width?: 'auto' | '1/2' | '1/3' | '1/4' | '2/3' | '3/4' | null
+  verticalAlignment?: 'top' | 'center' | 'bottom' | null
+  children?: PageBuilderBlock[] | null
 }
 
 export type CbColumns = {
   _key?: string
   _type: 'cbColumns'
+  isStackedOnMobile?: boolean | null
+  verticalAlignment?: 'top' | 'center' | 'bottom' | null
+  gap?: 'none' | 'sm' | 'md' | 'lg' | null
   columns?: CbColumn[] | null
 }
 
@@ -170,12 +247,28 @@ export type CbCover = {
   _key?: string
   _type: 'cbCover'
   backgroundMedia?: CbMedia | null
-  // Legacy field
   url?: string | null
-  content?: PageBuilderSection[] | null
+  backgroundType?: 'image' | 'video' | null
+  alt?: string | null
+  dimRatio?: number | null
+  overlayColor?: string | null
+  contentPosition?:
+    | 'top-left'
+    | 'top-center'
+    | 'top-right'
+    | 'center-left'
+    | 'center-center'
+    | 'center-right'
+    | 'bottom-left'
+    | 'bottom-center'
+    | 'bottom-right'
+    | null
+  minHeight?: 'sm' | 'md' | 'lg' | 'full' | null
+  hasParallax?: boolean | null
+  content?: PageBuilderBlock[] | null
 }
 
-export type ExtractPageBuilderType<T extends string> = Extract<PageBuilderSection, {_type: T}>
+export type ExtractPageBuilderType<T extends string> = Extract<PageBuilderBlock, {_type: T}>
 
 export type PageDocumentForBuilder = {
   _id: string
