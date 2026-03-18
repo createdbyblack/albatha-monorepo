@@ -46,6 +46,39 @@ type BlockRendererProps = {
   isDraftMode: boolean
 }
 
+type NestedArrayFieldName = 'contents' | 'children' | 'content'
+
+type RenderableListItem = {
+  _key?: string
+  content?: string | null
+  path: string
+}
+
+function resolveNestedArray(
+  block: {contents?: PageBuilderBlock[] | null; children?: PageBuilderBlock[] | null; content?: PageBuilderBlock[] | null},
+  preferredField: NestedArrayFieldName,
+): {items: PageBuilderBlock[]; fieldName: NestedArrayFieldName} {
+  const arraysByField: Partial<Record<NestedArrayFieldName, PageBuilderBlock[] | null | undefined>> = {
+    contents: block.contents,
+    children: block.children,
+    content: block.content,
+  }
+
+  const preferredItems = arraysByField[preferredField]
+  if (preferredItems?.length) {
+    return {items: preferredItems, fieldName: preferredField}
+  }
+
+  for (const fieldName of ['contents', 'children', 'content'] as const) {
+    const items = arraysByField[fieldName]
+    if (items?.length) {
+      return {items, fieldName}
+    }
+  }
+
+  return {items: preferredItems || [], fieldName: preferredField}
+}
+
 function resolveLinkHref(link?: CbLink | null, fallbackUrl?: string | null): string | null {
   if (
     link?.linkType === 'internal' &&
@@ -195,20 +228,23 @@ function renderColumnContent(
   columnPath: string,
   isDraftMode: boolean,
 ) {
+  const {items, fieldName} = resolveNestedArray(column, 'contents')
+  const contentsPath = `${columnPath}.${fieldName}`
+
   return (
     <div
       data-sanity={
-        getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, `${columnPath}.children`)
+        getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, contentsPath)
       }
     >
-      {(column.children || []).map((child, childIndex) => (
+      {items.map((child, childIndex) => (
         <BlockRenderer
           key={child._key || `${column._key || 'column'}-${childIndex}`}
           block={child}
           index={childIndex}
           pageId={pageId}
           pageType={pageType}
-          blockPath={toArrayItemPath(`${columnPath}.children`, child._key, childIndex)}
+          blockPath={toArrayItemPath(contentsPath, child._key, childIndex)}
           isDraftMode={isDraftMode}
         />
       ))}
@@ -223,20 +259,23 @@ function renderGroupContent(
   groupPath: string,
   isDraftMode: boolean,
 ) {
+  const {items, fieldName} = resolveNestedArray(group, 'contents')
+  const contentsPath = `${groupPath}.${fieldName}`
+
   return (
     <div
       data-sanity={
-        getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, `${groupPath}.children`)
+        getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, contentsPath)
       }
     >
-      {(group.children || []).map((child, childIndex) => (
+      {items.map((child, childIndex) => (
         <BlockRenderer
           key={child._key || `${group._key || 'group'}-${childIndex}`}
           block={child}
           index={childIndex}
           pageId={pageId}
           pageType={pageType}
-          blockPath={toArrayItemPath(`${groupPath}.children`, child._key, childIndex)}
+          blockPath={toArrayItemPath(contentsPath, child._key, childIndex)}
           isDraftMode={isDraftMode}
         />
       ))}
@@ -251,20 +290,23 @@ function renderCoverContent(
   coverPath: string,
   isDraftMode: boolean,
 ) {
+  const {items, fieldName} = resolveNestedArray(cover, 'contents')
+  const contentsPath = `${coverPath}.${fieldName}`
+
   return (
     <div
       data-sanity={
-        getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, `${coverPath}.content`)
+        getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, contentsPath)
       }
     >
-      {(cover.content || []).map((child, childIndex) => (
+      {items.map((child, childIndex) => (
         <BlockRenderer
           key={child._key || `${cover._key || 'cover'}-${childIndex}`}
           block={child}
           index={childIndex}
           pageId={pageId}
           pageType={pageType}
-          blockPath={toArrayItemPath(`${coverPath}.content`, child._key, childIndex)}
+          blockPath={toArrayItemPath(contentsPath, child._key, childIndex)}
           isDraftMode={isDraftMode}
         />
       ))}
@@ -410,7 +452,19 @@ export default function BlockRenderer({
           </Buttons>
         </BlockSlot>
       )
-    case 'cbList':
+    case 'cbList': {
+      const listItems: RenderableListItem[] =
+        block.items && block.items.length
+          ? block.items.map((item, i) => ({
+              _key: item._key,
+              content: item.content,
+              path: toArrayItemPath(`${blockPath}.items`, item._key, i),
+            }))
+          : (block.values || []).map((value, i) => ({
+              content: value,
+              path: `${blockPath}.values[${i}]`,
+            }))
+
       return (
         <BlockSlot
           refId={key}
@@ -423,22 +477,14 @@ export default function BlockRenderer({
             start={block.ordered ? block.start || 1 : undefined}
             reversed={block.ordered ? block.reversed || false : undefined}
           >
-            {((block.items && block.items.length
-              ? block.items.map((item) => ({_key: item._key, content: item.content}))
-              : (block.values || []).map((value) => ({
-                  content: value,
-                }))) || []).map((item, i) => (
+            {listItems.map((item, i) => (
               <ListItem
                 key={item._key || `${key}-${i}`}
                 data-sanity={
                   getSanityDataAttribute(
                     isDraftMode,
                     {id: pageId, type: pageType},
-                    toArrayItemPath(
-                      block.items && block.items.length ? `${blockPath}.items` : `${blockPath}.values`,
-                      item._key,
-                      i,
-                    ),
+                    item.path,
                   )
                 }
               >
@@ -448,6 +494,7 @@ export default function BlockRenderer({
           </List>
         </BlockSlot>
       )
+    }
     case 'cbNavigation':
       return (
         <BlockSlot

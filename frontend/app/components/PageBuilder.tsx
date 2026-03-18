@@ -12,6 +12,59 @@ type PageBuilderPageProps = {
   page: PageDocumentForBuilder
 }
 
+type KeyedRecord = {
+  _key?: string
+  [key: string]: unknown
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function isKeyedRecord(value: unknown): value is KeyedRecord {
+  return isRecord(value)
+}
+
+function mergeProjectedFields<T>(currentValue: T, incomingValue: T): T {
+  if (Array.isArray(currentValue) && Array.isArray(incomingValue)) {
+    return incomingValue.map((incomingItem, index) => {
+      if (isKeyedRecord(incomingItem) && incomingItem._key) {
+        const currentMatch = currentValue.find((currentItem) => {
+          return isKeyedRecord(currentItem) && currentItem._key === incomingItem._key
+        })
+
+        return currentMatch
+          ? mergeProjectedFields(currentMatch, incomingItem)
+          : incomingItem
+      }
+
+      return mergeProjectedFields(currentValue[index], incomingItem)
+    }) as T
+  }
+
+  if (isRecord(currentValue) && isRecord(incomingValue)) {
+    const merged: Record<string, unknown> = {...currentValue, ...incomingValue}
+
+    for (const key of Object.keys(merged)) {
+      const currentChild = currentValue[key]
+      const incomingChild = incomingValue[key]
+
+      if (incomingChild === undefined) {
+        merged[key] = currentChild
+        continue
+      }
+
+      if (currentChild !== undefined) {
+        merged[key] = mergeProjectedFields(currentChild, incomingChild)
+      }
+    }
+
+    return merged as T
+  }
+
+  return (incomingValue ?? currentValue) as T
+}
+
 /**
  * The PageBuilder component is used to render the blocks from the `pageBuilder` field in the Page type in your Sanity Studio.
  */
@@ -82,10 +135,13 @@ export default function PageBuilder({page}: PageBuilderPageProps) {
       return currentSections
     }
 
-    // If there are sections in the updated document, trust Sanity's patch result directly.
-    // Custom reconciliation can accidentally block cross-container drag-and-drop moves.
+    // Preserve projected fields such as resolved internal slugs while still honoring
+    // the optimistic array order from Presentation drag-and-drop mutations.
     if (action.document?.pageBuilder) {
-      return action.document.pageBuilder as PageBuilderSection[]
+      return mergeProjectedFields(
+        currentSections,
+        action.document.pageBuilder as PageBuilderSection[],
+      ) as PageBuilderSection[]
     }
 
     // Otherwise keep the current sections

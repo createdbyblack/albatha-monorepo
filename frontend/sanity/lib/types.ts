@@ -1,3 +1,5 @@
+import type {CropData, HotspotData} from 'sanity-image'
+
 export type CbButton = {
   _key?: string
   _type: 'cbButton'
@@ -51,8 +53,8 @@ export type CbMedia = {
   image?: {
     asset?: {_ref?: string} | null
     alt?: string | null
-    crop?: any
-    hotspot?: any
+    crop?: CropData
+    hotspot?: HotspotData
   } | null
   videoFile?: {
     asset?: {_ref?: string} | null
@@ -101,6 +103,7 @@ export type CbList = {
   _key?: string
   _type: 'cbList'
   ordered?: boolean | null
+  // Legacy primitive values are still rendered as a fallback until content is migrated.
   values?: string[] | null
   start?: number | null
   reversed?: boolean | null
@@ -174,7 +177,7 @@ export type LegacyCallToAction = {
   } | null
   image?: {
     asset?: {_ref?: string}
-    crop?: any
+    crop?: CropData
   } | null
   theme?: 'dark' | 'light' | null
   contentAlignment?: 'imageFirst' | 'textFirst' | null
@@ -223,6 +226,7 @@ export type CbGroup = {
   tagName?: 'div' | 'section' | 'article' | 'aside' | 'header' | 'footer' | 'main' | null
   layout?: 'default' | 'constrained' | 'flex' | 'grid' | null
   align?: 'left' | 'center' | 'right' | 'wide' | 'full' | null
+  contents?: PageBuilderBlock[] | null
   children?: PageBuilderBlock[] | null
 }
 
@@ -231,6 +235,7 @@ export type CbColumn = {
   _type: 'cbColumn'
   width?: 'auto' | '1/2' | '1/3' | '1/4' | '2/3' | '3/4' | null
   verticalAlignment?: 'top' | 'center' | 'bottom' | null
+  contents?: PageBuilderBlock[] | null
   children?: PageBuilderBlock[] | null
 }
 
@@ -265,6 +270,7 @@ export type CbCover = {
     | null
   minHeight?: 'sm' | 'md' | 'lg' | 'full' | null
   hasParallax?: boolean | null
+  contents?: PageBuilderBlock[] | null
   content?: PageBuilderBlock[] | null
 }
 

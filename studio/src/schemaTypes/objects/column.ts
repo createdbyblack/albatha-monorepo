@@ -37,12 +37,23 @@ export default defineType({
       },
     }),
     defineField({
-      name: 'children',
-      title: 'Content',
+      name: 'contents',
+      title: 'Contents',
       description: 'Add any page-builder block here, including nested rows when the layout needs another loop.',
       type: 'array',
       of: pageBuilderComposableBlockTypes,
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'children',
+      title: 'Legacy Content',
+      description: 'Legacy field shown only for existing content that has not been moved into Contents yet.',
+      type: 'array',
+      of: pageBuilderComposableBlockTypes,
+      hidden: ({parent}) => {
+        const value = parent as {contents?: unknown[]; children?: unknown[]} | undefined
+        return !value?.children?.length || Boolean(value.contents?.length)
+      },
     }),
   ],
 })

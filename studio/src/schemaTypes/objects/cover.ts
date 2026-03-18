@@ -66,12 +66,23 @@ export default defineType({
     }),
     defineField({name: 'hasParallax', title: 'Parallax', type: 'boolean', initialValue: false}),
     defineField({
-      name: 'content',
-      title: 'Content',
+      name: 'contents',
+      title: 'Contents',
       description: 'Use blocks here for the foreground content. Nested rows stay available when the design needs them.',
       type: 'array',
       of: pageBuilderComposableBlockTypes,
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'content',
+      title: 'Legacy Content',
+      description: 'Legacy field shown only for existing content that has not been moved into Contents yet.',
+      type: 'array',
+      of: pageBuilderComposableBlockTypes,
+      hidden: ({parent}) => {
+        const value = parent as {contents?: unknown[]; content?: unknown[]} | undefined
+        return !value?.content?.length || Boolean(value.contents?.length)
+      },
     }),
   ],
 })

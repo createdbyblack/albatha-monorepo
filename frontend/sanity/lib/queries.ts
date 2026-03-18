@@ -144,12 +144,18 @@ function createPageBuilderBlockProjection(depth = 0): string {
     ${baseProjection},
     _type == "cbGroup" => {
       ...,
+      contents[]{
+        ${nestedProjection}
+      },
       children[]{
         ${nestedProjection}
       }
     },
     _type == "cbCover" => {
       ...,
+      contents[]{
+        ${nestedProjection}
+      },
       content[]{
         ${nestedProjection}
       }
@@ -158,6 +164,9 @@ function createPageBuilderBlockProjection(depth = 0): string {
       ...,
       columns[]{
         ...,
+        contents[]{
+          ${nestedProjection}
+        },
         children[]{
           ${nestedProjection}
         }
