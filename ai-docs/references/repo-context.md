@@ -79,19 +79,49 @@ Important implementation files:
 - `frontend/app/components/BlockRenderer.tsx`
 - `frontend/app/layout.tsx`
 
-## Page Builder Nesting Rules
+## App Router Structure
 
-- Top-level sections live in `pageBuilder[]`
-- Horizontal rows use `cbColumns`
-- Row cells use `cbColumns.columns[]` with `cbColumn`
-- Vertically stacked content inside a cell uses `cbColumn.children[]`
+Current repository structure relevant to this workflow:
 
-Required constraints:
+```txt
+frontend/
+  app/
+    layout.tsx
+    globals.css
+    page.tsx
+    [...segments]/
+      page.tsx
+    components/
+      atoms/
+      molecules/
+      organisms/
+    lib/
+  sanity/
+    lib/
+  public/
+```
 
-1. Never place an array directly inside another array.
-2. Wrap nested reorderable arrays inside object types.
-3. Preserve `_key`, `_id`, and `_type` where needed for Visual Editing.
-4. Keep drag-and-drop-safe `data-sanity` paths at every reorderable boundary.
+Repository conventions:
+
+- use `frontend/app/**/page.tsx` for pages
+- keep reusable UI under `frontend/app/components/**`
+- prefer the existing `atoms`, `molecules`, `organisms`, and shared page-builder-aware component structure before adding new folders
+- keep helper utilities in `frontend/app/lib/**` unless an existing repository pattern requires another location
+- keep Sanity query and client code in `frontend/sanity/lib/**`
+- keep assets local through `frontend/public/**` or imported local assets, never runtime Figma URLs
+
+## Page Builder Structure
+
+The repository's main nesting shape is:
+
+- top-level sections in `pageBuilder[]`
+- each section's dynamic body in `contents[]` with title `Contents`
+- each `contents[]` item representing a row object
+- each row object owning a `columns[]` array
+- each column object owning nested `rows[]`, `columns[]`, or `contents[]` arrays as needed
+- any extra section fields reserved for non-reorderable render configuration such as background media or section settings
+
+Behavioral rules for this structure live in `AI-docs/references/workflow-reference.md`.
 
 ## High-Impact Files
 

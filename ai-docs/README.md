@@ -1,91 +1,187 @@
-# Codex Execution Guide
+# AI-docs Guide
 
-This file is for Codex. It is the canonical execution guide Codex should follow for the Figma-to-Sanity-to-Next.js workflow used in this repository.
+This is the single human-facing entrypoint for the Figma-to-Sanity-to-Next.js workflow in this repository.
 
-## Purpose
+The repo bootstrap for Codex is the root `AGENTS.md` file. Developers should read this file and update only the active job task file.
 
-Keep Codex execution instructions in one place, keep reusable rules in shared references, and keep job files limited to page-specific or section-specific data.
+## What Developers Should Touch
 
-## Directory Layout
+Developers should edit only:
 
-- `ai-docs/README.md`: the Codex-only execution guide
-- `ai-docs/references/input-contract.md`: canonical input fields for every run
-- `ai-docs/references/repo-context.md`: stable repository architecture and implementation context
-- `ai-docs/references/execution-rules.md`: non-negotiable execution and quality rules
-- `ai-docs/prompts/*.md`: phase prompts used during execution
-- `ai-docs/jobs/_templates/*.md`: reusable job templates for boilerplate use
-- `ai-docs/jobs/_examples/**`: example job files and section notes for reference only
-- `ai-docs/jobs/shared/migrations/*.mjs`: shared migration or seeding scripts
-- `ai-docs/jobs/_examples/migrations/*.mjs`: example migration or seeding scripts for reference only
+- `AI-docs/jobs/<page-slug>/tasks.md`
 
-## Codex Workflow
+That single file holds:
 
-1. Provide the Figma file URL that contains the design system and all target pages.
-2. Codex extracts design tokens, maps them into Tailwind v4 `@theme` variables, and sets up fonts from Figma once per project.
-3. Provide the Figma URL for the target page.
-4. Provide the Figma URL for one target section on that page.
-5. Codex implements or extends the Sanity schema, GROQ queries, generated types, React renderers, and page builder mapping needed for that section while matching the Figma design as closely as possible and reusing the existing page-builder model first.
-6. Review the implementation.
-7. After approval, Codex creates or updates the seed or migration file that fills the related schema fields using Figma-derived values.
-8. Repeat steps 4 through 7 until the page is complete.
-9. After all sections are approved, Codex performs final refinement and runs the lint and type-check gates. Section rendering should already flow through the existing page builder mapping.
+- shared page and project inputs
+- section order
+- Agent 1 inputs, status, review, outputs, and handoff
+- Agent 2 inputs, status, review, outputs, and handoff
+- Agent 3 inputs, status, review, outputs, and handoff
+- Agent 4 inputs, status, review, outputs, and handoff
 
-## Approval Gates
+Inside `tasks.md`, follow the ownership labels in the template:
 
-- Token and font setup is approved once per project unless the Figma system changes.
-- Each section is approved before its seed file is created.
-- Page routes should stay thin. Approved sections should appear through the existing page builder and block mapping instead of manual page-specific assembly.
+- `Developer-Owned`: inputs, dependencies, review, section order, page notes, and optional allowed edit path constraints
+- `Codex-Owned`: status, outputs, handoff, and execution log
+- `SECTION_STATUS` in the section list is Codex-owned
 
-## Standard Load Order
+Developers should normally not edit:
 
-For any execution run, Codex should load only this context unless the current task requires more:
+- `AGENTS.md`
+- `AI-docs/references/*`
+- `AI-docs/rules/*`
+- `AI-docs/jobs/_templates/*`
 
-1. `ai-docs/README.md`
-2. `ai-docs/references/input-contract.md`
-3. `ai-docs/references/repo-context.md`
-4. `ai-docs/references/execution-rules.md`
-5. `ai-docs/jobs/<page-slug>/job.md`
-6. `ai-docs/jobs/<page-slug>/sections/<section-name>.md` only if the current section has extra notes
-7. The single prompt file for the current phase
+## System Structure
 
-If a real job file does not exist yet, start from `ai-docs/jobs/_templates/page-job.md` and create one for the project.
+The docs system is now split clearly:
 
-Use `ai-docs/jobs/_examples/` only as reference material. Do not treat example files as active project state.
+- `AI-docs/references/`: shared workflow contract, orchestration, and repo context
+- `AI-docs/rules/agents/`: static per-agent rules
+- `AI-docs/jobs/`: active developer-edited page job files
+- `AI-docs/jobs/_templates/`: task file copy starters
+- `AI-docs/jobs/_examples/`: examples only when that optional folder exists
+- `AI-docs/jobs/_shared/`: shared migrations or shared job assets when that optional folder exists
 
-Do not read unrelated job files, templates, or completed section notes unless the current task depends on them.
+## Canonical Files
 
-## Prompt Usage
+Use these as the active sources of truth:
 
-- `ai-docs/prompts/01-extract-tokens.md`: initial token extraction and normalization
-- `ai-docs/prompts/02-setup-fonts.md`: font loading and font token wiring
-- `ai-docs/prompts/03-convert-section.md`: one section at a time
-- `ai-docs/prompts/05-refine-page.md`: minimal-diff polish and QA fixes
+- `AGENTS.md`: repo-level bootstrap and load order for Codex
+- `AI-docs/README.md`: single developer-facing workflow guide
+- `AI-docs/references/workflow-reference.md`: prompt syntax, task-file contract, orchestration, handoffs, and global workflow rules
+- `AI-docs/references/repo-context.md`: stable repository architecture and router conventions
+- `AI-docs/rules/agents/*.md`: static agent rules
+- `AI-docs/jobs/<page-slug>/tasks.md`: active job file used by both developer and Codex
 
-## Operating Rules
+## Core Model
 
-- Reuse existing schema objects, page-builder blocks, tokens, and React primitives first.
-- Only add new schema objects or components when the current system cannot represent the design cleanly.
-- Keep schema, query, types, renderer, and route changes synchronized in the same change set.
-- Keep page rendering CMS-driven through the existing page builder mapping instead of adding separate manual page assembly steps unless the task explicitly requires route-level logic.
-- Preserve Sanity Visual Editing requirements, including `_key`, identity data, and correct `data-sanity` paths.
-- When section content must be draggable or reorderable in Presentation Tool, model it as `rows[]` on the section, where each row is an object that owns a `content[]` array. Do not skip the row layer for custom sections.
-- Inside a section row, use `content[]` for all draggable content items. Keep only non-draggable section data such as background media, background video, or other fixed section-level configuration as standalone fields on the section object itself.
-- When a section needs nested CMS-managed content, allow only composable page-builder blocks inside the row `content[]` array. Do not allow nested section block types inside another section.
-- Reusable custom controls such as sitewide styled buttons should be modeled as standalone composable object types so they can be inserted anywhere composable blocks are allowed.
-- If a draggable item needs extra descriptors such as variant, size, animation settings, or layout metadata, wrap the reusable content block in a dedicated object schema and store those descriptor fields on that wrapper object.
-- Use object-wrapped nested arrays when a reorderable array must exist inside another array.
-- Keep Tailwind styling token-first. Add semantic tokens in `frontend/app/globals.css` and consume them through Tailwind utilities in JSX.
-- Keep shared non-trivial TypeScript types in importable files instead of duplicating them inline.
-- Treat `ALLOWED_EDIT_PATHS` as optional for section implementation and recommended for token setup, seeding, and refinement work.
-- Seed scripts are created only after implementation approval for the relevant section.
+The workflow is file-driven:
 
-## Completion Criteria
+1. Create or update `AI-docs/jobs/<page-slug>/tasks.md`.
+2. Prompt Codex with the canonical command format and the task file path.
+3. Review the result and add feedback only in the relevant `Review` section inside the task file.
+4. Prompt Codex again with the same command format using the next action.
 
-A page is done only when all of the following are true:
+Developers provide:
 
-- Every approved Figma section is implemented as CMS-driven content.
-- Tokens and fonts are wired without unnecessary hardcoded values.
-- Schema, query, types, components, and page builder mapping are aligned.
-- Seed or migration scripts exist for approved content where required.
-- Visual Editing drag and drop still works for sections and nested reorderable content.
-- `npm run lint` and `npm run type-check` pass.
+- job inputs
+- dependency notes and optional edit-path constraints
+- review feedback
+- one of the allowed prompt actions
+
+Agents update:
+
+- workflow status
+- correction rounds
+- outputs
+- handoff state
+- execution history
+
+## Prompt Format
+
+Use this exact syntax:
+
+`Agent <number> do <job-path> <action>`
+
+Recommended job path style:
+
+- `/jobs/homepage/tasks.md`
+
+Path resolution:
+
+- `/jobs/<page-slug>/tasks.md` resolves to `AI-docs/jobs/<page-slug>/tasks.md`
+
+Recommended default actions:
+
+- `start` for a new run
+- `review` after you update the `Review` section
+- `status` when you want a state readout only
+
+Examples:
+
+- `Agent 1 do /jobs/homepage/tasks.md start`
+- `Agent 1 do /jobs/homepage/tasks.md review`
+- `Agent 2 do /jobs/homepage/tasks.md start`
+- `Agent 3 do /jobs/homepage/tasks.md resume`
+- `Agent 4 do /jobs/homepage/tasks.md seed`
+
+## Four-Agent Workflow
+
+### Agent 1
+
+- Static rules: `AI-docs/rules/agents/01-schema.md`
+- Runtime location: `AI-docs/jobs/<page-slug>/tasks.md`, Agent 1 section
+- Typical prompt: `Agent 1 do /jobs/homepage/tasks.md start`
+
+### Agent 2
+
+- Static rules: `AI-docs/rules/agents/02-design-tokens.md`
+- Runtime location: `AI-docs/jobs/<page-slug>/tasks.md`, Agent 2 section
+- Typical prompt: `Agent 2 do /jobs/homepage/tasks.md start`
+
+### Agent 3
+
+- Static rules: `AI-docs/rules/agents/03-global-blocks.md`
+- Runtime location: `AI-docs/jobs/<page-slug>/tasks.md`, Agent 3 section
+- Typical prompt: `Agent 3 do /jobs/homepage/tasks.md start`
+
+### Agent 4
+
+- Static rules: `AI-docs/rules/agents/04-page-sections.md`
+- Runtime location: `AI-docs/jobs/<page-slug>/tasks.md`, Agent 4 section
+- Typical prompt: `Agent 4 do /jobs/homepage/tasks.md start`
+
+## How To Start
+
+1. Copy `AI-docs/jobs/_templates/tasks.md` to `AI-docs/jobs/<page-slug>/tasks.md`.
+2. Fill the shared page and project inputs.
+3. Fill the relevant agent input sections.
+4. Start the agent with the canonical prompt.
+
+## How To Handle Review, Corrections, And Approval
+
+Developers should not manually update workflow status after a review.
+
+After an agent run:
+
+1. Open `AI-docs/jobs/<page-slug>/tasks.md`.
+2. Update only the relevant developer-owned sections, usually the relevant agent `Review` section.
+3. Set `REVIEW_DECISION` to `changes-requested` or `approved`.
+4. Add details in `REVIEW_NOTES` and `CORRECTION_ITEMS`.
+5. Run the follow-up prompt against the same task file.
+
+Examples:
+
+- `Agent 1 do /jobs/homepage/tasks.md correction`
+- `Agent 1 do /jobs/homepage/tasks.md approve`
+- `Agent 1 do /jobs/homepage/tasks.md review`
+
+The active agent should then update its own section inside `tasks.md`:
+
+- `STATUS`
+- `CORRECTION_ROUND`
+- `LAST_ACTION`
+- `NEXT_ACTION`
+- `HANDOFF_READY`
+- `NEXT_AGENT`
+- `Execution Log`
+
+Accepted scopes should normally end at `STATUS: done`. `STATUS: approved` is optional and should not be left as the resting state for completed accepted work.
+
+## How To Handle Additional Pages
+
+Keep each page in its own job folder:
+
+- `AI-docs/jobs/homepage/tasks.md`
+- `AI-docs/jobs/about/tasks.md`
+- `AI-docs/jobs/contact/tasks.md`
+
+When page 1 is done:
+
+1. Leave its folder in place as the execution record.
+2. Copy the template for the next page.
+3. Fill the new page's inputs and section order.
+4. Run the next agent against that new task file.
+
+Do not overwrite the previous page files.
