@@ -1,6 +1,7 @@
 import { forwardRef, type AnchorHTMLAttributes, type ImgHTMLAttributes } from "react";
 import { cn } from "../../../lib/cn";
 import { siteLogoWidthClasses } from "../../../lib/page-builder-theme";
+import { sanitizeAllowedDomProp } from "@/app/lib/sanitize-dom-prop";
 
 export interface SiteLogoProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> {
   src?: string;
@@ -15,12 +16,14 @@ export interface SiteLogoProps extends Omit<ImgHTMLAttributes<HTMLImageElement>,
 
 export const SiteLogo = forwardRef<HTMLImageElement, SiteLogoProps>(
   ({ className, src, href, widthPreset = "md", isLink = true, linkTarget = "_self", fallbackLabel, anchorProps, alt = "Site logo", unstyled = false, ...props }, ref) => {
+    const safeWidthPreset = sanitizeAllowedDomProp(widthPreset, ["sm", "md", "lg"] as const, "md");
+
     const logo = src ? (
       <img
         ref={ref}
         src={src}
         alt={alt}
-        className={cn(unstyled ? undefined : "block h-auto", unstyled ? undefined : siteLogoWidthClasses[widthPreset], className)}
+        className={cn(unstyled ? undefined : "block h-auto", unstyled ? undefined : siteLogoWidthClasses[safeWidthPreset], className)}
         {...props}
       />
     ) : fallbackLabel ? (

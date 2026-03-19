@@ -1,6 +1,7 @@
 import { createElement, forwardRef, type HTMLAttributes } from "react";
 import { cn } from "../../../lib/cn";
 import { textAlignClasses } from "../../../lib/page-builder-theme";
+import { sanitizeAllowedDomProp } from "@/app/lib/sanitize-dom-prop";
 
 export type HeadingLevel = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
@@ -21,10 +22,17 @@ const levelClasses: Record<string, string> = {
 
 export const Heading = forwardRef<HTMLHeadingElement, HeadingProps>(
   ({ as = "h2", className, textAlign = "left", unstyled = false, ...props }, ref) => {
-    return createElement(as, {
+    const safeLevel = sanitizeAllowedDomProp(as, ["h1", "h2", "h3", "h4", "h5", "h6"] as const, "h2");
+    const safeTextAlign = sanitizeAllowedDomProp(textAlign, ["left", "center", "right"] as const, "left");
+
+    return createElement(safeLevel, {
       ...props,
       ref,
-      className: cn(unstyled ? undefined : levelClasses[as], unstyled ? undefined : textAlignClasses[textAlign], className)
+      className: cn(
+        unstyled ? undefined : levelClasses[safeLevel],
+        unstyled ? undefined : textAlignClasses[safeTextAlign],
+        className
+      )
     });
   }
 );

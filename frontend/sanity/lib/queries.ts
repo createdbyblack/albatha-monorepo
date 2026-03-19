@@ -123,7 +123,7 @@ const cbWysiwygWithResolvedLinksProjection = /* groq */ `
   }
 `
 
-const MAX_PAGE_BUILDER_NESTING = 4
+const MAX_PAGE_BUILDER_NESTING = 3
 
 function createPageBuilderBlockProjection(depth = 0): string {
   const baseProjection = `

@@ -1,6 +1,7 @@
 import { forwardRef, type HTMLAttributes } from "react";
 import { cn } from "../../../lib/cn";
 import { coverMinHeightClasses, coverPositionClasses, resolveOverlayStyle } from "../../../lib/page-builder-theme";
+import { sanitizeAllowedDomProp } from "@/app/lib/sanitize-dom-prop";
 
 export interface CoverMedia {
   mediaType?: "image" | "video" | null;
@@ -43,6 +44,23 @@ export const Cover = forwardRef<HTMLDivElement, CoverProps>(
     },
     ref
   ) => {
+    const safeContentPosition = sanitizeAllowedDomProp(
+      contentPosition,
+      [
+        "top-left",
+        "top-center",
+        "top-right",
+        "center-left",
+        "center-center",
+        "center-right",
+        "bottom-left",
+        "bottom-center",
+        "bottom-right",
+      ] as const,
+      "center-center"
+    );
+    const safeMinHeight = sanitizeAllowedDomProp(minHeight, ["sm", "md", "lg", "full"] as const, "md");
+
     const media = backgroundMedia?.url
       ? backgroundMedia
       : imageUrl
@@ -55,7 +73,7 @@ export const Cover = forwardRef<HTMLDivElement, CoverProps>(
         aria-label={alt || undefined}
         className={cn(
           unstyled ? undefined : "relative overflow-hidden rounded-xl border border-border",
-          unstyled ? undefined : coverMinHeightClasses[minHeight],
+          unstyled ? undefined : coverMinHeightClasses[safeMinHeight],
           className
         )}
         {...props}
@@ -96,7 +114,7 @@ export const Cover = forwardRef<HTMLDivElement, CoverProps>(
         <div
           className={cn(
             unstyled ? undefined : "relative z-10 flex h-full p-6 md:p-8",
-            unstyled ? undefined : coverPositionClasses[contentPosition],
+            unstyled ? undefined : coverPositionClasses[safeContentPosition],
             contentClassName
           )}
         >

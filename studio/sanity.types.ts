@@ -13,6 +13,13 @@
  */
 
 // Source: ../sanity.schema.json
+export type PageReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'page'
+}
+
 export type BlockContentTextOnly = Array<{
   children?: Array<{
     marks?: Array<string>
@@ -20,10 +27,13 @@ export type BlockContentTextOnly = Array<{
     _type: 'span'
     _key: string
   }>
-  style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote'
+  style?: 'normal' | 'h2' | 'h3' | 'blockquote'
   listItem?: 'bullet' | 'number'
   markDefs?: Array<{
+    linkType?: 'href' | 'page'
     href?: string
+    page?: PageReference
+    openInNewTab?: boolean
     _type: 'link'
     _key: string
   }>
@@ -31,13 +41,6 @@ export type BlockContentTextOnly = Array<{
   _type: 'block'
   _key: string
 }>
-
-export type PageReference = {
-  _ref: string
-  _type: 'reference'
-  _weak?: boolean
-  [internalGroqTypeReferenceTo]?: 'page'
-}
 
 export type SanityImageAssetReference = {
   _ref: string
@@ -78,35 +81,51 @@ export type BlockContent = Array<
     }
 >
 
-export type FooterSettings = {
-  _type: 'footerSettings'
-  heading?: string
-  menu: MenuGroup
-  legalMenu?: MenuGroup
-  showDefaultLegalLinks?: boolean
-  copyrightText?: string
-}
-
-export type HeaderSettings = {
-  _type: 'headerSettings'
-  primaryMenu: MenuGroup
-  secondaryMenu: MenuGroup
-  ctaLabel?: string
-  ctaLink?: CbLink
-}
-
 export type CbWysiwyg = {
   _type: 'cbWysiwyg'
   content?: BlockContentTextOnly
 }
 
+export type CbVideo = {
+  _type: 'cbVideo'
+  src?: string
+  poster?: string
+  caption?: string
+  autoplay?: boolean
+  loop?: boolean
+  muted?: boolean
+  controls?: boolean
+  playsInline?: boolean
+}
+
+export type CbSiteLogo = {
+  _type: 'cbSiteLogo'
+  width?: 'sm' | 'md' | 'lg'
+  isLink?: boolean
+  linkTarget?: '_self' | '_blank'
+}
+
+export type CbShortcode = {
+  _type: 'cbShortcode'
+  text?: string
+}
+
 export type CbParagraph = {
   _type: 'cbParagraph'
   content?: string
+  dropCap?: boolean
+  textAlign?: 'left' | 'center' | 'right'
+  placeholder?: string
+  fontSize?: 'sm' | 'md' | 'lg' | 'xl'
 }
 
 export type CbNavigation = {
   _type: 'cbNavigation'
+  overlayMenu?: 'never' | 'mobile' | 'always'
+  openSubmenusOnClick?: boolean
+  showSubmenuIcon?: boolean
+  icon?: 'menu' | 'dots'
+  layout?: 'horizontal' | 'vertical'
   links?: Array<
     {
       _key: string
@@ -117,6 +136,10 @@ export type CbNavigation = {
 export type CbNavigationLink = {
   _type: 'cbNavigationLink'
   label?: string
+  url?: string
+  opensInNewTab?: boolean
+  description?: string
+  type?: 'custom' | 'page'
   link?: CbLink
 }
 
@@ -178,11 +201,14 @@ export type CbMedia = {
 export type CbList = {
   _type: 'cbList'
   ordered?: boolean
+  start?: number
+  reversed?: boolean
   items?: Array<
     {
       _key: string
     } & CbListItem
   >
+  values?: Array<string>
 }
 
 export type CbListItem = {
@@ -203,6 +229,14 @@ export type CbLink = {
 export type CbImage = {
   _type: 'cbImage'
   media?: CbMedia
+  url?: string
+  alt?: string
+  caption?: string
+  href?: string
+  linkTarget?: '_self' | '_blank'
+  aspectRatio?: 'auto' | '1/1' | '4/3' | '16/9' | '3/4' | '9/16'
+  scale?: 'cover' | 'contain'
+  sizeSlug?: string
 }
 
 export type CbHtml = {
@@ -214,11 +248,19 @@ export type CbHeading = {
   _type: 'cbHeading'
   content?: string
   level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+  textAlign?: 'left' | 'center' | 'right'
+  placeholder?: string
 }
 
 export type CbGroup = {
   _type: 'cbGroup'
-  children?: Array<
+  tagName?: 'div' | 'section' | 'article' | 'aside' | 'header' | 'footer' | 'main'
+  layout?: 'default' | 'constrained' | 'flex' | 'grid'
+  align?: 'left' | 'center' | 'right' | 'wide' | 'full'
+  contents: Array<
+    | ({
+        _key: string
+      } & CbBlock)
     | ({
         _key: string
       } & CbButton)
@@ -239,10 +281,16 @@ export type CbGroup = {
       } & CbImage)
     | ({
         _key: string
-      } & CbButtons)
+      } & CbShortcode)
     | ({
         _key: string
-      } & CbColumns)
+      } & CbSiteLogo)
+    | ({
+        _key: string
+      } & CbVideo)
+    | ({
+        _key: string
+      } & CbButtons)
     | ({
         _key: string
       } & CbGroup)
@@ -255,13 +303,14 @@ export type CbGroup = {
     | ({
         _key: string
       } & CbCover)
+    | ({
+        _key: string
+      } & CbColumns)
   >
-}
-
-export type CbCover = {
-  _type: 'cbCover'
-  backgroundMedia?: CbMedia
-  content?: Array<
+  children?: Array<
+    | ({
+        _key: string
+      } & CbBlock)
     | ({
         _key: string
       } & CbButton)
@@ -280,12 +329,164 @@ export type CbCover = {
     | ({
         _key: string
       } & CbImage)
+    | ({
+        _key: string
+      } & CbShortcode)
+    | ({
+        _key: string
+      } & CbSiteLogo)
+    | ({
+        _key: string
+      } & CbVideo)
+    | ({
+        _key: string
+      } & CbButtons)
+    | ({
+        _key: string
+      } & CbGroup)
+    | ({
+        _key: string
+      } & CbList)
+    | ({
+        _key: string
+      } & CbNavigation)
+    | ({
+        _key: string
+      } & CbCover)
+    | ({
+        _key: string
+      } & CbColumns)
+  >
+}
+
+export type CbCover = {
+  _type: 'cbCover'
+  backgroundMedia?: CbMedia
+  url?: string
+  backgroundType?: 'image' | 'video'
+  alt?: string
+  dimRatio?: number
+  overlayColor?: string
+  contentPosition?:
+    | 'top-left'
+    | 'top-center'
+    | 'top-right'
+    | 'center-left'
+    | 'center-center'
+    | 'center-right'
+    | 'bottom-left'
+    | 'bottom-center'
+    | 'bottom-right'
+  minHeight?: 'sm' | 'md' | 'lg' | 'full'
+  hasParallax?: boolean
+  contents: Array<
+    | ({
+        _key: string
+      } & CbBlock)
+    | ({
+        _key: string
+      } & CbButton)
+    | ({
+        _key: string
+      } & CbHeading)
+    | ({
+        _key: string
+      } & CbParagraph)
+    | ({
+        _key: string
+      } & CbWysiwyg)
+    | ({
+        _key: string
+      } & CbHtml)
+    | ({
+        _key: string
+      } & CbImage)
+    | ({
+        _key: string
+      } & CbShortcode)
+    | ({
+        _key: string
+      } & CbSiteLogo)
+    | ({
+        _key: string
+      } & CbVideo)
+    | ({
+        _key: string
+      } & CbButtons)
+    | ({
+        _key: string
+      } & CbGroup)
+    | ({
+        _key: string
+      } & CbList)
+    | ({
+        _key: string
+      } & CbNavigation)
+    | ({
+        _key: string
+      } & CbCover)
+    | ({
+        _key: string
+      } & CbColumns)
+  >
+  content?: Array<
+    | ({
+        _key: string
+      } & CbBlock)
+    | ({
+        _key: string
+      } & CbButton)
+    | ({
+        _key: string
+      } & CbHeading)
+    | ({
+        _key: string
+      } & CbParagraph)
+    | ({
+        _key: string
+      } & CbWysiwyg)
+    | ({
+        _key: string
+      } & CbHtml)
+    | ({
+        _key: string
+      } & CbImage)
+    | ({
+        _key: string
+      } & CbShortcode)
+    | ({
+        _key: string
+      } & CbSiteLogo)
+    | ({
+        _key: string
+      } & CbVideo)
+    | ({
+        _key: string
+      } & CbButtons)
+    | ({
+        _key: string
+      } & CbGroup)
+    | ({
+        _key: string
+      } & CbList)
+    | ({
+        _key: string
+      } & CbNavigation)
+    | ({
+        _key: string
+      } & CbCover)
+    | ({
+        _key: string
+      } & CbColumns)
   >
 }
 
 export type CbColumns = {
   _type: 'cbColumns'
-  columns?: Array<
+  isStackedOnMobile?: boolean
+  verticalAlignment?: 'top' | 'center' | 'bottom'
+  gap?: 'none' | 'sm' | 'md' | 'lg'
+  columns: Array<
     {
       _key: string
     } & CbColumn
@@ -294,7 +495,12 @@ export type CbColumns = {
 
 export type CbColumn = {
   _type: 'cbColumn'
-  children?: Array<
+  width?: 'auto' | '1/2' | '1/3' | '1/4' | '2/3' | '3/4'
+  verticalAlignment?: 'top' | 'center' | 'bottom'
+  contents: Array<
+    | ({
+        _key: string
+      } & CbBlock)
     | ({
         _key: string
       } & CbButton)
@@ -315,10 +521,16 @@ export type CbColumn = {
       } & CbImage)
     | ({
         _key: string
-      } & CbButtons)
+      } & CbShortcode)
     | ({
         _key: string
-      } & CbColumns)
+      } & CbSiteLogo)
+    | ({
+        _key: string
+      } & CbVideo)
+    | ({
+        _key: string
+      } & CbButtons)
     | ({
         _key: string
       } & CbGroup)
@@ -331,12 +543,67 @@ export type CbColumn = {
     | ({
         _key: string
       } & CbCover)
+    | ({
+        _key: string
+      } & CbColumns)
+  >
+  children?: Array<
+    | ({
+        _key: string
+      } & CbBlock)
+    | ({
+        _key: string
+      } & CbButton)
+    | ({
+        _key: string
+      } & CbHeading)
+    | ({
+        _key: string
+      } & CbParagraph)
+    | ({
+        _key: string
+      } & CbWysiwyg)
+    | ({
+        _key: string
+      } & CbHtml)
+    | ({
+        _key: string
+      } & CbImage)
+    | ({
+        _key: string
+      } & CbShortcode)
+    | ({
+        _key: string
+      } & CbSiteLogo)
+    | ({
+        _key: string
+      } & CbVideo)
+    | ({
+        _key: string
+      } & CbButtons)
+    | ({
+        _key: string
+      } & CbGroup)
+    | ({
+        _key: string
+      } & CbList)
+    | ({
+        _key: string
+      } & CbNavigation)
+    | ({
+        _key: string
+      } & CbCover)
+    | ({
+        _key: string
+      } & CbColumns)
   >
 }
 
 export type CbButtons = {
   _type: 'cbButtons'
-  items?: Array<
+  align?: 'left' | 'center' | 'right'
+  orientation?: 'horizontal' | 'vertical'
+  items: Array<
     {
       _key: string
     } & CbButton
@@ -345,9 +612,44 @@ export type CbButtons = {
 
 export type CbButton = {
   _type: 'cbButton'
+  text?: string
+  url?: string
+  linkTarget?: '_self' | '_blank'
+  size?: 'sm' | 'md' | 'lg'
+  variant?: 'primary' | 'secondary' | 'ghost'
   label?: string
   actionType: 'button' | 'link'
   link?: CbLink
+}
+
+export type CbBlock = {
+  _type: 'cbBlock'
+  ref: string
+}
+
+export type Footer = {
+  _id: string
+  _type: 'footer'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  heading?: string
+  menu: MenuGroup
+  legalMenu?: MenuGroup
+  showDefaultLegalLinks?: boolean
+  copyrightText?: string
+}
+
+export type Header = {
+  _id: string
+  _type: 'header'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  primaryMenu: MenuGroup
+  secondaryMenu: MenuGroup
+  ctaLabel?: string
+  ctaLink?: CbLink
 }
 
 export type Settings = {
@@ -386,15 +688,6 @@ export type Settings = {
     alt: string
     _type: 'image'
   }
-  header?: HeaderSettings
-  footer?: FooterSettings
-  primaryMenu: MenuGroup
-  secondaryMenu: MenuGroup
-  menuGroups?: Array<
-    {
-      _key: string
-    } & MenuGroup
-  >
   ogImage?: {
     asset?: SanityImageAssetReference
     media?: unknown
@@ -606,24 +899,9 @@ export type HomePage = {
   name: string
   language: string
   pageBuilder?: Array<
-    | ({
-        _key: string
-      } & CbButtons)
-    | ({
-        _key: string
-      } & CbColumns)
-    | ({
-        _key: string
-      } & CbGroup)
-    | ({
-        _key: string
-      } & CbList)
-    | ({
-        _key: string
-      } & CbNavigation)
-    | ({
-        _key: string
-      } & CbCover)
+    {
+      _key: string
+    } & CbColumns
   >
   seo?: {
     metaTitle?: string
@@ -682,24 +960,9 @@ export type Page = {
   slug: Slug
   language: string
   pageBuilder?: Array<
-    | ({
-        _key: string
-      } & CbButtons)
-    | ({
-        _key: string
-      } & CbColumns)
-    | ({
-        _key: string
-      } & CbGroup)
-    | ({
-        _key: string
-      } & CbList)
-    | ({
-        _key: string
-      } & CbNavigation)
-    | ({
-        _key: string
-      } & CbCover)
+    {
+      _key: string
+    } & CbColumns
   >
   seo?: {
     metaTitle?: string
@@ -824,13 +1087,14 @@ export type Geopoint = {
 }
 
 export type AllSanitySchemaTypes =
-  | BlockContentTextOnly
   | PageReference
+  | BlockContentTextOnly
   | SanityImageAssetReference
   | BlockContent
-  | FooterSettings
-  | HeaderSettings
   | CbWysiwyg
+  | CbVideo
+  | CbSiteLogo
+  | CbShortcode
   | CbParagraph
   | CbNavigation
   | CbNavigationLink
@@ -851,6 +1115,9 @@ export type AllSanitySchemaTypes =
   | CbColumn
   | CbButtons
   | CbButton
+  | CbBlock
+  | Footer
+  | Header
   | Settings
   | SanityImageCrop
   | SanityImageHotspot

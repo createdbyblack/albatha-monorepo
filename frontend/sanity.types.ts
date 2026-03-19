@@ -81,35 +81,51 @@ export type BlockContent = Array<
     }
 >
 
-export type FooterSettings = {
-  _type: 'footerSettings'
-  heading?: string
-  menu: MenuGroup
-  legalMenu?: MenuGroup
-  showDefaultLegalLinks?: boolean
-  copyrightText?: string
-}
-
-export type HeaderSettings = {
-  _type: 'headerSettings'
-  primaryMenu: MenuGroup
-  secondaryMenu: MenuGroup
-  ctaLabel?: string
-  ctaLink?: CbLink
-}
-
 export type CbWysiwyg = {
   _type: 'cbWysiwyg'
   content?: BlockContentTextOnly
 }
 
+export type CbVideo = {
+  _type: 'cbVideo'
+  src?: string
+  poster?: string
+  caption?: string
+  autoplay?: boolean
+  loop?: boolean
+  muted?: boolean
+  controls?: boolean
+  playsInline?: boolean
+}
+
+export type CbSiteLogo = {
+  _type: 'cbSiteLogo'
+  width?: 'sm' | 'md' | 'lg'
+  isLink?: boolean
+  linkTarget?: '_self' | '_blank'
+}
+
+export type CbShortcode = {
+  _type: 'cbShortcode'
+  text?: string
+}
+
 export type CbParagraph = {
   _type: 'cbParagraph'
   content?: string
+  dropCap?: boolean
+  textAlign?: 'left' | 'center' | 'right'
+  placeholder?: string
+  fontSize?: 'sm' | 'md' | 'lg' | 'xl'
 }
 
 export type CbNavigation = {
   _type: 'cbNavigation'
+  overlayMenu?: 'never' | 'mobile' | 'always'
+  openSubmenusOnClick?: boolean
+  showSubmenuIcon?: boolean
+  icon?: 'menu' | 'dots'
+  layout?: 'horizontal' | 'vertical'
   links?: Array<
     {
       _key: string
@@ -120,6 +136,10 @@ export type CbNavigation = {
 export type CbNavigationLink = {
   _type: 'cbNavigationLink'
   label?: string
+  url?: string
+  opensInNewTab?: boolean
+  description?: string
+  type?: 'custom' | 'page'
   link?: CbLink
 }
 
@@ -181,11 +201,14 @@ export type CbMedia = {
 export type CbList = {
   _type: 'cbList'
   ordered?: boolean
+  start?: number
+  reversed?: boolean
   items?: Array<
     {
       _key: string
     } & CbListItem
   >
+  values?: Array<string>
 }
 
 export type CbListItem = {
@@ -206,6 +229,14 @@ export type CbLink = {
 export type CbImage = {
   _type: 'cbImage'
   media?: CbMedia
+  url?: string
+  alt?: string
+  caption?: string
+  href?: string
+  linkTarget?: '_self' | '_blank'
+  aspectRatio?: 'auto' | '1/1' | '4/3' | '16/9' | '3/4' | '9/16'
+  scale?: 'cover' | 'contain'
+  sizeSlug?: string
 }
 
 export type CbHtml = {
@@ -217,11 +248,19 @@ export type CbHeading = {
   _type: 'cbHeading'
   content?: string
   level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+  textAlign?: 'left' | 'center' | 'right'
+  placeholder?: string
 }
 
 export type CbGroup = {
   _type: 'cbGroup'
-  children?: Array<
+  tagName?: 'div' | 'section' | 'article' | 'aside' | 'header' | 'footer' | 'main'
+  layout?: 'default' | 'constrained' | 'flex' | 'grid'
+  align?: 'left' | 'center' | 'right' | 'wide' | 'full'
+  contents: Array<
+    | ({
+        _key: string
+      } & CbBlock)
     | ({
         _key: string
       } & CbButton)
@@ -242,10 +281,16 @@ export type CbGroup = {
       } & CbImage)
     | ({
         _key: string
-      } & CbButtons)
+      } & CbShortcode)
     | ({
         _key: string
-      } & CbColumns)
+      } & CbSiteLogo)
+    | ({
+        _key: string
+      } & CbVideo)
+    | ({
+        _key: string
+      } & CbButtons)
     | ({
         _key: string
       } & CbGroup)
@@ -258,13 +303,14 @@ export type CbGroup = {
     | ({
         _key: string
       } & CbCover)
+    | ({
+        _key: string
+      } & CbColumns)
   >
-}
-
-export type CbCover = {
-  _type: 'cbCover'
-  backgroundMedia?: CbMedia
-  content?: Array<
+  children?: Array<
+    | ({
+        _key: string
+      } & CbBlock)
     | ({
         _key: string
       } & CbButton)
@@ -283,12 +329,164 @@ export type CbCover = {
     | ({
         _key: string
       } & CbImage)
+    | ({
+        _key: string
+      } & CbShortcode)
+    | ({
+        _key: string
+      } & CbSiteLogo)
+    | ({
+        _key: string
+      } & CbVideo)
+    | ({
+        _key: string
+      } & CbButtons)
+    | ({
+        _key: string
+      } & CbGroup)
+    | ({
+        _key: string
+      } & CbList)
+    | ({
+        _key: string
+      } & CbNavigation)
+    | ({
+        _key: string
+      } & CbCover)
+    | ({
+        _key: string
+      } & CbColumns)
+  >
+}
+
+export type CbCover = {
+  _type: 'cbCover'
+  backgroundMedia?: CbMedia
+  url?: string
+  backgroundType?: 'image' | 'video'
+  alt?: string
+  dimRatio?: number
+  overlayColor?: string
+  contentPosition?:
+    | 'top-left'
+    | 'top-center'
+    | 'top-right'
+    | 'center-left'
+    | 'center-center'
+    | 'center-right'
+    | 'bottom-left'
+    | 'bottom-center'
+    | 'bottom-right'
+  minHeight?: 'sm' | 'md' | 'lg' | 'full'
+  hasParallax?: boolean
+  contents: Array<
+    | ({
+        _key: string
+      } & CbBlock)
+    | ({
+        _key: string
+      } & CbButton)
+    | ({
+        _key: string
+      } & CbHeading)
+    | ({
+        _key: string
+      } & CbParagraph)
+    | ({
+        _key: string
+      } & CbWysiwyg)
+    | ({
+        _key: string
+      } & CbHtml)
+    | ({
+        _key: string
+      } & CbImage)
+    | ({
+        _key: string
+      } & CbShortcode)
+    | ({
+        _key: string
+      } & CbSiteLogo)
+    | ({
+        _key: string
+      } & CbVideo)
+    | ({
+        _key: string
+      } & CbButtons)
+    | ({
+        _key: string
+      } & CbGroup)
+    | ({
+        _key: string
+      } & CbList)
+    | ({
+        _key: string
+      } & CbNavigation)
+    | ({
+        _key: string
+      } & CbCover)
+    | ({
+        _key: string
+      } & CbColumns)
+  >
+  content?: Array<
+    | ({
+        _key: string
+      } & CbBlock)
+    | ({
+        _key: string
+      } & CbButton)
+    | ({
+        _key: string
+      } & CbHeading)
+    | ({
+        _key: string
+      } & CbParagraph)
+    | ({
+        _key: string
+      } & CbWysiwyg)
+    | ({
+        _key: string
+      } & CbHtml)
+    | ({
+        _key: string
+      } & CbImage)
+    | ({
+        _key: string
+      } & CbShortcode)
+    | ({
+        _key: string
+      } & CbSiteLogo)
+    | ({
+        _key: string
+      } & CbVideo)
+    | ({
+        _key: string
+      } & CbButtons)
+    | ({
+        _key: string
+      } & CbGroup)
+    | ({
+        _key: string
+      } & CbList)
+    | ({
+        _key: string
+      } & CbNavigation)
+    | ({
+        _key: string
+      } & CbCover)
+    | ({
+        _key: string
+      } & CbColumns)
   >
 }
 
 export type CbColumns = {
   _type: 'cbColumns'
-  columns?: Array<
+  isStackedOnMobile?: boolean
+  verticalAlignment?: 'top' | 'center' | 'bottom'
+  gap?: 'none' | 'sm' | 'md' | 'lg'
+  columns: Array<
     {
       _key: string
     } & CbColumn
@@ -297,7 +495,12 @@ export type CbColumns = {
 
 export type CbColumn = {
   _type: 'cbColumn'
-  children?: Array<
+  width?: 'auto' | '1/2' | '1/3' | '1/4' | '2/3' | '3/4'
+  verticalAlignment?: 'top' | 'center' | 'bottom'
+  contents: Array<
+    | ({
+        _key: string
+      } & CbBlock)
     | ({
         _key: string
       } & CbButton)
@@ -318,10 +521,16 @@ export type CbColumn = {
       } & CbImage)
     | ({
         _key: string
-      } & CbButtons)
+      } & CbShortcode)
     | ({
         _key: string
-      } & CbColumns)
+      } & CbSiteLogo)
+    | ({
+        _key: string
+      } & CbVideo)
+    | ({
+        _key: string
+      } & CbButtons)
     | ({
         _key: string
       } & CbGroup)
@@ -334,12 +543,67 @@ export type CbColumn = {
     | ({
         _key: string
       } & CbCover)
+    | ({
+        _key: string
+      } & CbColumns)
+  >
+  children?: Array<
+    | ({
+        _key: string
+      } & CbBlock)
+    | ({
+        _key: string
+      } & CbButton)
+    | ({
+        _key: string
+      } & CbHeading)
+    | ({
+        _key: string
+      } & CbParagraph)
+    | ({
+        _key: string
+      } & CbWysiwyg)
+    | ({
+        _key: string
+      } & CbHtml)
+    | ({
+        _key: string
+      } & CbImage)
+    | ({
+        _key: string
+      } & CbShortcode)
+    | ({
+        _key: string
+      } & CbSiteLogo)
+    | ({
+        _key: string
+      } & CbVideo)
+    | ({
+        _key: string
+      } & CbButtons)
+    | ({
+        _key: string
+      } & CbGroup)
+    | ({
+        _key: string
+      } & CbList)
+    | ({
+        _key: string
+      } & CbNavigation)
+    | ({
+        _key: string
+      } & CbCover)
+    | ({
+        _key: string
+      } & CbColumns)
   >
 }
 
 export type CbButtons = {
   _type: 'cbButtons'
-  items?: Array<
+  align?: 'left' | 'center' | 'right'
+  orientation?: 'horizontal' | 'vertical'
+  items: Array<
     {
       _key: string
     } & CbButton
@@ -348,9 +612,44 @@ export type CbButtons = {
 
 export type CbButton = {
   _type: 'cbButton'
+  text?: string
+  url?: string
+  linkTarget?: '_self' | '_blank'
+  size?: 'sm' | 'md' | 'lg'
+  variant?: 'primary' | 'secondary' | 'ghost'
   label?: string
   actionType: 'button' | 'link'
   link?: CbLink
+}
+
+export type CbBlock = {
+  _type: 'cbBlock'
+  ref: string
+}
+
+export type Footer = {
+  _id: string
+  _type: 'footer'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  heading?: string
+  menu: MenuGroup
+  legalMenu?: MenuGroup
+  showDefaultLegalLinks?: boolean
+  copyrightText?: string
+}
+
+export type Header = {
+  _id: string
+  _type: 'header'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  primaryMenu: MenuGroup
+  secondaryMenu: MenuGroup
+  ctaLabel?: string
+  ctaLink?: CbLink
 }
 
 export type Settings = {
@@ -389,15 +688,6 @@ export type Settings = {
     alt: string
     _type: 'image'
   }
-  header?: HeaderSettings
-  footer?: FooterSettings
-  primaryMenu: MenuGroup
-  secondaryMenu: MenuGroup
-  menuGroups?: Array<
-    {
-      _key: string
-    } & MenuGroup
-  >
   ogImage?: {
     asset?: SanityImageAssetReference
     media?: unknown
@@ -609,24 +899,9 @@ export type HomePage = {
   name: string
   language: string
   pageBuilder?: Array<
-    | ({
-        _key: string
-      } & CbButtons)
-    | ({
-        _key: string
-      } & CbColumns)
-    | ({
-        _key: string
-      } & CbGroup)
-    | ({
-        _key: string
-      } & CbList)
-    | ({
-        _key: string
-      } & CbNavigation)
-    | ({
-        _key: string
-      } & CbCover)
+    {
+      _key: string
+    } & CbColumns
   >
   seo?: {
     metaTitle?: string
@@ -685,24 +960,9 @@ export type Page = {
   slug: Slug
   language: string
   pageBuilder?: Array<
-    | ({
-        _key: string
-      } & CbButtons)
-    | ({
-        _key: string
-      } & CbColumns)
-    | ({
-        _key: string
-      } & CbGroup)
-    | ({
-        _key: string
-      } & CbList)
-    | ({
-        _key: string
-      } & CbNavigation)
-    | ({
-        _key: string
-      } & CbCover)
+    {
+      _key: string
+    } & CbColumns
   >
   seo?: {
     metaTitle?: string
@@ -831,9 +1091,10 @@ export type AllSanitySchemaTypes =
   | BlockContentTextOnly
   | SanityImageAssetReference
   | BlockContent
-  | FooterSettings
-  | HeaderSettings
   | CbWysiwyg
+  | CbVideo
+  | CbSiteLogo
+  | CbShortcode
   | CbParagraph
   | CbNavigation
   | CbNavigationLink
@@ -854,6 +1115,9 @@ export type AllSanitySchemaTypes =
   | CbColumn
   | CbButtons
   | CbButton
+  | CbBlock
+  | Footer
+  | Header
   | Settings
   | SanityImageCrop
   | SanityImageHotspot
@@ -892,7 +1156,7 @@ export declare const internalGroqTypeReferenceTo: unique symbol
 
 // Source: sanity/lib/queries.ts
 // Variable: settingsQuery
-// Query: *[_type == "settings"][0]{    ...,    header{      ...,      ctaLink{        ...,        "internalPageSlug": internalPage->slug.current      },      primaryMenu{        ...,        links[]{            ...,  link{    ...,    "internalPageSlug": internalPage->slug.current  },  subLinks[]{    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  }        }      },      secondaryMenu{        ...,        links[]{            ...,  link{    ...,    "internalPageSlug": internalPage->slug.current  },  subLinks[]{    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  }        }      }    },    footer{      ...,      menu{        ...,        links[]{            ...,  link{    ...,    "internalPageSlug": internalPage->slug.current  },  subLinks[]{    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  }        }      },      legalMenu{        ...,        links[]{            ...,  link{    ...,    "internalPageSlug": internalPage->slug.current  },  subLinks[]{    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  }        }      }    },    primaryMenu{      ...,      links[]{          ...,  link{    ...,    "internalPageSlug": internalPage->slug.current  },  subLinks[]{    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  }      }    },    secondaryMenu{      ...,      links[]{          ...,  link{    ...,    "internalPageSlug": internalPage->slug.current  },  subLinks[]{    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  }      }    },    menuGroups[]{      ...,      links[]{          ...,  link{    ...,    "internalPageSlug": internalPage->slug.current  },  subLinks[]{    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  }      }    }  }
+// Query: *[_type == "settings"][0]{    ...  }
 export type SettingsQueryResult = {
   _id: string
   _type: 'settings'
@@ -929,8 +1193,79 @@ export type SettingsQueryResult = {
     alt: string
     _type: 'image'
   }
+  ogImage?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    metadataBase?: string
+    _type: 'image'
+  }
+  gtmScript?: string
+  gaScript?: string
+  cookiePolicyScript?: string
+} | null
+
+// Source: sanity/lib/queries.ts
+// Variable: layoutQuery
+// Query: {    "settings": *[_type == "settings"][0]{      ...    },    "header":   *[_type == "header"][0]{    ...,    ctaLink{      ...,      "internalPageSlug": internalPage->slug.current    },    primaryMenu{      ...,      links[]{          ...,  link{    ...,    "internalPageSlug": internalPage->slug.current  },  subLinks[]{    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  }      }    },    secondaryMenu{      ...,      links[]{          ...,  link{    ...,    "internalPageSlug": internalPage->slug.current  },  subLinks[]{    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  }      }    }  },    "footer":   *[_type == "footer"][0]{    ...,    menu{      ...,      links[]{          ...,  link{    ...,    "internalPageSlug": internalPage->slug.current  },  subLinks[]{    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  }      }    },    legalMenu{      ...,      links[]{          ...,  link{    ...,    "internalPageSlug": internalPage->slug.current  },  subLinks[]{    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  }      }    }  }  }
+export type LayoutQueryResult = {
+  settings: {
+    _id: string
+    _type: 'settings'
+    _createdAt: string
+    _updatedAt: string
+    _rev: string
+    title: string
+    description?: Array<{
+      children?: Array<{
+        marks?: Array<string>
+        text?: string
+        _type: 'span'
+        _key: string
+      }>
+      style?: 'normal'
+      listItem?: never
+      markDefs?: Array<{
+        linkType?: 'href' | 'page'
+        href?: string
+        page?: PageReference
+        openInNewTab?: boolean
+        _type: 'link'
+        _key: string
+      }>
+      level?: number
+      _type: 'block'
+      _key: string
+    }>
+    logo?: {
+      asset?: SanityImageAssetReference
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      alt: string
+      _type: 'image'
+    }
+    ogImage?: {
+      asset?: SanityImageAssetReference
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      alt?: string
+      metadataBase?: string
+      _type: 'image'
+    }
+    gtmScript?: string
+    gaScript?: string
+    cookiePolicyScript?: string
+  } | null
   header: {
-    _type: 'headerSettings'
+    _id: string
+    _type: 'header'
+    _createdAt: string
+    _updatedAt: string
+    _rev: string
     primaryMenu: {
       _type: 'menuGroup'
       menuId: string
@@ -1018,7 +1353,11 @@ export type SettingsQueryResult = {
     } | null
   } | null
   footer: {
-    _type: 'footerSettings'
+    _id: string
+    _type: 'footer'
+    _createdAt: string
+    _updatedAt: string
+    _rev: string
     heading?: string
     menu: {
       _type: 'menuGroup'
@@ -1097,1247 +1436,7 @@ export type SettingsQueryResult = {
     showDefaultLegalLinks?: boolean
     copyrightText?: string
   } | null
-  primaryMenu: {
-    _type: 'menuGroup'
-    menuId: string
-    title?: string
-    links: Array<{
-      _key: string
-      _type: 'menuLink'
-      itemId: string
-      label: string
-      link: {
-        _type: 'cbLink'
-        linkType?: 'external' | 'internal'
-        externalUrl?: string
-        internalTargetType?: 'page' | 'path'
-        internalPage?: PageReference
-        internalPath?: string
-        openInNewTab?: boolean
-        internalPageSlug: string | null
-      }
-      subLinks: Array<{
-        _key: string
-        _type: 'menuSubLink'
-        itemId: string
-        label: string
-        link: {
-          _type: 'cbLink'
-          linkType?: 'external' | 'internal'
-          externalUrl?: string
-          internalTargetType?: 'page' | 'path'
-          internalPage?: PageReference
-          internalPath?: string
-          openInNewTab?: boolean
-          internalPageSlug: string | null
-        }
-      }> | null
-    }>
-  }
-  secondaryMenu: {
-    _type: 'menuGroup'
-    menuId: string
-    title?: string
-    links: Array<{
-      _key: string
-      _type: 'menuLink'
-      itemId: string
-      label: string
-      link: {
-        _type: 'cbLink'
-        linkType?: 'external' | 'internal'
-        externalUrl?: string
-        internalTargetType?: 'page' | 'path'
-        internalPage?: PageReference
-        internalPath?: string
-        openInNewTab?: boolean
-        internalPageSlug: string | null
-      }
-      subLinks: Array<{
-        _key: string
-        _type: 'menuSubLink'
-        itemId: string
-        label: string
-        link: {
-          _type: 'cbLink'
-          linkType?: 'external' | 'internal'
-          externalUrl?: string
-          internalTargetType?: 'page' | 'path'
-          internalPage?: PageReference
-          internalPath?: string
-          openInNewTab?: boolean
-          internalPageSlug: string | null
-        }
-      }> | null
-    }>
-  }
-  menuGroups: Array<{
-    _key: string
-    _type: 'menuGroup'
-    menuId: string
-    title?: string
-    links: Array<{
-      _key: string
-      _type: 'menuLink'
-      itemId: string
-      label: string
-      link: {
-        _type: 'cbLink'
-        linkType?: 'external' | 'internal'
-        externalUrl?: string
-        internalTargetType?: 'page' | 'path'
-        internalPage?: PageReference
-        internalPath?: string
-        openInNewTab?: boolean
-        internalPageSlug: string | null
-      }
-      subLinks: Array<{
-        _key: string
-        _type: 'menuSubLink'
-        itemId: string
-        label: string
-        link: {
-          _type: 'cbLink'
-          linkType?: 'external' | 'internal'
-          externalUrl?: string
-          internalTargetType?: 'page' | 'path'
-          internalPage?: PageReference
-          internalPath?: string
-          openInNewTab?: boolean
-          internalPageSlug: string | null
-        }
-      }> | null
-    }>
-  }> | null
-  ogImage?: {
-    asset?: SanityImageAssetReference
-    media?: unknown
-    hotspot?: SanityImageHotspot
-    crop?: SanityImageCrop
-    alt?: string
-    metadataBase?: string
-    _type: 'image'
-  }
-  gtmScript?: string
-  gaScript?: string
-  cookiePolicyScript?: string
-} | null
-
-// Source: sanity/lib/queries.ts
-// Variable: getPageQuery
-// Query: *[    _type == 'page' &&    slug.current == $slug &&    coalesce(language, "en") == $language  ][0]{    _id,    _type,    name,    language,    slug,    seo{      ...,      ogImage{        ...,        asset->      }    },    structuredData,    "pageBuilder": pageBuilder[]{      ...,        _type == "cbButton" => {    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  },        _type == "cbButtons" => {    ...,    items[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },        _type == "cbNavigation" => {    ...,    links[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },        _type == "cbWysiwyg" => {    ...,    content[]{      ...,      markDefs[]{        ...,        _type == "link" => {          ...,          "page": page->slug.current        }      }    }  },      _type == "cbGroup" => {        ...,        children[]{          ...,            _type == "cbButton" => {    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  },            _type == "cbButtons" => {    ...,    items[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },            _type == "cbNavigation" => {    ...,    links[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },            _type == "cbWysiwyg" => {    ...,    content[]{      ...,      markDefs[]{        ...,        _type == "link" => {          ...,          "page": page->slug.current        }      }    }  }        }      },      _type == "cbColumn" => {        ...,        children[]{          ...,            _type == "cbButton" => {    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  },            _type == "cbButtons" => {    ...,    items[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },            _type == "cbNavigation" => {    ...,    links[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },            _type == "cbWysiwyg" => {    ...,    content[]{      ...,      markDefs[]{        ...,        _type == "link" => {          ...,          "page": page->slug.current        }      }    }  }        }      },      _type == "cbCover" => {        ...,        content[]{          ...,            _type == "cbButton" => {    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  },            _type == "cbButtons" => {    ...,    items[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },            _type == "cbNavigation" => {    ...,    links[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },            _type == "cbWysiwyg" => {    ...,    content[]{      ...,      markDefs[]{        ...,        _type == "link" => {          ...,          "page": page->slug.current        }      }    }  }        }      },      _type == "cbColumns" => {        ...,        columns[]{          ...,          children[]{            ...,              _type == "cbButton" => {    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  },              _type == "cbButtons" => {    ...,    items[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },              _type == "cbNavigation" => {    ...,    links[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },              _type == "cbWysiwyg" => {    ...,    content[]{      ...,      markDefs[]{        ...,        _type == "link" => {          ...,          "page": page->slug.current        }      }    }  }          }        }      }    }  }
-export type GetPageQueryResult = {
-  _id: string
-  _type: 'page'
-  name: string
-  language: string
-  slug: Slug
-  seo: {
-    metaTitle?: string
-    metaDescription?: string
-    canonicalUrl?: string
-    noIndex?: boolean
-    ogTitle?: string
-    ogDescription?: string
-    ogImage: {
-      asset: {
-        _id: string
-        _type: 'sanity.imageAsset'
-        _createdAt: string
-        _updatedAt: string
-        _rev: string
-        originalFilename?: string
-        label?: string
-        title?: string
-        description?: string
-        altText?: string
-        sha1hash?: string
-        extension?: string
-        mimeType?: string
-        size?: number
-        assetId?: string
-        uploadId?: string
-        path?: string
-        url?: string
-        metadata?: SanityImageMetadata
-        source?: SanityAssetSourceData
-      } | null
-      media?: unknown
-      hotspot?: SanityImageHotspot
-      crop?: SanityImageCrop
-      alt?: string
-      _type: 'image'
-    } | null
-  } | null
-  structuredData: string | null
-  pageBuilder: Array<
-    | {
-        _key: string
-        _type: 'cbButtons'
-        items: Array<{
-          _key: string
-          _type: 'cbButton'
-          label?: string
-          actionType: 'button' | 'link'
-          link: {
-            _type: 'cbLink'
-            linkType?: 'external' | 'internal'
-            externalUrl?: string
-            internalTargetType?: 'page' | 'path'
-            internalPage?: PageReference
-            internalPath?: string
-            openInNewTab?: boolean
-            internalPageSlug: string | null
-          } | null
-        }> | null
-      }
-    | {
-        _key: string
-        _type: 'cbColumns'
-        columns: Array<{
-          _key: string
-          _type: 'cbColumn'
-          children: Array<
-            | {
-                _key: string
-                _type: 'cbButton'
-                label?: string
-                actionType: 'button' | 'link'
-                link: {
-                  _type: 'cbLink'
-                  linkType?: 'external' | 'internal'
-                  externalUrl?: string
-                  internalTargetType?: 'page' | 'path'
-                  internalPage?: PageReference
-                  internalPath?: string
-                  openInNewTab?: boolean
-                  internalPageSlug: string | null
-                } | null
-              }
-            | {
-                _key: string
-                _type: 'cbButtons'
-                items: Array<{
-                  _key: string
-                  _type: 'cbButton'
-                  label?: string
-                  actionType: 'button' | 'link'
-                  link: {
-                    _type: 'cbLink'
-                    linkType?: 'external' | 'internal'
-                    externalUrl?: string
-                    internalTargetType?: 'page' | 'path'
-                    internalPage?: PageReference
-                    internalPath?: string
-                    openInNewTab?: boolean
-                    internalPageSlug: string | null
-                  } | null
-                }> | null
-              }
-            | {
-                _key: string
-                _type: 'cbColumns'
-                columns?: Array<
-                  {
-                    _key: string
-                  } & CbColumn
-                >
-              }
-            | {
-                _key: string
-                _type: 'cbCover'
-                backgroundMedia?: CbMedia
-                content?: Array<
-                  | ({
-                      _key: string
-                    } & CbButton)
-                  | ({
-                      _key: string
-                    } & CbHeading)
-                  | ({
-                      _key: string
-                    } & CbHtml)
-                  | ({
-                      _key: string
-                    } & CbImage)
-                  | ({
-                      _key: string
-                    } & CbParagraph)
-                  | ({
-                      _key: string
-                    } & CbWysiwyg)
-                >
-              }
-            | {
-                _key: string
-                _type: 'cbGroup'
-                children?: Array<
-                  | ({
-                      _key: string
-                    } & CbButton)
-                  | ({
-                      _key: string
-                    } & CbButtons)
-                  | ({
-                      _key: string
-                    } & CbColumns)
-                  | ({
-                      _key: string
-                    } & CbCover)
-                  | ({
-                      _key: string
-                    } & CbGroup)
-                  | ({
-                      _key: string
-                    } & CbHeading)
-                  | ({
-                      _key: string
-                    } & CbHtml)
-                  | ({
-                      _key: string
-                    } & CbImage)
-                  | ({
-                      _key: string
-                    } & CbList)
-                  | ({
-                      _key: string
-                    } & CbNavigation)
-                  | ({
-                      _key: string
-                    } & CbParagraph)
-                  | ({
-                      _key: string
-                    } & CbWysiwyg)
-                >
-              }
-            | {
-                _key: string
-                _type: 'cbHeading'
-                content?: string
-                level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
-              }
-            | {
-                _key: string
-                _type: 'cbHtml'
-                content?: string
-              }
-            | {
-                _key: string
-                _type: 'cbImage'
-                media?: CbMedia
-              }
-            | {
-                _key: string
-                _type: 'cbList'
-                ordered?: boolean
-                items?: Array<
-                  {
-                    _key: string
-                  } & CbListItem
-                >
-              }
-            | {
-                _key: string
-                _type: 'cbNavigation'
-                links: Array<{
-                  _key: string
-                  _type: 'cbNavigationLink'
-                  label?: string
-                  link: {
-                    _type: 'cbLink'
-                    linkType?: 'external' | 'internal'
-                    externalUrl?: string
-                    internalTargetType?: 'page' | 'path'
-                    internalPage?: PageReference
-                    internalPath?: string
-                    openInNewTab?: boolean
-                    internalPageSlug: string | null
-                  } | null
-                }> | null
-              }
-            | {
-                _key: string
-                _type: 'cbParagraph'
-                content?: string
-              }
-            | {
-                _key: string
-                _type: 'cbWysiwyg'
-                content: Array<{
-                  children?: Array<{
-                    marks?: Array<string>
-                    text?: string
-                    _type: 'span'
-                    _key: string
-                  }>
-                  style?: 'blockquote' | 'h2' | 'h3' | 'normal'
-                  listItem?: 'bullet' | 'number'
-                  markDefs: Array<{
-                    linkType?: 'href' | 'page'
-                    href?: string
-                    page: string | null
-                    openInNewTab?: boolean
-                    _type: 'link'
-                    _key: string
-                  }> | null
-                  level?: number
-                  _type: 'block'
-                  _key: string
-                }> | null
-              }
-          > | null
-        }> | null
-      }
-    | {
-        _key: string
-        _type: 'cbCover'
-        backgroundMedia?: CbMedia
-        content: Array<
-          | {
-              _key: string
-              _type: 'cbButton'
-              label?: string
-              actionType: 'button' | 'link'
-              link: {
-                _type: 'cbLink'
-                linkType?: 'external' | 'internal'
-                externalUrl?: string
-                internalTargetType?: 'page' | 'path'
-                internalPage?: PageReference
-                internalPath?: string
-                openInNewTab?: boolean
-                internalPageSlug: string | null
-              } | null
-            }
-          | {
-              _key: string
-              _type: 'cbHeading'
-              content?: string
-              level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
-            }
-          | {
-              _key: string
-              _type: 'cbHtml'
-              content?: string
-            }
-          | {
-              _key: string
-              _type: 'cbImage'
-              media?: CbMedia
-            }
-          | {
-              _key: string
-              _type: 'cbParagraph'
-              content?: string
-            }
-          | {
-              _key: string
-              _type: 'cbWysiwyg'
-              content: Array<{
-                children?: Array<{
-                  marks?: Array<string>
-                  text?: string
-                  _type: 'span'
-                  _key: string
-                }>
-                style?: 'blockquote' | 'h2' | 'h3' | 'normal'
-                listItem?: 'bullet' | 'number'
-                markDefs: Array<{
-                  linkType?: 'href' | 'page'
-                  href?: string
-                  page: string | null
-                  openInNewTab?: boolean
-                  _type: 'link'
-                  _key: string
-                }> | null
-                level?: number
-                _type: 'block'
-                _key: string
-              }> | null
-            }
-        > | null
-      }
-    | {
-        _key: string
-        _type: 'cbGroup'
-        children: Array<
-          | {
-              _key: string
-              _type: 'cbButton'
-              label?: string
-              actionType: 'button' | 'link'
-              link: {
-                _type: 'cbLink'
-                linkType?: 'external' | 'internal'
-                externalUrl?: string
-                internalTargetType?: 'page' | 'path'
-                internalPage?: PageReference
-                internalPath?: string
-                openInNewTab?: boolean
-                internalPageSlug: string | null
-              } | null
-            }
-          | {
-              _key: string
-              _type: 'cbButtons'
-              items: Array<{
-                _key: string
-                _type: 'cbButton'
-                label?: string
-                actionType: 'button' | 'link'
-                link: {
-                  _type: 'cbLink'
-                  linkType?: 'external' | 'internal'
-                  externalUrl?: string
-                  internalTargetType?: 'page' | 'path'
-                  internalPage?: PageReference
-                  internalPath?: string
-                  openInNewTab?: boolean
-                  internalPageSlug: string | null
-                } | null
-              }> | null
-            }
-          | {
-              _key: string
-              _type: 'cbColumns'
-              columns?: Array<
-                {
-                  _key: string
-                } & CbColumn
-              >
-            }
-          | {
-              _key: string
-              _type: 'cbCover'
-              backgroundMedia?: CbMedia
-              content?: Array<
-                | ({
-                    _key: string
-                  } & CbButton)
-                | ({
-                    _key: string
-                  } & CbHeading)
-                | ({
-                    _key: string
-                  } & CbHtml)
-                | ({
-                    _key: string
-                  } & CbImage)
-                | ({
-                    _key: string
-                  } & CbParagraph)
-                | ({
-                    _key: string
-                  } & CbWysiwyg)
-              >
-            }
-          | {
-              _key: string
-              _type: 'cbGroup'
-              children?: Array<
-                | ({
-                    _key: string
-                  } & CbButton)
-                | ({
-                    _key: string
-                  } & CbButtons)
-                | ({
-                    _key: string
-                  } & CbColumns)
-                | ({
-                    _key: string
-                  } & CbCover)
-                | ({
-                    _key: string
-                  } & CbGroup)
-                | ({
-                    _key: string
-                  } & CbHeading)
-                | ({
-                    _key: string
-                  } & CbHtml)
-                | ({
-                    _key: string
-                  } & CbImage)
-                | ({
-                    _key: string
-                  } & CbList)
-                | ({
-                    _key: string
-                  } & CbNavigation)
-                | ({
-                    _key: string
-                  } & CbParagraph)
-                | ({
-                    _key: string
-                  } & CbWysiwyg)
-              >
-            }
-          | {
-              _key: string
-              _type: 'cbHeading'
-              content?: string
-              level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
-            }
-          | {
-              _key: string
-              _type: 'cbHtml'
-              content?: string
-            }
-          | {
-              _key: string
-              _type: 'cbImage'
-              media?: CbMedia
-            }
-          | {
-              _key: string
-              _type: 'cbList'
-              ordered?: boolean
-              items?: Array<
-                {
-                  _key: string
-                } & CbListItem
-              >
-            }
-          | {
-              _key: string
-              _type: 'cbNavigation'
-              links: Array<{
-                _key: string
-                _type: 'cbNavigationLink'
-                label?: string
-                link: {
-                  _type: 'cbLink'
-                  linkType?: 'external' | 'internal'
-                  externalUrl?: string
-                  internalTargetType?: 'page' | 'path'
-                  internalPage?: PageReference
-                  internalPath?: string
-                  openInNewTab?: boolean
-                  internalPageSlug: string | null
-                } | null
-              }> | null
-            }
-          | {
-              _key: string
-              _type: 'cbParagraph'
-              content?: string
-            }
-          | {
-              _key: string
-              _type: 'cbWysiwyg'
-              content: Array<{
-                children?: Array<{
-                  marks?: Array<string>
-                  text?: string
-                  _type: 'span'
-                  _key: string
-                }>
-                style?: 'blockquote' | 'h2' | 'h3' | 'normal'
-                listItem?: 'bullet' | 'number'
-                markDefs: Array<{
-                  linkType?: 'href' | 'page'
-                  href?: string
-                  page: string | null
-                  openInNewTab?: boolean
-                  _type: 'link'
-                  _key: string
-                }> | null
-                level?: number
-                _type: 'block'
-                _key: string
-              }> | null
-            }
-        > | null
-      }
-    | {
-        _key: string
-        _type: 'cbList'
-        ordered?: boolean
-        items?: Array<
-          {
-            _key: string
-          } & CbListItem
-        >
-      }
-    | {
-        _key: string
-        _type: 'cbNavigation'
-        links: Array<{
-          _key: string
-          _type: 'cbNavigationLink'
-          label?: string
-          link: {
-            _type: 'cbLink'
-            linkType?: 'external' | 'internal'
-            externalUrl?: string
-            internalTargetType?: 'page' | 'path'
-            internalPage?: PageReference
-            internalPath?: string
-            openInNewTab?: boolean
-            internalPageSlug: string | null
-          } | null
-        }> | null
-      }
-  > | null
-} | null
-
-// Source: sanity/lib/queries.ts
-// Variable: homePageQuery
-// Query: *[    _type == "homePage" &&    coalesce(language, "en") == $language  ][0]{    _id,    _type,    name,    seo{      ...,      ogImage{        ...,        asset->      }    },    structuredData,    "pageBuilder": pageBuilder[]{      ...,        _type == "cbButton" => {    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  },        _type == "cbButtons" => {    ...,    items[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },        _type == "cbNavigation" => {    ...,    links[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },        _type == "cbWysiwyg" => {    ...,    content[]{      ...,      markDefs[]{        ...,        _type == "link" => {          ...,          "page": page->slug.current        }      }    }  },      _type == "cbGroup" => {        ...,        children[]{          ...,            _type == "cbButton" => {    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  },            _type == "cbButtons" => {    ...,    items[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },            _type == "cbNavigation" => {    ...,    links[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },            _type == "cbWysiwyg" => {    ...,    content[]{      ...,      markDefs[]{        ...,        _type == "link" => {          ...,          "page": page->slug.current        }      }    }  }        }      },      _type == "cbColumn" => {        ...,        children[]{          ...,            _type == "cbButton" => {    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  },            _type == "cbButtons" => {    ...,    items[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },            _type == "cbNavigation" => {    ...,    links[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },            _type == "cbWysiwyg" => {    ...,    content[]{      ...,      markDefs[]{        ...,        _type == "link" => {          ...,          "page": page->slug.current        }      }    }  }        }      },      _type == "cbCover" => {        ...,        content[]{          ...,            _type == "cbButton" => {    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  },            _type == "cbButtons" => {    ...,    items[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },            _type == "cbNavigation" => {    ...,    links[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },            _type == "cbWysiwyg" => {    ...,    content[]{      ...,      markDefs[]{        ...,        _type == "link" => {          ...,          "page": page->slug.current        }      }    }  }        }      },      _type == "cbColumns" => {        ...,        columns[]{          ...,          children[]{            ...,              _type == "cbButton" => {    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  },              _type == "cbButtons" => {    ...,    items[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },              _type == "cbNavigation" => {    ...,    links[]{      ...,      link{        ...,        "internalPageSlug": internalPage->slug.current      }    }  },              _type == "cbWysiwyg" => {    ...,    content[]{      ...,      markDefs[]{        ...,        _type == "link" => {          ...,          "page": page->slug.current        }      }    }  }          }        }      }    }  }
-export type HomePageQueryResult = {
-  _id: string
-  _type: 'homePage'
-  name: string
-  seo: {
-    metaTitle?: string
-    metaDescription?: string
-    canonicalUrl?: string
-    noIndex?: boolean
-    ogTitle?: string
-    ogDescription?: string
-    ogImage: {
-      asset: {
-        _id: string
-        _type: 'sanity.imageAsset'
-        _createdAt: string
-        _updatedAt: string
-        _rev: string
-        originalFilename?: string
-        label?: string
-        title?: string
-        description?: string
-        altText?: string
-        sha1hash?: string
-        extension?: string
-        mimeType?: string
-        size?: number
-        assetId?: string
-        uploadId?: string
-        path?: string
-        url?: string
-        metadata?: SanityImageMetadata
-        source?: SanityAssetSourceData
-      } | null
-      media?: unknown
-      hotspot?: SanityImageHotspot
-      crop?: SanityImageCrop
-      alt?: string
-      _type: 'image'
-    } | null
-  } | null
-  structuredData: string | null
-  pageBuilder: Array<
-    | {
-        _key: string
-        _type: 'cbButtons'
-        items: Array<{
-          _key: string
-          _type: 'cbButton'
-          label?: string
-          actionType: 'button' | 'link'
-          link: {
-            _type: 'cbLink'
-            linkType?: 'external' | 'internal'
-            externalUrl?: string
-            internalTargetType?: 'page' | 'path'
-            internalPage?: PageReference
-            internalPath?: string
-            openInNewTab?: boolean
-            internalPageSlug: string | null
-          } | null
-        }> | null
-      }
-    | {
-        _key: string
-        _type: 'cbColumns'
-        columns: Array<{
-          _key: string
-          _type: 'cbColumn'
-          children: Array<
-            | {
-                _key: string
-                _type: 'cbButton'
-                label?: string
-                actionType: 'button' | 'link'
-                link: {
-                  _type: 'cbLink'
-                  linkType?: 'external' | 'internal'
-                  externalUrl?: string
-                  internalTargetType?: 'page' | 'path'
-                  internalPage?: PageReference
-                  internalPath?: string
-                  openInNewTab?: boolean
-                  internalPageSlug: string | null
-                } | null
-              }
-            | {
-                _key: string
-                _type: 'cbButtons'
-                items: Array<{
-                  _key: string
-                  _type: 'cbButton'
-                  label?: string
-                  actionType: 'button' | 'link'
-                  link: {
-                    _type: 'cbLink'
-                    linkType?: 'external' | 'internal'
-                    externalUrl?: string
-                    internalTargetType?: 'page' | 'path'
-                    internalPage?: PageReference
-                    internalPath?: string
-                    openInNewTab?: boolean
-                    internalPageSlug: string | null
-                  } | null
-                }> | null
-              }
-            | {
-                _key: string
-                _type: 'cbColumns'
-                columns?: Array<
-                  {
-                    _key: string
-                  } & CbColumn
-                >
-              }
-            | {
-                _key: string
-                _type: 'cbCover'
-                backgroundMedia?: CbMedia
-                content?: Array<
-                  | ({
-                      _key: string
-                    } & CbButton)
-                  | ({
-                      _key: string
-                    } & CbHeading)
-                  | ({
-                      _key: string
-                    } & CbHtml)
-                  | ({
-                      _key: string
-                    } & CbImage)
-                  | ({
-                      _key: string
-                    } & CbParagraph)
-                  | ({
-                      _key: string
-                    } & CbWysiwyg)
-                >
-              }
-            | {
-                _key: string
-                _type: 'cbGroup'
-                children?: Array<
-                  | ({
-                      _key: string
-                    } & CbButton)
-                  | ({
-                      _key: string
-                    } & CbButtons)
-                  | ({
-                      _key: string
-                    } & CbColumns)
-                  | ({
-                      _key: string
-                    } & CbCover)
-                  | ({
-                      _key: string
-                    } & CbGroup)
-                  | ({
-                      _key: string
-                    } & CbHeading)
-                  | ({
-                      _key: string
-                    } & CbHtml)
-                  | ({
-                      _key: string
-                    } & CbImage)
-                  | ({
-                      _key: string
-                    } & CbList)
-                  | ({
-                      _key: string
-                    } & CbNavigation)
-                  | ({
-                      _key: string
-                    } & CbParagraph)
-                  | ({
-                      _key: string
-                    } & CbWysiwyg)
-                >
-              }
-            | {
-                _key: string
-                _type: 'cbHeading'
-                content?: string
-                level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
-              }
-            | {
-                _key: string
-                _type: 'cbHtml'
-                content?: string
-              }
-            | {
-                _key: string
-                _type: 'cbImage'
-                media?: CbMedia
-              }
-            | {
-                _key: string
-                _type: 'cbList'
-                ordered?: boolean
-                items?: Array<
-                  {
-                    _key: string
-                  } & CbListItem
-                >
-              }
-            | {
-                _key: string
-                _type: 'cbNavigation'
-                links: Array<{
-                  _key: string
-                  _type: 'cbNavigationLink'
-                  label?: string
-                  link: {
-                    _type: 'cbLink'
-                    linkType?: 'external' | 'internal'
-                    externalUrl?: string
-                    internalTargetType?: 'page' | 'path'
-                    internalPage?: PageReference
-                    internalPath?: string
-                    openInNewTab?: boolean
-                    internalPageSlug: string | null
-                  } | null
-                }> | null
-              }
-            | {
-                _key: string
-                _type: 'cbParagraph'
-                content?: string
-              }
-            | {
-                _key: string
-                _type: 'cbWysiwyg'
-                content: Array<{
-                  children?: Array<{
-                    marks?: Array<string>
-                    text?: string
-                    _type: 'span'
-                    _key: string
-                  }>
-                  style?: 'blockquote' | 'h2' | 'h3' | 'normal'
-                  listItem?: 'bullet' | 'number'
-                  markDefs: Array<{
-                    linkType?: 'href' | 'page'
-                    href?: string
-                    page: string | null
-                    openInNewTab?: boolean
-                    _type: 'link'
-                    _key: string
-                  }> | null
-                  level?: number
-                  _type: 'block'
-                  _key: string
-                }> | null
-              }
-          > | null
-        }> | null
-      }
-    | {
-        _key: string
-        _type: 'cbCover'
-        backgroundMedia?: CbMedia
-        content: Array<
-          | {
-              _key: string
-              _type: 'cbButton'
-              label?: string
-              actionType: 'button' | 'link'
-              link: {
-                _type: 'cbLink'
-                linkType?: 'external' | 'internal'
-                externalUrl?: string
-                internalTargetType?: 'page' | 'path'
-                internalPage?: PageReference
-                internalPath?: string
-                openInNewTab?: boolean
-                internalPageSlug: string | null
-              } | null
-            }
-          | {
-              _key: string
-              _type: 'cbHeading'
-              content?: string
-              level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
-            }
-          | {
-              _key: string
-              _type: 'cbHtml'
-              content?: string
-            }
-          | {
-              _key: string
-              _type: 'cbImage'
-              media?: CbMedia
-            }
-          | {
-              _key: string
-              _type: 'cbParagraph'
-              content?: string
-            }
-          | {
-              _key: string
-              _type: 'cbWysiwyg'
-              content: Array<{
-                children?: Array<{
-                  marks?: Array<string>
-                  text?: string
-                  _type: 'span'
-                  _key: string
-                }>
-                style?: 'blockquote' | 'h2' | 'h3' | 'normal'
-                listItem?: 'bullet' | 'number'
-                markDefs: Array<{
-                  linkType?: 'href' | 'page'
-                  href?: string
-                  page: string | null
-                  openInNewTab?: boolean
-                  _type: 'link'
-                  _key: string
-                }> | null
-                level?: number
-                _type: 'block'
-                _key: string
-              }> | null
-            }
-        > | null
-      }
-    | {
-        _key: string
-        _type: 'cbGroup'
-        children: Array<
-          | {
-              _key: string
-              _type: 'cbButton'
-              label?: string
-              actionType: 'button' | 'link'
-              link: {
-                _type: 'cbLink'
-                linkType?: 'external' | 'internal'
-                externalUrl?: string
-                internalTargetType?: 'page' | 'path'
-                internalPage?: PageReference
-                internalPath?: string
-                openInNewTab?: boolean
-                internalPageSlug: string | null
-              } | null
-            }
-          | {
-              _key: string
-              _type: 'cbButtons'
-              items: Array<{
-                _key: string
-                _type: 'cbButton'
-                label?: string
-                actionType: 'button' | 'link'
-                link: {
-                  _type: 'cbLink'
-                  linkType?: 'external' | 'internal'
-                  externalUrl?: string
-                  internalTargetType?: 'page' | 'path'
-                  internalPage?: PageReference
-                  internalPath?: string
-                  openInNewTab?: boolean
-                  internalPageSlug: string | null
-                } | null
-              }> | null
-            }
-          | {
-              _key: string
-              _type: 'cbColumns'
-              columns?: Array<
-                {
-                  _key: string
-                } & CbColumn
-              >
-            }
-          | {
-              _key: string
-              _type: 'cbCover'
-              backgroundMedia?: CbMedia
-              content?: Array<
-                | ({
-                    _key: string
-                  } & CbButton)
-                | ({
-                    _key: string
-                  } & CbHeading)
-                | ({
-                    _key: string
-                  } & CbHtml)
-                | ({
-                    _key: string
-                  } & CbImage)
-                | ({
-                    _key: string
-                  } & CbParagraph)
-                | ({
-                    _key: string
-                  } & CbWysiwyg)
-              >
-            }
-          | {
-              _key: string
-              _type: 'cbGroup'
-              children?: Array<
-                | ({
-                    _key: string
-                  } & CbButton)
-                | ({
-                    _key: string
-                  } & CbButtons)
-                | ({
-                    _key: string
-                  } & CbColumns)
-                | ({
-                    _key: string
-                  } & CbCover)
-                | ({
-                    _key: string
-                  } & CbGroup)
-                | ({
-                    _key: string
-                  } & CbHeading)
-                | ({
-                    _key: string
-                  } & CbHtml)
-                | ({
-                    _key: string
-                  } & CbImage)
-                | ({
-                    _key: string
-                  } & CbList)
-                | ({
-                    _key: string
-                  } & CbNavigation)
-                | ({
-                    _key: string
-                  } & CbParagraph)
-                | ({
-                    _key: string
-                  } & CbWysiwyg)
-              >
-            }
-          | {
-              _key: string
-              _type: 'cbHeading'
-              content?: string
-              level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
-            }
-          | {
-              _key: string
-              _type: 'cbHtml'
-              content?: string
-            }
-          | {
-              _key: string
-              _type: 'cbImage'
-              media?: CbMedia
-            }
-          | {
-              _key: string
-              _type: 'cbList'
-              ordered?: boolean
-              items?: Array<
-                {
-                  _key: string
-                } & CbListItem
-              >
-            }
-          | {
-              _key: string
-              _type: 'cbNavigation'
-              links: Array<{
-                _key: string
-                _type: 'cbNavigationLink'
-                label?: string
-                link: {
-                  _type: 'cbLink'
-                  linkType?: 'external' | 'internal'
-                  externalUrl?: string
-                  internalTargetType?: 'page' | 'path'
-                  internalPage?: PageReference
-                  internalPath?: string
-                  openInNewTab?: boolean
-                  internalPageSlug: string | null
-                } | null
-              }> | null
-            }
-          | {
-              _key: string
-              _type: 'cbParagraph'
-              content?: string
-            }
-          | {
-              _key: string
-              _type: 'cbWysiwyg'
-              content: Array<{
-                children?: Array<{
-                  marks?: Array<string>
-                  text?: string
-                  _type: 'span'
-                  _key: string
-                }>
-                style?: 'blockquote' | 'h2' | 'h3' | 'normal'
-                listItem?: 'bullet' | 'number'
-                markDefs: Array<{
-                  linkType?: 'href' | 'page'
-                  href?: string
-                  page: string | null
-                  openInNewTab?: boolean
-                  _type: 'link'
-                  _key: string
-                }> | null
-                level?: number
-                _type: 'block'
-                _key: string
-              }> | null
-            }
-        > | null
-      }
-    | {
-        _key: string
-        _type: 'cbList'
-        ordered?: boolean
-        items?: Array<
-          {
-            _key: string
-          } & CbListItem
-        >
-      }
-    | {
-        _key: string
-        _type: 'cbNavigation'
-        links: Array<{
-          _key: string
-          _type: 'cbNavigationLink'
-          label?: string
-          link: {
-            _type: 'cbLink'
-            linkType?: 'external' | 'internal'
-            externalUrl?: string
-            internalTargetType?: 'page' | 'path'
-            internalPage?: PageReference
-            internalPath?: string
-            openInNewTab?: boolean
-            internalPageSlug: string | null
-          } | null
-        }> | null
-      }
-  > | null
-} | null
+}
 
 // Source: sanity/lib/queries.ts
 // Variable: homePageLanguagesQuery
@@ -2450,9 +1549,8 @@ export type LegalPageLanguagesBySlugQueryResult = Array<{
 import '@sanity/client'
 declare module '@sanity/client' {
   interface SanityQueries {
-    '\n  *[_type == "settings"][0]{\n    ...,\n    header{\n      ...,\n      ctaLink{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      },\n      primaryMenu{\n        ...,\n        links[]{\n          \n  ...,\n  link{\n    ...,\n    "internalPageSlug": internalPage->slug.current\n  },\n  subLinks[]{\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n\n        }\n      },\n      secondaryMenu{\n        ...,\n        links[]{\n          \n  ...,\n  link{\n    ...,\n    "internalPageSlug": internalPage->slug.current\n  },\n  subLinks[]{\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n\n        }\n      }\n    },\n    footer{\n      ...,\n      menu{\n        ...,\n        links[]{\n          \n  ...,\n  link{\n    ...,\n    "internalPageSlug": internalPage->slug.current\n  },\n  subLinks[]{\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n\n        }\n      },\n      legalMenu{\n        ...,\n        links[]{\n          \n  ...,\n  link{\n    ...,\n    "internalPageSlug": internalPage->slug.current\n  },\n  subLinks[]{\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n\n        }\n      }\n    },\n    primaryMenu{\n      ...,\n      links[]{\n        \n  ...,\n  link{\n    ...,\n    "internalPageSlug": internalPage->slug.current\n  },\n  subLinks[]{\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n\n      }\n    },\n    secondaryMenu{\n      ...,\n      links[]{\n        \n  ...,\n  link{\n    ...,\n    "internalPageSlug": internalPage->slug.current\n  },\n  subLinks[]{\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n\n      }\n    },\n    menuGroups[]{\n      ...,\n      links[]{\n        \n  ...,\n  link{\n    ...,\n    "internalPageSlug": internalPage->slug.current\n  },\n  subLinks[]{\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n\n      }\n    }\n  }\n': SettingsQueryResult
-    '\n  *[\n    _type == \'page\' &&\n    slug.current == $slug &&\n    coalesce(language, "en") == $language\n  ][0]{\n    _id,\n    _type,\n    name,\n    language,\n    slug,\n    seo{\n      ...,\n      ogImage{\n        ...,\n        asset->\n      }\n    },\n    structuredData,\n    "pageBuilder": pageBuilder[]{\n      ...,\n      \n  _type == "cbButton" => {\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n,\n      \n  _type == "cbButtons" => {\n    ...,\n    items[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n      \n  _type == "cbNavigation" => {\n    ...,\n    links[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n      \n  _type == "cbWysiwyg" => {\n    ...,\n    content[]{\n      ...,\n      markDefs[]{\n        ...,\n        _type == "link" => {\n          ...,\n          "page": page->slug.current\n        }\n      }\n    }\n  }\n,\n      _type == "cbGroup" => {\n        ...,\n        children[]{\n          ...,\n          \n  _type == "cbButton" => {\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n,\n          \n  _type == "cbButtons" => {\n    ...,\n    items[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n          \n  _type == "cbNavigation" => {\n    ...,\n    links[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n          \n  _type == "cbWysiwyg" => {\n    ...,\n    content[]{\n      ...,\n      markDefs[]{\n        ...,\n        _type == "link" => {\n          ...,\n          "page": page->slug.current\n        }\n      }\n    }\n  }\n\n        }\n      },\n      _type == "cbColumn" => {\n        ...,\n        children[]{\n          ...,\n          \n  _type == "cbButton" => {\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n,\n          \n  _type == "cbButtons" => {\n    ...,\n    items[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n          \n  _type == "cbNavigation" => {\n    ...,\n    links[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n          \n  _type == "cbWysiwyg" => {\n    ...,\n    content[]{\n      ...,\n      markDefs[]{\n        ...,\n        _type == "link" => {\n          ...,\n          "page": page->slug.current\n        }\n      }\n    }\n  }\n\n        }\n      },\n      _type == "cbCover" => {\n        ...,\n        content[]{\n          ...,\n          \n  _type == "cbButton" => {\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n,\n          \n  _type == "cbButtons" => {\n    ...,\n    items[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n          \n  _type == "cbNavigation" => {\n    ...,\n    links[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n          \n  _type == "cbWysiwyg" => {\n    ...,\n    content[]{\n      ...,\n      markDefs[]{\n        ...,\n        _type == "link" => {\n          ...,\n          "page": page->slug.current\n        }\n      }\n    }\n  }\n\n        }\n      },\n      _type == "cbColumns" => {\n        ...,\n        columns[]{\n          ...,\n          children[]{\n            ...,\n            \n  _type == "cbButton" => {\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n,\n            \n  _type == "cbButtons" => {\n    ...,\n    items[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n            \n  _type == "cbNavigation" => {\n    ...,\n    links[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n            \n  _type == "cbWysiwyg" => {\n    ...,\n    content[]{\n      ...,\n      markDefs[]{\n        ...,\n        _type == "link" => {\n          ...,\n          "page": page->slug.current\n        }\n      }\n    }\n  }\n\n          }\n        }\n      }\n    }\n  }\n': GetPageQueryResult
-    '\n  *[\n    _type == "homePage" &&\n    coalesce(language, "en") == $language\n  ][0]{\n    _id,\n    _type,\n    name,\n    seo{\n      ...,\n      ogImage{\n        ...,\n        asset->\n      }\n    },\n    structuredData,\n    "pageBuilder": pageBuilder[]{\n      ...,\n      \n  _type == "cbButton" => {\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n,\n      \n  _type == "cbButtons" => {\n    ...,\n    items[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n      \n  _type == "cbNavigation" => {\n    ...,\n    links[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n      \n  _type == "cbWysiwyg" => {\n    ...,\n    content[]{\n      ...,\n      markDefs[]{\n        ...,\n        _type == "link" => {\n          ...,\n          "page": page->slug.current\n        }\n      }\n    }\n  }\n,\n      _type == "cbGroup" => {\n        ...,\n        children[]{\n          ...,\n          \n  _type == "cbButton" => {\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n,\n          \n  _type == "cbButtons" => {\n    ...,\n    items[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n          \n  _type == "cbNavigation" => {\n    ...,\n    links[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n          \n  _type == "cbWysiwyg" => {\n    ...,\n    content[]{\n      ...,\n      markDefs[]{\n        ...,\n        _type == "link" => {\n          ...,\n          "page": page->slug.current\n        }\n      }\n    }\n  }\n\n        }\n      },\n      _type == "cbColumn" => {\n        ...,\n        children[]{\n          ...,\n          \n  _type == "cbButton" => {\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n,\n          \n  _type == "cbButtons" => {\n    ...,\n    items[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n          \n  _type == "cbNavigation" => {\n    ...,\n    links[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n          \n  _type == "cbWysiwyg" => {\n    ...,\n    content[]{\n      ...,\n      markDefs[]{\n        ...,\n        _type == "link" => {\n          ...,\n          "page": page->slug.current\n        }\n      }\n    }\n  }\n\n        }\n      },\n      _type == "cbCover" => {\n        ...,\n        content[]{\n          ...,\n          \n  _type == "cbButton" => {\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n,\n          \n  _type == "cbButtons" => {\n    ...,\n    items[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n          \n  _type == "cbNavigation" => {\n    ...,\n    links[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n          \n  _type == "cbWysiwyg" => {\n    ...,\n    content[]{\n      ...,\n      markDefs[]{\n        ...,\n        _type == "link" => {\n          ...,\n          "page": page->slug.current\n        }\n      }\n    }\n  }\n\n        }\n      },\n      _type == "cbColumns" => {\n        ...,\n        columns[]{\n          ...,\n          children[]{\n            ...,\n            \n  _type == "cbButton" => {\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n,\n            \n  _type == "cbButtons" => {\n    ...,\n    items[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n            \n  _type == "cbNavigation" => {\n    ...,\n    links[]{\n      ...,\n      link{\n        ...,\n        "internalPageSlug": internalPage->slug.current\n      }\n    }\n  }\n,\n            \n  _type == "cbWysiwyg" => {\n    ...,\n    content[]{\n      ...,\n      markDefs[]{\n        ...,\n        _type == "link" => {\n          ...,\n          "page": page->slug.current\n        }\n      }\n    }\n  }\n\n          }\n        }\n      }\n    }\n  }\n': HomePageQueryResult
+    '\n  *[_type == "settings"][0]{\n    ...\n  }\n': SettingsQueryResult
+    '\n  {\n    "settings": *[_type == "settings"][0]{\n      ...\n    },\n    "header": \n  *[_type == "header"][0]{\n    ...,\n    ctaLink{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    },\n    primaryMenu{\n      ...,\n      links[]{\n        \n  ...,\n  link{\n    ...,\n    "internalPageSlug": internalPage->slug.current\n  },\n  subLinks[]{\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n\n      }\n    },\n    secondaryMenu{\n      ...,\n      links[]{\n        \n  ...,\n  link{\n    ...,\n    "internalPageSlug": internalPage->slug.current\n  },\n  subLinks[]{\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n\n      }\n    }\n  }\n,\n    "footer": \n  *[_type == "footer"][0]{\n    ...,\n    menu{\n      ...,\n      links[]{\n        \n  ...,\n  link{\n    ...,\n    "internalPageSlug": internalPage->slug.current\n  },\n  subLinks[]{\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n\n      }\n    },\n    legalMenu{\n      ...,\n      links[]{\n        \n  ...,\n  link{\n    ...,\n    "internalPageSlug": internalPage->slug.current\n  },\n  subLinks[]{\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n\n      }\n    }\n  }\n\n  }\n': LayoutQueryResult
     '\n  *[_type == "homePage"]{\n    "language": coalesce(language, "en")\n  }\n': HomePageLanguagesQueryResult
     '\n  *[\n    (_type == "homePage") ||\n    (_type == "page" && defined(slug.current)) ||\n    (_type == "legalPage" && defined(slug))\n  ] | order(_type asc) {\n    "slug": select(_type == "legalPage" => slug, slug.current),\n    "language": coalesce(language, "en"),\n    _type,\n    _updatedAt,\n  }\n': SitemapDataResult
     '\n  *[\n    _type == "legalPage" &&\n    slug == $slug &&\n    coalesce(language, "en") == $language\n  ][0]{\n    _id,\n    title,\n    slug,\n    language,\n    content,\n    seo{\n      ...,\n      ogImage{\n        ...,\n        asset->\n      }\n    }\n  }\n': LegalPageBySlugQueryResult
