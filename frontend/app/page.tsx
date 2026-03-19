@@ -71,7 +71,7 @@ export default async function HomePage() {
       </div>
     )
   }
-
+console.log('hello world')
   return (
     <>
       {customStructuredData ? (
