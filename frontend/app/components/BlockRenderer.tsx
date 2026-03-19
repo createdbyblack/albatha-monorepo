@@ -4,6 +4,7 @@ import CTA from '@/app/components/Cta'
 import InfoSection from '@/app/components/InfoSection'
 import {useLayoutSettings} from '@/app/components/LayoutSettingsProvider'
 import CustomPortableText from '@/app/components/PortableText'
+import {cn} from '@/app/lib/cn'
 import type {PortableTextBlock} from 'next-sanity'
 import {Button} from '@/app/components/atoms/button'
 import {Heading} from '@/app/components/atoms/heading'
@@ -558,7 +559,7 @@ export default function BlockRenderer({
           data-sanity={blockDataAttr}
         >
           <Column
-            className="space-y-gutenberg-gap-md"
+            className={cn('space-y-gutenberg-gap-md', isDraftMode && 'min-h-4 p-1')}
             width={block.width || 'auto'}
             verticalAlignment={block.verticalAlignment || 'top'}
           >
@@ -582,7 +583,7 @@ export default function BlockRenderer({
             {(block.columns || []).map((column, i) => (
               <Column
                 key={column._key || `${key}-${i}`}
-                className="space-y-gutenberg-gap-md"
+                className={cn('space-y-gutenberg-gap-md', isDraftMode && 'min-h-4 m-1 p-1')}
                 width={column.width || 'auto'}
                 verticalAlignment={column.verticalAlignment || 'top'}
                 stackedOnMobile={block.isStackedOnMobile ?? true}
