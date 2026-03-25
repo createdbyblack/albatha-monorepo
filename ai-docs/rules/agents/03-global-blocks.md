@@ -18,3 +18,9 @@ Agent 3 owns shared frontend blocks, header, footer, and shared renderer registr
 - Preserve section identity and `data-sanity` wiring through the shared rendering path.
 - Confirm nested reorderable structures still follow the object-wrapped array pattern once rendered.
 - Do not implement page-only sections during this agent run.
+- Keep styling token-first through Tailwind utilities in JSX.
+- Do not invent or rename tokens during section work.
+- Avoid arbitrary values unless unavoidable and justify them.
+- Do not use inline styles.
+- Keep responsive behavior mobile-first.
+- Use `sm:`, `md:`, and `lg:` only unless the project already defines additional breakpoints.

@@ -165,6 +165,13 @@ export type CbVideo = {
   playsInline?: boolean | null
 }
 
+export type HeaderVariant = 'positive' | 'negative'
+
+export type PageHeaderAppearance = {
+  _type?: 'pageHeaderAppearance'
+  variant?: HeaderVariant | null
+}
+
 export type LegacyCallToAction = {
   _key?: string
   _type: 'callToAction'
@@ -281,6 +288,7 @@ export type PageDocumentForBuilder = {
   _type: string
   name?: string | null
   slug?: {current?: string | null} | null
+  headerAppearance?: PageHeaderAppearance | null
   pageBuilder?: PageBuilderSection[] | null
 } | null
 

@@ -33,18 +33,29 @@ export const homePage = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'headerAppearance',
+      title: 'Header',
+      type: 'pageHeaderAppearance',
+      group: 'general',
+      initialValue: {
+        variant: 'positive',
+      },
+    }),
+    defineField({
       name: 'pageBuilder',
       title: 'Page builder',
       type: 'array',
       group: 'content',
-      description: 'Home page content is row-based. Place blocks inside columns and recurse with another row only when needed.',
+      description:
+        'Home page content is row-based. Place blocks inside columns and recurse with another row only when needed.',
       of: pageBuilderRowBlockTypes,
       options: {
         insertMenu: {
           views: [
             {
               name: 'grid',
-              previewImageUrl: (schemaTypeName) => `/static/page-builder-thumbnails/${schemaTypeName}.webp`,
+              previewImageUrl: (schemaTypeName) =>
+                `/static/page-builder-thumbnails/${schemaTypeName}.webp`,
             },
           ],
         },
@@ -67,7 +78,8 @@ export const homePage = defineType({
           title: 'Meta description',
           type: 'text',
           rows: 3,
-          validation: (Rule) => Rule.max(160).warning('Keep meta description under 160 characters.'),
+          validation: (Rule) =>
+            Rule.max(160).warning('Keep meta description under 160 characters.'),
         }),
         defineField({
           name: 'canonicalUrl',

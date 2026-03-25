@@ -1,16 +1,35 @@
 import {defineQuery} from 'next-sanity'
 
+const resolvedContentLinkProjection = /* groq */ `
+  ...,
+  "internalPageSlug": internalPage->slug.current
+`
+
+const resolvedMenuSubLinkProjection = /* groq */ `
+  ...,
+  link{
+    ${resolvedContentLinkProjection}
+  }
+`
+
 const navigationLinksProjection = /* groq */ `
   ...,
   link{
-    ...,
-    "internalPageSlug": internalPage->slug.current
+    ${resolvedContentLinkProjection}
   },
   subLinks[]{
+    ${resolvedMenuSubLinkProjection}
+  },
+  megaMenu{
     ...,
-    link{
+    groups[]{
       ...,
-      "internalPageSlug": internalPage->slug.current
+      columns[]{
+        ...,
+        links[]{
+          ${resolvedMenuSubLinkProjection}
+        }
+      }
     }
   }
 `
@@ -188,6 +207,9 @@ export const getPageQuery = defineQuery(`
     name,
     language,
     slug,
+    headerAppearance{
+      ...
+    },
     seo{
       ...,
       ogImage{
@@ -210,6 +232,9 @@ export const homePageQuery = defineQuery(`
     _id,
     _type,
     name,
+    headerAppearance{
+      ...
+    },
     seo{
       ...,
       ogImage{
@@ -253,6 +278,9 @@ export const legalPageBySlugQuery = defineQuery(`
     title,
     slug,
     language,
+    headerAppearance{
+      ...
+    },
     content,
     seo{
       ...,

@@ -26,8 +26,9 @@ Agent 1 owns Sanity schema generation, dynamic section schema generation, shared
 - When a section has nested reorderable children, wrap child arrays inside object types.
 - Preserve `_key`, `_id`, and `_type` where they are needed for Visual Editing and drag-and-drop-safe rendering.
 - Keep drag-and-drop-safe `data-sanity` paths at every reorderable boundary.
-- Create migration scripts when existing content must be reshaped or when the section needs starter row and column scaffolding.
-- Migration or seed scaffolding must add the minimum required `contents`, row, and column structure for the section to render and remain draggable.
+- Create seed scripts when existing content must be added or reshaped or when the section needs starter row and column scaffolding.
+- Seed scripts should include exact values from figma.
+- Seed scaffolding must add the minimum required `contents`, row, and column structure for the section to render and remain draggable.
 - Update GROQ projections for every new or changed field in the same change set.
 - Keep link resolution patterns consistent with the existing implementation.
 - Include identity fields needed by Visual Editing.

@@ -22,7 +22,11 @@ import cbList from './objects/list'
 import cbMedia from './objects/media'
 import {menuGroup} from './objects/menuGroup'
 import {menuLink} from './objects/menuLink'
+import {menuMegaMenu} from './objects/menuMegaMenu'
+import {menuMegaMenuColumn} from './objects/menuMegaMenuColumn'
+import {menuMegaMenuGroup} from './objects/menuMegaMenuGroup'
 import {menuSubLink} from './objects/menuSubLink'
+import {pageHeaderAppearance} from './objects/pageHeaderAppearance'
 import cbNavigationLink from './objects/navigation-link'
 import cbNavigation from './objects/navigation'
 import cbParagraph from './objects/paragraph'
@@ -59,7 +63,11 @@ export const schemaTypes = [
   cbMedia,
   menuGroup,
   menuLink,
+  menuMegaMenu,
+  menuMegaMenuColumn,
+  menuMegaMenuGroup,
   menuSubLink,
+  pageHeaderAppearance,
   cbNavigationLink,
   cbNavigation,
   cbParagraph,

@@ -61,51 +61,111 @@
 @theme {
   --shadow-layer: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
 
-  --font-sans: var(--font-inter);
-  --font-sans-rtl: var(--font-arabic), var(--font-inter);
-  --font-mono: var(--font-ibm-plex-mono);
+  --font-brand: var(--font-suse);
+  --font-sans: var(--font-brand);
+  --font-sans-rtl: var(--font-suse), var(--font-arabic);
+  --font-mono: var(--font-brand);
 
-  --color-framework: #000;
-  --color-black: #0b0b0b;
-  --color-white: #fff;
-  --color-brand: #f50;
-  --color-blue: #0052ff;
-  --color-yellow: #cdea19;
-  --color-gray-50: #f6f6f8;
-  --color-gray-100: #eeeef1;
-  --color-gray-200: #e3e4e8;
-  --color-gray-300: #bbbdc9;
-  --color-gray-400: #9499ad;
-  --color-gray-500: #727892;
-  --color-gray-600: #515870;
-  --color-gray-700: #383d51;
-  --color-gray-800: #252837;
-  --color-gray-900: #1b1d27;
-  --color-gray-950: #13141b;
+  --color-albatha-blue: #0daee4;
+  --color-albatha-orange: #f25e03;
+  --color-albatha-midnight: #151d28;
+  --color-albatha-ink: #11161f;
+  --color-albatha-white: #f8f8f8;
+  --color-albatha-white-strong: #ffffff;
+  --color-albatha-surface: #f9f9f9;
+  --color-albatha-border: #dde1e5;
 
-  --color-background: var(--color-white);
-  --color-foreground: var(--color-black);
-  --color-surface: var(--color-gray-50);
-  --color-surface-strong: var(--color-white);
-  --color-border: var(--color-gray-100);
-  --color-muted-foreground: var(--color-gray-600);
-  --color-accent: var(--color-blue);
-  --color-accent-foreground: var(--color-white);
-  --color-primary: var(--color-black);
-  --color-primary-foreground: var(--color-white);
-  --color-secondary: var(--color-gray-100);
-  --color-secondary-foreground: var(--color-black);
-  --color-ring: var(--color-blue);
+  --color-background: var(--color-albatha-white);
+  --color-foreground: var(--color-albatha-midnight);
+  --color-surface: var(--color-albatha-surface);
+  --color-surface-strong: var(--color-albatha-white-strong);
+  --color-border: var(--color-albatha-border);
+  --color-muted-foreground: var(--color-albatha-ink);
+  --color-accent: var(--color-albatha-blue);
+  --color-accent-foreground: var(--color-albatha-white-strong);
+  --color-primary: var(--color-albatha-midnight);
+  --color-primary-foreground: var(--color-albatha-white-strong);
+  --color-secondary: var(--color-albatha-surface);
+  --color-secondary-foreground: var(--color-albatha-midnight);
+  --color-ring: var(--color-albatha-blue);
+
+  --color-header-positive-background: var(--color-background);
+  --color-header-positive-foreground: var(--color-foreground);
+  --color-header-positive-border: color-mix(
+    in oklab,
+    var(--color-header-positive-foreground) 24%,
+    transparent
+  );
+  --color-header-positive-border-subtle: color-mix(
+    in oklab,
+    var(--color-header-positive-foreground) 14%,
+    transparent
+  );
+  --color-header-positive-border-panel: color-mix(
+    in oklab,
+    var(--color-header-positive-foreground) 10%,
+    transparent
+  );
+  --color-header-positive-hover: color-mix(
+    in oklab,
+    var(--color-header-brand) 8%,
+    transparent
+  );
+  --color-header-positive-active: color-mix(
+    in oklab,
+    var(--color-header-brand) 10%,
+    transparent
+  );
+
+  --color-header-negative-background: transparent;
+  --color-header-negative-foreground: var(--color-albatha-white-strong);
+  --color-header-negative-border: color-mix(
+    in oklab,
+    var(--color-header-negative-foreground) 50%,
+    transparent
+  );
+  --color-header-negative-border-subtle: color-mix(
+    in oklab,
+    var(--color-header-negative-foreground) 18%,
+    transparent
+  );
+  --color-header-negative-border-panel: color-mix(
+    in oklab,
+    var(--color-header-negative-foreground) 12%,
+    transparent
+  );
+  --color-header-negative-hover: color-mix(
+    in oklab,
+    var(--color-header-negative-foreground) 8%,
+    transparent
+  );
+  --color-header-negative-active: color-mix(
+    in oklab,
+    var(--color-header-negative-foreground) 10%,
+    transparent
+  );
+
+  --color-header-brand: #0099a8;
+  --color-header-brand-foreground: var(--color-albatha-white-strong);
+  --color-header-dropdown-background: var(--color-header-brand);
+  --color-header-dropdown-muted: color-mix(
+    in oklab,
+    var(--color-header-brand-foreground) 50%,
+    transparent
+  );
 
   --color-button-primary: var(--color-primary);
   --color-button-primary-foreground: var(--color-primary-foreground);
   --color-button-primary-hover: var(--color-accent);
-  --color-button-secondary: var(--color-secondary);
+  --color-button-secondary: var(--color-albatha-surface);
   --color-button-secondary-foreground: var(--color-secondary-foreground);
-  --color-button-secondary-hover: var(--color-gray-200);
+  --color-button-secondary-hover: var(--color-albatha-border);
 
-  --content-width: 48rem;
-  --wide-width: 80rem;
+  --background-image-brand-gradient:
+    linear-gradient(180deg, #0daee4 40%, #17aad9 41%, #74897e 52%, #b7723c 60%, #e16312 67%, #f25e03 70%);
+
+  --content-width: 49.375rem;
+  --wide-width: 100rem;
 
   --spacing-gutenberg-gap-sm: 0.75rem;
   --spacing-gutenberg-gap-md: 1.5rem;
@@ -122,17 +182,17 @@
   --spacing-site-logo-md: 7.5rem;
   --spacing-site-logo-lg: 12.5rem;
 
-  --spacing-cover-sm: 12.5rem;
-  --spacing-cover-md: 25rem;
-  --spacing-cover-lg: 37.5rem;
+  --spacing-cover-sm: 37.5rem;
+  --spacing-cover-md: 50rem;
+  --spacing-cover-lg: 66.875rem;
 
   --text-button-sm: 0.75rem;
   --text-button-md: 0.875rem;
   --text-button-lg: 1rem;
   --text-copy-sm: 0.875rem;
   --text-copy-md: 1rem;
-  --text-copy-lg: 1.125rem;
-  --text-copy-xl: 1.25rem;
+  --text-copy-lg: 1.25rem;
+  --text-copy-xl: 1.875rem;
 
   --default-transition-duration: 250ms;
 }

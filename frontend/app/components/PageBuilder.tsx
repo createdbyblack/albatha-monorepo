@@ -155,8 +155,12 @@ export default function PageBuilder({page}: PageBuilderPageProps) {
     draftModeEnvironment === 'presentation-window'
 
   return pageBuilderSections && pageBuilderSections.length > 0 ? (
-    <RenderSections pageBuilderSections={pageBuilderSections} page={page} isDraftMode={isDraftMode} />
+    <>
+      <RenderSections pageBuilderSections={pageBuilderSections} page={page} isDraftMode={isDraftMode} />
+    </>
   ) : (
-    <RenderEmptyState page={page} isDraftMode={isDraftMode} />
+    <>
+      <RenderEmptyState page={page} isDraftMode={isDraftMode} />
+    </>
   )
 }

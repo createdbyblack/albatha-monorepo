@@ -2,6 +2,7 @@ import type {Metadata, ResolvingMetadata} from 'next'
 import {notFound} from 'next/navigation'
 
 import type {BuilderPageData, LegalPageData, RoutePageParams} from '@/app/lib/page-types'
+import Header from '@/app/components/Header'
 import {PageOnboarding} from '@/app/components/Onboarding'
 import PageBuilderPage from '@/app/components/PageBuilder'
 import PortableText from '@/app/components/PortableText'
@@ -183,30 +184,34 @@ export default async function CatchAllPage(props: RoutePageParams) {
 
     if (!pageWithSeo?._id) {
       return (
-        <div className="py-40">
-          <PageOnboarding />
-        </div>
+        <>
+          <Header />
+          <div className="py-40">
+            <PageOnboarding />
+          </div>
+        </>
       )
     }
 
-  return (
-    <>
-      {customStructuredData ? (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify(customStructuredData)}} />
-      ) : null}
-      <div className="my-12 lg:my-24">
-        <div className="container">
-          <div className="border-b border-border pb-6">
-            <div className="max-w-3xl">
-              <h1 className="text-4xl text-foreground sm:text-5xl lg:text-7xl">{pageWithSeo.name}</h1>
+    return (
+      <>
+        <Header variant={pageWithSeo?.headerAppearance?.variant ?? null} />
+        {customStructuredData ? (
+          <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify(customStructuredData)}} />
+        ) : null}
+        <div className="my-12 lg:my-24">
+          <div className="container">
+            <div className="border-b border-border pb-6">
+              <div className="max-w-3xl">
+                <h1 className="text-4xl text-foreground sm:text-5xl lg:text-7xl">{pageWithSeo.name}</h1>
+              </div>
             </div>
           </div>
+          <PageBuilderPage page={page as BuilderPageData} />
         </div>
-        <PageBuilderPage page={page as BuilderPageData} />
-      </div>
-    </>
-  )
-}
+      </>
+    )
+  }
 
   if (match.kind === 'legal') {
     const {data} = await sanityFetch({
@@ -219,12 +224,15 @@ export default async function CatchAllPage(props: RoutePageParams) {
     }
 
     return (
-      <div className="container py-16 lg:py-24">
-        <article className="prose prose-gray max-w-3xl">
-          <h1>{page.title || (match.slug === 'privacy-policy' ? 'Privacy Policy' : 'Terms and Conditions')}</h1>
-          {page.content?.length ? <PortableText value={page.content as any} /> : null}
-        </article>
-      </div>
+      <>
+        <Header variant={page.headerAppearance?.variant ?? null} />
+        <div className="container py-16 lg:py-24">
+          <article className="prose prose-gray max-w-3xl">
+            <h1>{page.title || (match.slug === 'privacy-policy' ? 'Privacy Policy' : 'Terms and Conditions')}</h1>
+            {page.content?.length ? <PortableText value={page.content as any} /> : null}
+          </article>
+        </div>
+      </>
     )
   }
 
@@ -238,9 +246,12 @@ export default async function CatchAllPage(props: RoutePageParams) {
   if (!pageWithSeo?._id) {
     if (match.kind === 'page' && match.language === DEFAULT_LANGUAGE) {
       return (
-        <div className="py-40">
-          <PageOnboarding />
-        </div>
+        <>
+          <Header />
+          <div className="py-40">
+            <PageOnboarding />
+          </div>
+        </>
       )
     }
     return notFound()
@@ -248,17 +259,18 @@ export default async function CatchAllPage(props: RoutePageParams) {
 
   return (
     <>
+      <Header variant={pageWithSeo?.headerAppearance?.variant ?? null} />
       {customStructuredData ? (
         <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify(customStructuredData)}} />
       ) : null}
-        <div className="my-12 lg:my-24">
-          <div className="container">
-            <div className="border-b border-border pb-6">
-              <div className="max-w-3xl">
-                <h1 className="text-4xl text-foreground sm:text-5xl lg:text-7xl">{pageWithSeo.name}</h1>
-              </div>
+      <div className="my-12 lg:my-24">
+        <div className="container">
+          <div className="border-b border-border pb-6">
+            <div className="max-w-3xl">
+              <h1 className="text-4xl text-foreground sm:text-5xl lg:text-7xl">{pageWithSeo.name}</h1>
             </div>
           </div>
+        </div>
         <PageBuilderPage page={page as BuilderPageData} />
       </div>
     </>

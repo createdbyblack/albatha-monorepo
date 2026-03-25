@@ -1,9 +1,15 @@
+'use client'
+
 import Link from 'next/link'
+import {usePathname} from 'next/navigation'
 
 import type {LayoutSettings} from '@/sanity/lib/settings-types'
-import {isExternalContentLink, resolveContentLinkHref} from '@/sanity/lib/utils'
+import {getLocaleFromPath} from '@/app/lib/locale-path'
+import {isExternalContentLink, localizeHref, resolveContentLinkHref} from '@/sanity/lib/utils'
 
 export default function Footer({settings}: {settings?: LayoutSettings | null}) {
+  const pathname = usePathname() || '/'
+  const locale = getLocaleFromPath(pathname)
   const footerConfig = settings?.footer
   const footerLinks = footerConfig?.menu?.links
   const legalLinks = footerConfig?.legalMenu?.links || []
@@ -27,10 +33,11 @@ export default function Footer({settings}: {settings?: LayoutSettings | null}) {
                 return null
               }
               const isExternal = isExternalContentLink(item.link) && item.link?.openInNewTab
+              const localizedHref = localizeHref(href, locale) || href
               return (
                 <Link
                   key={item.itemId || item._key || item.label || href}
-                  href={href}
+                  href={localizedHref}
                   className="mx-3 hover:underline font-mono"
                   target={isExternal ? '_blank' : undefined}
                   rel={isExternal ? 'noopener noreferrer' : undefined}
@@ -47,10 +54,11 @@ export default function Footer({settings}: {settings?: LayoutSettings | null}) {
                     return null
                   }
                   const isExternal = isExternalContentLink(item.link) && item.link?.openInNewTab
+                  const localizedHref = localizeHref(href, locale) || href
                   return (
                     <Link
                       key={item.itemId || item._key || item.label || href}
-                      href={href}
+                      href={localizedHref}
                       className="mx-3 hover:underline font-mono"
                       target={isExternal ? '_blank' : undefined}
                       rel={isExternal ? 'noopener noreferrer' : undefined}
@@ -63,10 +71,10 @@ export default function Footer({settings}: {settings?: LayoutSettings | null}) {
               : null}
             {showDefaultLegalLinks && legalLinks.length === 0 ? (
               <>
-                <Link href="/privacy-policy" className="mx-3 hover:underline font-mono">
+                <Link href={localizeHref('/privacy-policy', locale) || '/privacy-policy'} className="mx-3 hover:underline font-mono">
                   Privacy Policy
                 </Link>
-                <Link href="/terms-and-conditions" className="mx-3 hover:underline font-mono">
+                <Link href={localizeHref('/terms-and-conditions', locale) || '/terms-and-conditions'} className="mx-3 hover:underline font-mono">
                   Terms & Conditions
                 </Link>
               </>

@@ -1,6 +1,43 @@
 import {defineField, defineType} from 'sanity'
 
+function defineHeaderLogoField(name: string, title: string, description: string) {
+  return defineField({
+    name,
+    title,
+    description,
+    type: 'image',
+    options: {
+      hotspot: true,
+    },
+    fields: [
+      defineField({
+        name: 'alt',
+        title: 'Alternative text',
+        type: 'string',
+        validation: (rule) =>
+          rule.custom((alt, context) => {
+            const image = context.parent as {asset?: {_ref?: string}} | undefined
+            if (image?.asset?._ref && !alt) {
+              return 'Alternative text is required when a logo image is set.'
+            }
+            return true
+          }),
+      }),
+    ],
+  })
+}
+
 export const headerSettingsFields = [
+  defineHeaderLogoField(
+    'positiveLogo',
+    'Positive logo',
+    'Logo used on pages configured with the positive header variant.',
+  ),
+  defineHeaderLogoField(
+    'negativeLogo',
+    'Negative logo',
+    'Logo used on pages configured with the negative header variant.',
+  ),
   defineField({
     name: 'primaryMenu',
     title: 'Primary menu',

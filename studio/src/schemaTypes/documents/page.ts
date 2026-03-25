@@ -81,11 +81,21 @@ export const page = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'headerAppearance',
+      title: 'Header',
+      type: 'pageHeaderAppearance',
+      group: 'general',
+      initialValue: {
+        variant: 'positive',
+      },
+    }),
+    defineField({
       name: 'pageBuilder',
       title: 'Page builder',
       type: 'array',
       group: 'content',
-      description: 'Pages are assembled from rows. Add content inside columns and nest another row only when the layout requires it.',
+      description:
+        'Pages are assembled from rows. Add content inside columns and nest another row only when the layout requires it.',
       of: pageBuilderRowBlockTypes,
       options: {
         insertMenu: {

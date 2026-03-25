@@ -1,6 +1,7 @@
 import type {Metadata, ResolvingMetadata} from 'next'
 
 import type {BuilderPageData} from '@/app/lib/page-types'
+import Header from '@/app/components/Header'
 import {PageOnboarding} from '@/app/components/Onboarding'
 import PageBuilderPage from '@/app/components/PageBuilder'
 import {buildSeoMetadata} from '@/app/lib/seo-metadata'
@@ -66,14 +67,17 @@ export default async function HomePage() {
 
   if (!pageWithSeo?._id) {
     return (
-      <div className="py-40">
-        <PageOnboarding />
-      </div>
+      <>
+        <Header />
+        <div className="py-40">
+          <PageOnboarding />
+        </div>
+      </>
     )
   }
-console.log('hello world')
   return (
     <>
+      <Header variant={pageWithSeo?.headerAppearance?.variant ?? null} />
       {customStructuredData ? (
         <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify(customStructuredData)}} />
       ) : null}

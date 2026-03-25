@@ -4,6 +4,7 @@ import imageUrlBuilder from '@sanity/image-url'
 import type {SanityImageSource} from '@sanity/image-url/lib/types/types'
 import {DereferencedLink} from '@/sanity/lib/types'
 import type {ContentLink} from '@/sanity/lib/content-link'
+import {DEFAULT_LANGUAGE, type SupportedLanguage} from '@/sanity/lib/i18n'
 
 const builder = imageUrlBuilder({
   projectId: projectId || '',
@@ -88,6 +89,26 @@ export function resolveContentLinkHref(link?: ContentLink): string | null {
   }
 
   return null
+}
+
+export function localizeHref(href: string | null, locale: SupportedLanguage = DEFAULT_LANGUAGE): string | null {
+  if (!href || !href.startsWith('/')) {
+    return href
+  }
+
+  if (locale === DEFAULT_LANGUAGE) {
+    return href
+  }
+
+  if (href === '/') {
+    return `/${locale}`
+  }
+
+  if (href === `/${locale}` || href.startsWith(`/${locale}/`)) {
+    return href
+  }
+
+  return `/${locale}${href}`
 }
 
 export function isExternalContentLink(link?: ContentLink): boolean {

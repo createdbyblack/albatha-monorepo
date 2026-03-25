@@ -48,6 +48,15 @@ export const legalPage = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'headerAppearance',
+      title: 'Header',
+      type: 'pageHeaderAppearance',
+      group: 'general',
+      initialValue: {
+        variant: 'positive',
+      },
+    }),
+    defineField({
       name: 'content',
       title: 'Content',
       type: 'blockContent',
@@ -83,7 +92,8 @@ export const legalPage = defineType({
           title: 'Meta description',
           type: 'text',
           rows: 3,
-          validation: (Rule) => Rule.max(160).warning('Keep meta description under 160 characters.'),
+          validation: (Rule) =>
+            Rule.max(160).warning('Keep meta description under 160 characters.'),
         }),
         defineField({
           name: 'canonicalUrl',
