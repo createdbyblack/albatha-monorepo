@@ -57,6 +57,15 @@ export const legalPage = defineType({
       },
     }),
     defineField({
+      name: 'footerAppearance',
+      title: 'Footer',
+      type: 'pageFooterAppearance',
+      group: 'general',
+      initialValue: {
+        variant: 'positive',
+      },
+    }),
+    defineField({
       name: 'content',
       title: 'Content',
       type: 'blockContent',

@@ -123,6 +123,79 @@ export const settings = defineType({
       ],
     }),
     defineField({
+      name: 'companyName',
+      title: 'Company name',
+      description: 'Used by the shared footer contact block.',
+      type: 'string',
+      group: 'general',
+      initialValue: 'Albatha Holding',
+    }),
+    defineField({
+      name: 'officeLocations',
+      title: 'Office locations',
+      description: 'Office addresses used by the shared footer.',
+      type: 'array',
+      group: 'general',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'title',
+              title: 'Title',
+              type: 'string',
+            }),
+            defineField({
+              name: 'address',
+              title: 'Address',
+              type: 'text',
+              rows: 3,
+              validation: (rule) => rule.required(),
+            }),
+          ],
+          preview: {
+            select: {
+              title: 'title',
+              subtitle: 'address',
+            },
+            prepare({title, subtitle}) {
+              return {
+                title: title || 'Office location',
+                subtitle,
+              }
+            },
+          },
+        }),
+      ],
+      initialValue: [
+        {
+          _key: 'dubai-office',
+          title: 'Albatha Holding',
+          address: 'Level 22, Boulevard Plaza 1,\nDowntown Burj Khalifa, Dubai',
+        },
+        {
+          _key: 'sharjah-office',
+          address: 'Level 23, Albatha Tower\nBuhaira Corniche, Sharjah',
+        },
+      ],
+    }),
+    defineField({
+      name: 'contactPhone',
+      title: 'Contact phone',
+      description: 'Primary phone number used by the shared footer.',
+      type: 'string',
+      group: 'general',
+      initialValue: '+971 4 371 1300',
+    }),
+    defineField({
+      name: 'contactEmail',
+      title: 'Contact email',
+      description: 'Primary email address used by the shared footer.',
+      type: 'email',
+      group: 'general',
+      initialValue: 'business@albatha.com',
+    }),
+    defineField({
       name: 'ogImage',
       title: 'Open Graph Image',
       type: 'image',

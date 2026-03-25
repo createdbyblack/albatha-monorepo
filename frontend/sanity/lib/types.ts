@@ -172,6 +172,13 @@ export type PageHeaderAppearance = {
   variant?: HeaderVariant | null
 }
 
+export type FooterVariant = 'positive' | 'negative'
+
+export type PageFooterAppearance = {
+  _type?: 'pageFooterAppearance'
+  variant?: FooterVariant | null
+}
+
 export type LegacyCallToAction = {
   _key?: string
   _type: 'callToAction'
@@ -289,6 +296,7 @@ export type PageDocumentForBuilder = {
   name?: string | null
   slug?: {current?: string | null} | null
   headerAppearance?: PageHeaderAppearance | null
+  footerAppearance?: PageFooterAppearance | null
   pageBuilder?: PageBuilderSection[] | null
 } | null
 

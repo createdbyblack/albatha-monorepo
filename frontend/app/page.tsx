@@ -1,5 +1,6 @@
 import type {Metadata, ResolvingMetadata} from 'next'
 
+import Footer from '@/app/components/Footer'
 import type {BuilderPageData} from '@/app/lib/page-types'
 import Header from '@/app/components/Header'
 import {PageOnboarding} from '@/app/components/Onboarding'
@@ -72,6 +73,7 @@ export default async function HomePage() {
         <div className="py-40">
           <PageOnboarding />
         </div>
+        <Footer />
       </>
     )
   }
@@ -91,6 +93,7 @@ export default async function HomePage() {
         </div>
         <PageBuilderPage page={page as BuilderPageData} />
       </div>
+      <Footer variant={pageWithSeo?.footerAppearance?.variant ?? null} />
     </>
   )
 }

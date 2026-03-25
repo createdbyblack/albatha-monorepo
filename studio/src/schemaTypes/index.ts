@@ -26,6 +26,7 @@ import {menuMegaMenu} from './objects/menuMegaMenu'
 import {menuMegaMenuColumn} from './objects/menuMegaMenuColumn'
 import {menuMegaMenuGroup} from './objects/menuMegaMenuGroup'
 import {menuSubLink} from './objects/menuSubLink'
+import {pageFooterAppearance} from './objects/pageFooterAppearance'
 import {pageHeaderAppearance} from './objects/pageHeaderAppearance'
 import cbNavigationLink from './objects/navigation-link'
 import cbNavigation from './objects/navigation'
@@ -67,6 +68,7 @@ export const schemaTypes = [
   menuMegaMenuColumn,
   menuMegaMenuGroup,
   menuSubLink,
+  pageFooterAppearance,
   pageHeaderAppearance,
   cbNavigationLink,
   cbNavigation,

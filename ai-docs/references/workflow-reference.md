@@ -29,9 +29,18 @@ Use this prompt format for all developer-triggered agent runs:
 
 ### Allowed Actions
 
+The standard working set is:
+
+- `start`
+- `correction`
+- `approve`
+- `seed`
+
+`status` is optional when the developer wants a readout only.
+
 #### `start`
 
-Use for the initial run of the current scoped task.
+Use for the first implementation pass of the current scoped task.
 
 Developer must do this before prompting:
 
@@ -45,53 +54,34 @@ Expected behavior:
 - read the active task file
 - start implementation for the current scope
 - update status and outputs when done
+- leave the scope at `STATUS: awaiting-decision` when developer input is needed next
 
-#### `review`
+#### `correction`
 
-Use after the developer updates the relevant `Review` section in the active task file.
+Use after the developer requests changes in the active task file.
 
 Developer must do this before prompting:
 
 - open the active task file
-- set `REVIEW_DECISION`
-- fill `REVIEW_NOTES`
-- fill `CORRECTION_ITEMS` when corrections are requested
-- leave the existing status fields unchanged
-
-Expected behavior:
-
-- read the active agent rule file
-- read the current `REVIEW_DECISION`
-- if the decision is `changes-requested`, apply corrections
-- if the decision is `approved`, finalize approval, handoff, and close the accepted scope at `STATUS: done`
-- update status, correction round, and execution log
-
-#### `correction`
-
-Use when the next step should explicitly be correction work.
-
-Developer must do this before prompting:
-
-- confirm the active task file already contains review feedback
-- set `REVIEW_DECISION: changes-requested`
+- set `DECISION: changes-requested`
 - add clear correction items in `CORRECTION_ITEMS`
-- keep the page or section notes updated if the correction depends on extra context
+- add any supporting notes in `NOTES`
 
 Expected behavior:
 
 - read the active agent rule file
-- read the `Review` section
+- read the `Decision` section
 - apply requested corrections
-- move the file back to `awaiting-review` when corrections are complete
+- update status, correction round, outputs, and execution log
+- return the scope to `STATUS: awaiting-decision` when the correction pass is complete
 
 #### `approve`
 
-Use when the next step should explicitly be approval finalization.
+Use after the implementation is accepted and the developer has recorded approval in the active task file.
 
 Developer must do this before prompting:
 
-- confirm the implementation is accepted
-- set `REVIEW_DECISION: approved`
+- set `DECISION: approved`
 - add any approval notes that should remain in the record
 - make sure no unresolved correction items remain in the active scope
 
@@ -101,24 +91,11 @@ Expected behavior:
 - record approval
 - set handoff readiness
 - set the next agent when applicable
-- close the current scope at `STATUS: done` when appropriate
+- close the current scope at `STATUS: done`
 
-#### `resume`
+Agent 1 approval gate:
 
-Use when work should continue without a new review decision.
-
-Developer must do this before prompting:
-
-- confirm no new review feedback needs to be processed
-- verify the active task file still points to the same intended scope
-- update dependency notes if a prior blocker was removed
-
-Expected behavior:
-
-- read the active agent rule file
-- continue from the current status
-- preserve existing review state
-- update status and execution log
+- when the schema already exists and the remaining work is content-shape alignment, Agent 1 must create the required migration or starter-seed script, run it, and record the command and outcome before `approve`
 
 #### `seed`
 
@@ -137,14 +114,13 @@ Expected behavior:
 - create or update seed work for approved content only
 - avoid unapproved implementation changes
 
+Note for Agent 1:
+
+- migration or starter-seed scripts that are required to make an existing schema usable are implementation work and should happen during `start` or `correction`, not during the post-approval `seed` action
+
 #### `status`
 
-Use when the developer wants a state readout without asking the agent to start new work.
-
-Developer must do this before prompting:
-
-- make sure the active task file points to the scope you want summarized
-- decide whether you want only the current agent status or also the current page scope
+Use when the developer wants a state readout without asking the agent to implement new work.
 
 Expected behavior:
 
@@ -155,23 +131,24 @@ Expected behavior:
 ### Canonical Examples
 
 - `Agent 1 do /jobs/homepage/tasks.md start`
-- `Agent 1 do /jobs/homepage/tasks.md review`
 - `Agent 1 do /jobs/homepage/tasks.md correction`
 - `Agent 1 do /jobs/homepage/tasks.md approve`
+- `Agent 1 do /jobs/homepage/tasks.md status`
 - `Agent 2 do /jobs/homepage/tasks.md start`
-- `Agent 3 do /jobs/homepage/tasks.md resume`
+- `Agent 3 do /jobs/homepage/tasks.md correction`
 - `Agent 4 do /jobs/homepage/tasks.md seed`
 - `Agent 4 do /jobs/homepage/tasks.md status`
 
 ### Default Recommendation
 
-Most developer interactions should use only these three actions:
+Most developer interactions should use only these four actions:
 
 - `start`
-- `review`
-- `status`
+- `correction`
+- `approve`
+- `seed`
 
-Use `correction`, `approve`, `resume`, and `seed` only when the next step needs to be explicit.
+Use `status` only when the next step is a readout instead of implementation work.
 
 ## Input Contract
 
@@ -197,6 +174,7 @@ Use this shared input contract for the four-agent workflow. Populate only the fi
 - `SCHEMA_TARGETS`
 - `PAGES_IN_SCOPE`
 - `MIGRATION_TARGETS`
+- `EXISTING_SCHEMA_FOLLOW_UP`
 - `REUSE_PRIORITY`
 
 #### Agent 2
@@ -240,14 +218,14 @@ Agent 4 also relies on the shared page inputs already present in the task file, 
 - `SCHEMA_NOTES`
 - `SEEDING_NOTES`
 
-### Review Inputs
+### Decision Inputs
 
 Developers should use these fields in the relevant agent section of the active task file after a run:
 
-- `REVIEW_DECISION`: `pending`, `changes-requested`, or `approved`
-- `REVIEWED_BY`
-- `REVIEW_DATE`
-- `REVIEW_NOTES`
+- `DECISION`: `pending`, `changes-requested`, or `approved`
+- `DECIDED_BY`
+- `DECISION_DATE`
+- `NOTES`
 - `CORRECTION_ITEMS`
 
 ### Status Fields
@@ -265,7 +243,7 @@ Agents own these fields and should update them after each run:
 
 Use these ownership rules inside `AI-docs/jobs/<page-slug>/tasks.md`:
 
-- Developers own shared inputs, section order, shared notes, agent inputs, dependencies, review sections, and optional allowed edit path constraints
+- Developers own shared inputs, section order, shared notes, agent inputs, dependencies, decision sections, and optional allowed edit path constraints
 - Agents own status, outputs, handoff, and execution log sections
 - In the section list, developers own section names and target nodes, while agents own `SECTION_STATUS`
 - Developers should not manually edit agent-owned sections unless a workflow document explicitly says otherwise
@@ -277,6 +255,7 @@ Use these ownership rules inside `AI-docs/jobs/<page-slug>/tasks.md`:
 - Section work should not start until the shared token and font baseline is established unless the workflow explicitly allows overlap.
 - Seed work should not start until the implementation scope is approved.
 - Agent 1 may create migration scripts earlier when they are required to support schema changes, dynamic section scaffolding, or content reshaping.
+- If `SCHEMA_TARGETS` already exist, Agent 1 should treat `EXISTING_SCHEMA_FOLLOW_UP` and `MIGRATION_TARGETS` as active implementation work and should not stop at schema confirmation alone.
 
 ## Dynamic Section Modeling Contract
 
@@ -361,26 +340,19 @@ Agent 3 should leave:
 - reusable block patterns Agent 4 should reuse before adding new page-specific code
 - any shared Visual Editing constraints needed for drag-and-drop-safe rendering
 
-### Review Workflow
+### Decision Workflow
 
-Every agent follows the same review lifecycle:
+Every agent follows the same lifecycle:
 
 1. `ready`
 2. `in-progress`
-3. `awaiting-review`
-4. `changes-requested`
-5. `revising`
-6. `approved`
-7. `done`
+3. `awaiting-decision`
+4. `revising`
+5. `done`
 
 `blocked` may be used at any time when a prerequisite is missing.
 
-Repository default:
-
-- accepted scopes should end at `done`
-- `approved` is optional as a short-lived transitional status and should not remain the resting state for completed accepted work
-
-Developers should edit only the relevant developer-owned sections in `AI-docs/jobs/<page-slug>/tasks.md` after a run, usually the relevant `Review` section.
+Developers should edit only the relevant developer-owned sections in `AI-docs/jobs/<page-slug>/tasks.md` after a run, usually the relevant `Decision` section.
 
 Developers should not manually change:
 
@@ -390,6 +362,11 @@ Developers should not manually change:
 - `NEXT_AGENT`
 
 The active agent must update those fields after each run.
+
+Agent 1 special case:
+
+- if the schema already exists and the remaining work is migration or starter-structure backfill, the agent should stay in implementation mode until the migration or seed script has been created and run
+- Agent 1 should record the exact command and the result in the task file before approval is finalized
 
 ### Page Handling
 
@@ -401,7 +378,7 @@ When page 1 is complete, keep its task file as the execution record and create a
 
 Agent 4 or the active implementation agent may create seeding work only after the relevant implementation scope is approved.
 
-Do not create content seeds during an implementation run that is still awaiting review.
+Do not create content seeds during an implementation run that is still awaiting decision.
 Migration scripts remain Agent 1 responsibility and may be created earlier when the schema contract requires them.
 When a section needs starter structure, the seed should add the required `contents`, row, and column scaffolding defined by Agent 1.
 
@@ -425,4 +402,4 @@ Agent-specific implementation rules belong in `AI-docs/rules/agents/`, and the l
 - Keep section schemas and rendering aligned with Sanity Visual Editing drag-and-drop requirements for array-based content and form-path-safe `data-sanity` targets.
 - Keep shared non-trivial TypeScript types in separate importable files.
 - Treat the active task file as the runtime contract for the current run.
-- Agents own workflow status updates. Developers should supply inputs and review feedback only.
+- Agents own workflow status updates. Developers should supply inputs and decision feedback only.

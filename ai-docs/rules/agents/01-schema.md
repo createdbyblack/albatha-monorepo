@@ -33,3 +33,6 @@ Agent 1 owns Sanity schema generation, dynamic section schema generation, shared
 - Keep link resolution patterns consistent with the existing implementation.
 - Include identity fields needed by Visual Editing.
 - Do not implement frontend rendering during this agent run.
+- If the target schema already exists, do not stop at schema confirmation. The next required step is to create the migration or starter-seed script needed to align existing documents with the active schema contract.
+- Run the required migration or starter-seed command before approval when the current scope depends on existing schema content being backfilled or scaffolded.
+- Record the exact follow-up command and result in the Agent 1 outputs before closing the scope.

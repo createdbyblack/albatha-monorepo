@@ -31,11 +31,11 @@ LOCALE_SCOPE:
 ```md
 1. SECTION_NAME:
    TARGET_NODE_URL:
-   SECTION_STATUS: planned | in-progress | awaiting-review | approved | done | blocked
+   SECTION_STATUS: planned | in-progress | awaiting-decision | done | blocked
 
 2. SECTION_NAME:
    TARGET_NODE_URL:
-   SECTION_STATUS: planned | in-progress | awaiting-review | approved | done | blocked
+   SECTION_STATUS: planned | in-progress | awaiting-decision | done | blocked
 ```
 
 ## Shared Notes `(Developer-Owned)`
@@ -53,6 +53,7 @@ GLOBAL_NOTES:
 PAGES_IN_SCOPE:
 SCHEMA_TARGETS:
 MIGRATION_TARGETS:
+EXISTING_SCHEMA_FOLLOW_UP: none | migration | seed | migration-and-seed
 REUSE_PRIORITY:
 NOTES:
 ```
@@ -77,7 +78,7 @@ BLOCKERS:
 ### Status `(Codex-Owned)`
 
 ```md
-STATUS: ready | in-progress | awaiting-review | changes-requested | revising | approved | done | blocked
+STATUS: ready | in-progress | awaiting-decision | revising | done | blocked
 CORRECTION_ROUND: 0
 LAST_ACTION:
 NEXT_ACTION:
@@ -85,13 +86,13 @@ HANDOFF_READY: no
 NEXT_AGENT: Agent 2 | Agent 3 | Agent 4 | none
 ```
 
-### Review `(Developer-Owned)`
+### Decision `(Developer-Owned)`
 
 ```md
-REVIEW_DECISION: pending | changes-requested | approved
-REVIEWED_BY:
-REVIEW_DATE:
-REVIEW_NOTES:
+DECISION: pending | changes-requested | approved
+DECIDED_BY:
+DECISION_DATE:
+NOTES:
 CORRECTION_ITEMS:
 ```
 
@@ -102,6 +103,8 @@ SCHEMA_FILES_UPDATED:
 QUERY_CHANGES:
 TYPE_CHANGES:
 MIGRATION_CHANGES:
+FOLLOW_UP_COMMANDS_RUN:
+FOLLOW_UP_RESULTS:
 SECTION_SHAPE_DECISIONS:
 OPEN_DECISIONS:
 ```
@@ -143,7 +146,7 @@ BLOCKERS:
 ### Status `(Codex-Owned)`
 
 ```md
-STATUS: ready | in-progress | awaiting-review | changes-requested | revising | approved | done | blocked
+STATUS: ready | in-progress | awaiting-decision | revising | done | blocked
 CORRECTION_ROUND: 0
 LAST_ACTION:
 NEXT_ACTION:
@@ -151,13 +154,13 @@ HANDOFF_READY: no
 NEXT_AGENT: Agent 3 | Agent 4 | none
 ```
 
-### Review `(Developer-Owned)`
+### Decision `(Developer-Owned)`
 
 ```md
-REVIEW_DECISION: pending | changes-requested | approved
-REVIEWED_BY:
-REVIEW_DATE:
-REVIEW_NOTES:
+DECISION: pending | changes-requested | approved
+DECIDED_BY:
+DECISION_DATE:
+NOTES:
 CORRECTION_ITEMS:
 ```
 
@@ -212,7 +215,7 @@ BLOCKERS:
 ### Status `(Codex-Owned)`
 
 ```md
-STATUS: ready | in-progress | awaiting-review | changes-requested | revising | approved | done | blocked
+STATUS: ready | in-progress | awaiting-decision | revising | done | blocked
 CORRECTION_ROUND: 0
 LAST_ACTION:
 NEXT_ACTION:
@@ -220,13 +223,13 @@ HANDOFF_READY: no
 NEXT_AGENT: Agent 4 | none
 ```
 
-### Review `(Developer-Owned)`
+### Decision `(Developer-Owned)`
 
 ```md
-REVIEW_DECISION: pending | changes-requested | approved
-REVIEWED_BY:
-REVIEW_DATE:
-REVIEW_NOTES:
+DECISION: pending | changes-requested | approved
+DECIDED_BY:
+DECISION_DATE:
+NOTES:
 CORRECTION_ITEMS:
 ```
 
@@ -282,7 +285,7 @@ BLOCKERS:
 ### Status `(Codex-Owned)`
 
 ```md
-STATUS: ready | in-progress | awaiting-review | changes-requested | revising | approved | done | blocked
+STATUS: ready | in-progress | awaiting-decision | revising | done | blocked
 CORRECTION_ROUND: 0
 LAST_ACTION:
 NEXT_ACTION:
@@ -290,13 +293,13 @@ HANDOFF_READY: no
 NEXT_AGENT: none
 ```
 
-### Review `(Developer-Owned)`
+### Decision `(Developer-Owned)`
 
 ```md
-REVIEW_DECISION: pending | changes-requested | approved
-REVIEWED_BY:
-REVIEW_DATE:
-REVIEW_NOTES:
+DECISION: pending | changes-requested | approved
+DECIDED_BY:
+DECISION_DATE:
+NOTES:
 CORRECTION_ITEMS:
 ```
 

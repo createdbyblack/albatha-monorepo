@@ -1,4 +1,9 @@
-import type {PageBuilderSection, PageDocumentForBuilder, PageHeaderAppearance} from '@/sanity/lib/types'
+import type {
+  PageBuilderSection,
+  PageDocumentForBuilder,
+  PageFooterAppearance,
+  PageHeaderAppearance,
+} from '@/sanity/lib/types'
 
 export type RoutePageParams = {
   params: Promise<{segments?: string[]}>
@@ -26,6 +31,7 @@ export type LegalPageData = {
   title?: string
   content?: unknown[]
   headerAppearance?: PageHeaderAppearance | null
+  footerAppearance?: PageFooterAppearance | null
   seo?: SeoFields
 }
 

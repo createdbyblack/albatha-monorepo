@@ -2,6 +2,7 @@ import type {Metadata, ResolvingMetadata} from 'next'
 import {notFound} from 'next/navigation'
 
 import type {BuilderPageData, LegalPageData, RoutePageParams} from '@/app/lib/page-types'
+import Footer from '@/app/components/Footer'
 import Header from '@/app/components/Header'
 import {PageOnboarding} from '@/app/components/Onboarding'
 import PageBuilderPage from '@/app/components/PageBuilder'
@@ -189,6 +190,7 @@ export default async function CatchAllPage(props: RoutePageParams) {
           <div className="py-40">
             <PageOnboarding />
           </div>
+          <Footer />
         </>
       )
     }
@@ -209,6 +211,7 @@ export default async function CatchAllPage(props: RoutePageParams) {
           </div>
           <PageBuilderPage page={page as BuilderPageData} />
         </div>
+        <Footer variant={pageWithSeo?.footerAppearance?.variant ?? null} />
       </>
     )
   }
@@ -232,6 +235,7 @@ export default async function CatchAllPage(props: RoutePageParams) {
             {page.content?.length ? <PortableText value={page.content as any} /> : null}
           </article>
         </div>
+        <Footer variant={page.footerAppearance?.variant ?? null} />
       </>
     )
   }
@@ -251,6 +255,7 @@ export default async function CatchAllPage(props: RoutePageParams) {
           <div className="py-40">
             <PageOnboarding />
           </div>
+          <Footer />
         </>
       )
     }
@@ -273,6 +278,7 @@ export default async function CatchAllPage(props: RoutePageParams) {
         </div>
         <PageBuilderPage page={page as BuilderPageData} />
       </div>
+      <Footer variant={pageWithSeo?.footerAppearance?.variant ?? null} />
     </>
   )
 }

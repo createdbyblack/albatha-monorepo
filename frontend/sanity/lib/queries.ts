@@ -12,6 +12,16 @@ const resolvedMenuSubLinkProjection = /* groq */ `
   }
 `
 
+const footerNavigationGroupProjection = /* groq */ `
+  ...,
+  columns[]{
+    ...,
+    links[]{
+      ${resolvedMenuSubLinkProjection}
+    }
+  }
+`
+
 const navigationLinksProjection = /* groq */ `
   ...,
   link{
@@ -59,6 +69,12 @@ const headerProjection = /* groq */ `
 const footerProjection = /* groq */ `
   *[_type == "footer"][0]{
     ...,
+    creditLink{
+      ${resolvedContentLinkProjection}
+    },
+    navigationGroups[]{
+      ${footerNavigationGroupProjection}
+    },
     menu{
       ...,
       links[]{
@@ -210,6 +226,9 @@ export const getPageQuery = defineQuery(`
     headerAppearance{
       ...
     },
+    footerAppearance{
+      ...
+    },
     seo{
       ...,
       ogImage{
@@ -233,6 +252,9 @@ export const homePageQuery = defineQuery(`
     _type,
     name,
     headerAppearance{
+      ...
+    },
+    footerAppearance{
       ...
     },
     seo{
@@ -279,6 +301,9 @@ export const legalPageBySlugQuery = defineQuery(`
     slug,
     language,
     headerAppearance{
+      ...
+    },
+    footerAppearance{
       ...
     },
     content,

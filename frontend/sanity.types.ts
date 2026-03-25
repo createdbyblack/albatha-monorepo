@@ -143,11 +143,49 @@ export type CbNavigationLink = {
   link?: CbLink
 }
 
+export type PageHeaderAppearance = {
+  _type: 'pageHeaderAppearance'
+  variant: 'positive' | 'negative'
+}
+
+export type PageFooterAppearance = {
+  _type: 'pageFooterAppearance'
+  variant: 'positive' | 'negative'
+}
+
 export type MenuSubLink = {
   _type: 'menuSubLink'
   itemId: string
   label: string
   link: CbLink
+}
+
+export type MenuMegaMenuGroup = {
+  _type: 'menuMegaMenuGroup'
+  title: string
+  columns: Array<
+    {
+      _key: string
+    } & MenuMegaMenuColumn
+  >
+}
+
+export type MenuMegaMenuColumn = {
+  _type: 'menuMegaMenuColumn'
+  links: Array<
+    {
+      _key: string
+    } & MenuSubLink
+  >
+}
+
+export type MenuMegaMenu = {
+  _type: 'menuMegaMenu'
+  groups: Array<
+    {
+      _key: string
+    } & MenuMegaMenuGroup
+  >
 }
 
 export type MenuLink = {
@@ -160,6 +198,7 @@ export type MenuLink = {
       _key: string
     } & MenuSubLink
   >
+  megaMenu?: MenuMegaMenu
 }
 
 export type MenuGroup = {
@@ -633,11 +672,50 @@ export type Footer = {
   _createdAt: string
   _updatedAt: string
   _rev: string
+  positiveLogo?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  }
+  negativeLogo?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  }
+  navigationGroups?: Array<
+    {
+      _key: string
+    } & MenuMegaMenuGroup
+  >
   heading?: string
   menu: MenuGroup
   legalMenu?: MenuGroup
   showDefaultLegalLinks?: boolean
   copyrightText?: string
+  creditLabel?: string
+  creditLink?: CbLink
+}
+
+export type SanityImageCrop = {
+  _type: 'sanity.imageCrop'
+  top: number
+  bottom: number
+  left: number
+  right: number
+}
+
+export type SanityImageHotspot = {
+  _type: 'sanity.imageHotspot'
+  x: number
+  y: number
+  height: number
+  width: number
 }
 
 export type Header = {
@@ -646,6 +724,22 @@ export type Header = {
   _createdAt: string
   _updatedAt: string
   _rev: string
+  positiveLogo?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  }
+  negativeLogo?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  }
   primaryMenu: MenuGroup
   secondaryMenu: MenuGroup
   ctaLabel?: string
@@ -688,6 +782,14 @@ export type Settings = {
     alt: string
     _type: 'image'
   }
+  companyName?: string
+  officeLocations?: Array<{
+    title?: string
+    address: string
+    _key: string
+  }>
+  contactPhone?: string
+  contactEmail?: string
   ogImage?: {
     asset?: SanityImageAssetReference
     media?: unknown
@@ -700,22 +802,6 @@ export type Settings = {
   gtmScript?: string
   gaScript?: string
   cookiePolicyScript?: string
-}
-
-export type SanityImageCrop = {
-  _type: 'sanity.imageCrop'
-  top: number
-  bottom: number
-  left: number
-  right: number
-}
-
-export type SanityImageHotspot = {
-  _type: 'sanity.imageHotspot'
-  x: number
-  y: number
-  height: number
-  width: number
 }
 
 export type SanityAssistInstructionTask = {
@@ -898,6 +984,8 @@ export type HomePage = {
   _rev: string
   name: string
   language: string
+  headerAppearance?: PageHeaderAppearance
+  footerAppearance?: PageFooterAppearance
   pageBuilder?: Array<
     {
       _key: string
@@ -931,6 +1019,8 @@ export type LegalPage = {
   title: string
   slug: 'privacy-policy' | 'terms-and-conditions'
   language: string
+  headerAppearance?: PageHeaderAppearance
+  footerAppearance?: PageFooterAppearance
   content: BlockContent
   structuredData?: string
   seo?: {
@@ -959,6 +1049,8 @@ export type Page = {
   name: string
   slug: Slug
   language: string
+  headerAppearance?: PageHeaderAppearance
+  footerAppearance?: PageFooterAppearance
   pageBuilder?: Array<
     {
       _key: string
@@ -1098,7 +1190,12 @@ export type AllSanitySchemaTypes =
   | CbParagraph
   | CbNavigation
   | CbNavigationLink
+  | PageHeaderAppearance
+  | PageFooterAppearance
   | MenuSubLink
+  | MenuMegaMenuGroup
+  | MenuMegaMenuColumn
+  | MenuMegaMenu
   | MenuLink
   | MenuGroup
   | SanityFileAssetReference
@@ -1117,10 +1214,10 @@ export type AllSanitySchemaTypes =
   | CbButton
   | CbBlock
   | Footer
-  | Header
-  | Settings
   | SanityImageCrop
   | SanityImageHotspot
+  | Header
+  | Settings
   | SanityAssistInstructionTask
   | SanityAssistTaskStatus
   | SanityAssistSchemaTypeAnnotations
@@ -1193,6 +1290,14 @@ export type SettingsQueryResult = {
     alt: string
     _type: 'image'
   }
+  companyName?: string
+  officeLocations?: Array<{
+    title?: string
+    address: string
+    _key: string
+  }>
+  contactPhone?: string
+  contactEmail?: string
   ogImage?: {
     asset?: SanityImageAssetReference
     media?: unknown
@@ -1209,7 +1314,7 @@ export type SettingsQueryResult = {
 
 // Source: sanity/lib/queries.ts
 // Variable: layoutQuery
-// Query: {    "settings": *[_type == "settings"][0]{      ...    },    "header":   *[_type == "header"][0]{    ...,    ctaLink{      ...,      "internalPageSlug": internalPage->slug.current    },    primaryMenu{      ...,      links[]{          ...,  link{    ...,    "internalPageSlug": internalPage->slug.current  },  subLinks[]{    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  }      }    },    secondaryMenu{      ...,      links[]{          ...,  link{    ...,    "internalPageSlug": internalPage->slug.current  },  subLinks[]{    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  }      }    }  },    "footer":   *[_type == "footer"][0]{    ...,    menu{      ...,      links[]{          ...,  link{    ...,    "internalPageSlug": internalPage->slug.current  },  subLinks[]{    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  }      }    },    legalMenu{      ...,      links[]{          ...,  link{    ...,    "internalPageSlug": internalPage->slug.current  },  subLinks[]{    ...,    link{      ...,      "internalPageSlug": internalPage->slug.current    }  }      }    }  }  }
+// Query: {    "settings": *[_type == "settings"][0]{      ...    },    "header":   *[_type == "header"][0]{    ...,    ctaLink{      ...,      "internalPageSlug": internalPage->slug.current    },    primaryMenu{      ...,      links[]{          ...,  link{      ...,  "internalPageSlug": internalPage->slug.current  },  subLinks[]{      ...,  link{      ...,  "internalPageSlug": internalPage->slug.current  }  },  megaMenu{    ...,    groups[]{      ...,      columns[]{        ...,        links[]{            ...,  link{      ...,  "internalPageSlug": internalPage->slug.current  }        }      }    }  }      }    },    secondaryMenu{      ...,      links[]{          ...,  link{      ...,  "internalPageSlug": internalPage->slug.current  },  subLinks[]{      ...,  link{      ...,  "internalPageSlug": internalPage->slug.current  }  },  megaMenu{    ...,    groups[]{      ...,      columns[]{        ...,        links[]{            ...,  link{      ...,  "internalPageSlug": internalPage->slug.current  }        }      }    }  }      }    }  },    "footer":   *[_type == "footer"][0]{    ...,    creditLink{        ...,  "internalPageSlug": internalPage->slug.current    },    navigationGroups[]{        ...,  columns[]{    ...,    links[]{        ...,  link{      ...,  "internalPageSlug": internalPage->slug.current  }    }  }    },    menu{      ...,      links[]{          ...,  link{      ...,  "internalPageSlug": internalPage->slug.current  },  subLinks[]{      ...,  link{      ...,  "internalPageSlug": internalPage->slug.current  }  },  megaMenu{    ...,    groups[]{      ...,      columns[]{        ...,        links[]{            ...,  link{      ...,  "internalPageSlug": internalPage->slug.current  }        }      }    }  }      }    },    legalMenu{      ...,      links[]{          ...,  link{      ...,  "internalPageSlug": internalPage->slug.current  },  subLinks[]{      ...,  link{      ...,  "internalPageSlug": internalPage->slug.current  }  },  megaMenu{    ...,    groups[]{      ...,      columns[]{        ...,        links[]{            ...,  link{      ...,  "internalPageSlug": internalPage->slug.current  }        }      }    }  }      }    }  }  }
 export type LayoutQueryResult = {
   settings: {
     _id: string
@@ -1247,6 +1352,14 @@ export type LayoutQueryResult = {
       alt: string
       _type: 'image'
     }
+    companyName?: string
+    officeLocations?: Array<{
+      title?: string
+      address: string
+      _key: string
+    }>
+    contactPhone?: string
+    contactEmail?: string
     ogImage?: {
       asset?: SanityImageAssetReference
       media?: unknown
@@ -1266,6 +1379,22 @@ export type LayoutQueryResult = {
     _createdAt: string
     _updatedAt: string
     _rev: string
+    positiveLogo?: {
+      asset?: SanityImageAssetReference
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      alt?: string
+      _type: 'image'
+    }
+    negativeLogo?: {
+      asset?: SanityImageAssetReference
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      alt?: string
+      _type: 'image'
+    }
     primaryMenu: {
       _type: 'menuGroup'
       menuId: string
@@ -1301,6 +1430,34 @@ export type LayoutQueryResult = {
             internalPageSlug: string | null
           }
         }> | null
+        megaMenu: {
+          _type: 'menuMegaMenu'
+          groups: Array<{
+            _key: string
+            _type: 'menuMegaMenuGroup'
+            title: string
+            columns: Array<{
+              _key: string
+              _type: 'menuMegaMenuColumn'
+              links: Array<{
+                _key: string
+                _type: 'menuSubLink'
+                itemId: string
+                label: string
+                link: {
+                  _type: 'cbLink'
+                  linkType?: 'external' | 'internal'
+                  externalUrl?: string
+                  internalTargetType?: 'page' | 'path'
+                  internalPage?: PageReference
+                  internalPath?: string
+                  openInNewTab?: boolean
+                  internalPageSlug: string | null
+                }
+              }>
+            }>
+          }>
+        } | null
       }>
     }
     secondaryMenu: {
@@ -1338,6 +1495,34 @@ export type LayoutQueryResult = {
             internalPageSlug: string | null
           }
         }> | null
+        megaMenu: {
+          _type: 'menuMegaMenu'
+          groups: Array<{
+            _key: string
+            _type: 'menuMegaMenuGroup'
+            title: string
+            columns: Array<{
+              _key: string
+              _type: 'menuMegaMenuColumn'
+              links: Array<{
+                _key: string
+                _type: 'menuSubLink'
+                itemId: string
+                label: string
+                link: {
+                  _type: 'cbLink'
+                  linkType?: 'external' | 'internal'
+                  externalUrl?: string
+                  internalTargetType?: 'page' | 'path'
+                  internalPage?: PageReference
+                  internalPath?: string
+                  openInNewTab?: boolean
+                  internalPageSlug: string | null
+                }
+              }>
+            }>
+          }>
+        } | null
       }>
     }
     ctaLabel?: string
@@ -1358,6 +1543,47 @@ export type LayoutQueryResult = {
     _createdAt: string
     _updatedAt: string
     _rev: string
+    positiveLogo?: {
+      asset?: SanityImageAssetReference
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      alt?: string
+      _type: 'image'
+    }
+    negativeLogo?: {
+      asset?: SanityImageAssetReference
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      alt?: string
+      _type: 'image'
+    }
+    navigationGroups: Array<{
+      _key: string
+      _type: 'menuMegaMenuGroup'
+      title: string
+      columns: Array<{
+        _key: string
+        _type: 'menuMegaMenuColumn'
+        links: Array<{
+          _key: string
+          _type: 'menuSubLink'
+          itemId: string
+          label: string
+          link: {
+            _type: 'cbLink'
+            linkType?: 'external' | 'internal'
+            externalUrl?: string
+            internalTargetType?: 'page' | 'path'
+            internalPage?: PageReference
+            internalPath?: string
+            openInNewTab?: boolean
+            internalPageSlug: string | null
+          }
+        }>
+      }>
+    }> | null
     heading?: string
     menu: {
       _type: 'menuGroup'
@@ -1394,6 +1620,34 @@ export type LayoutQueryResult = {
             internalPageSlug: string | null
           }
         }> | null
+        megaMenu: {
+          _type: 'menuMegaMenu'
+          groups: Array<{
+            _key: string
+            _type: 'menuMegaMenuGroup'
+            title: string
+            columns: Array<{
+              _key: string
+              _type: 'menuMegaMenuColumn'
+              links: Array<{
+                _key: string
+                _type: 'menuSubLink'
+                itemId: string
+                label: string
+                link: {
+                  _type: 'cbLink'
+                  linkType?: 'external' | 'internal'
+                  externalUrl?: string
+                  internalTargetType?: 'page' | 'path'
+                  internalPage?: PageReference
+                  internalPath?: string
+                  openInNewTab?: boolean
+                  internalPageSlug: string | null
+                }
+              }>
+            }>
+          }>
+        } | null
       }>
     }
     legalMenu: {
@@ -1431,10 +1685,49 @@ export type LayoutQueryResult = {
             internalPageSlug: string | null
           }
         }> | null
+        megaMenu: {
+          _type: 'menuMegaMenu'
+          groups: Array<{
+            _key: string
+            _type: 'menuMegaMenuGroup'
+            title: string
+            columns: Array<{
+              _key: string
+              _type: 'menuMegaMenuColumn'
+              links: Array<{
+                _key: string
+                _type: 'menuSubLink'
+                itemId: string
+                label: string
+                link: {
+                  _type: 'cbLink'
+                  linkType?: 'external' | 'internal'
+                  externalUrl?: string
+                  internalTargetType?: 'page' | 'path'
+                  internalPage?: PageReference
+                  internalPath?: string
+                  openInNewTab?: boolean
+                  internalPageSlug: string | null
+                }
+              }>
+            }>
+          }>
+        } | null
       }>
     } | null
     showDefaultLegalLinks?: boolean
     copyrightText?: string
+    creditLabel?: string
+    creditLink: {
+      _type: 'cbLink'
+      linkType?: 'external' | 'internal'
+      externalUrl?: string
+      internalTargetType?: 'page' | 'path'
+      internalPage?: PageReference
+      internalPath?: string
+      openInNewTab?: boolean
+      internalPageSlug: string | null
+    } | null
   } | null
 }
 
@@ -1471,12 +1764,20 @@ export type SitemapDataResult = Array<
 
 // Source: sanity/lib/queries.ts
 // Variable: legalPageBySlugQuery
-// Query: *[    _type == "legalPage" &&    slug == $slug &&    coalesce(language, "en") == $language  ][0]{    _id,    title,    slug,    language,    content,    seo{      ...,      ogImage{        ...,        asset->      }    }  }
+// Query: *[    _type == "legalPage" &&    slug == $slug &&    coalesce(language, "en") == $language  ][0]{    _id,    title,    slug,    language,    headerAppearance{      ...    },    footerAppearance{      ...    },    content,    seo{      ...,      ogImage{        ...,        asset->      }    }  }
 export type LegalPageBySlugQueryResult = {
   _id: string
   title: string
   slug: 'privacy-policy' | 'terms-and-conditions'
   language: string
+  headerAppearance: {
+    _type: 'pageHeaderAppearance'
+    variant: 'negative' | 'positive'
+  } | null
+  footerAppearance: {
+    _type: 'pageFooterAppearance'
+    variant: 'negative' | 'positive'
+  } | null
   content: BlockContent
   seo: {
     metaDescription?: string
@@ -1550,10 +1851,10 @@ import '@sanity/client'
 declare module '@sanity/client' {
   interface SanityQueries {
     '\n  *[_type == "settings"][0]{\n    ...\n  }\n': SettingsQueryResult
-    '\n  {\n    "settings": *[_type == "settings"][0]{\n      ...\n    },\n    "header": \n  *[_type == "header"][0]{\n    ...,\n    ctaLink{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    },\n    primaryMenu{\n      ...,\n      links[]{\n        \n  ...,\n  link{\n    ...,\n    "internalPageSlug": internalPage->slug.current\n  },\n  subLinks[]{\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n\n      }\n    },\n    secondaryMenu{\n      ...,\n      links[]{\n        \n  ...,\n  link{\n    ...,\n    "internalPageSlug": internalPage->slug.current\n  },\n  subLinks[]{\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n\n      }\n    }\n  }\n,\n    "footer": \n  *[_type == "footer"][0]{\n    ...,\n    menu{\n      ...,\n      links[]{\n        \n  ...,\n  link{\n    ...,\n    "internalPageSlug": internalPage->slug.current\n  },\n  subLinks[]{\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n\n      }\n    },\n    legalMenu{\n      ...,\n      links[]{\n        \n  ...,\n  link{\n    ...,\n    "internalPageSlug": internalPage->slug.current\n  },\n  subLinks[]{\n    ...,\n    link{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    }\n  }\n\n      }\n    }\n  }\n\n  }\n': LayoutQueryResult
+    '\n  {\n    "settings": *[_type == "settings"][0]{\n      ...\n    },\n    "header": \n  *[_type == "header"][0]{\n    ...,\n    ctaLink{\n      ...,\n      "internalPageSlug": internalPage->slug.current\n    },\n    primaryMenu{\n      ...,\n      links[]{\n        \n  ...,\n  link{\n    \n  ...,\n  "internalPageSlug": internalPage->slug.current\n\n  },\n  subLinks[]{\n    \n  ...,\n  link{\n    \n  ...,\n  "internalPageSlug": internalPage->slug.current\n\n  }\n\n  },\n  megaMenu{\n    ...,\n    groups[]{\n      ...,\n      columns[]{\n        ...,\n        links[]{\n          \n  ...,\n  link{\n    \n  ...,\n  "internalPageSlug": internalPage->slug.current\n\n  }\n\n        }\n      }\n    }\n  }\n\n      }\n    },\n    secondaryMenu{\n      ...,\n      links[]{\n        \n  ...,\n  link{\n    \n  ...,\n  "internalPageSlug": internalPage->slug.current\n\n  },\n  subLinks[]{\n    \n  ...,\n  link{\n    \n  ...,\n  "internalPageSlug": internalPage->slug.current\n\n  }\n\n  },\n  megaMenu{\n    ...,\n    groups[]{\n      ...,\n      columns[]{\n        ...,\n        links[]{\n          \n  ...,\n  link{\n    \n  ...,\n  "internalPageSlug": internalPage->slug.current\n\n  }\n\n        }\n      }\n    }\n  }\n\n      }\n    }\n  }\n,\n    "footer": \n  *[_type == "footer"][0]{\n    ...,\n    creditLink{\n      \n  ...,\n  "internalPageSlug": internalPage->slug.current\n\n    },\n    navigationGroups[]{\n      \n  ...,\n  columns[]{\n    ...,\n    links[]{\n      \n  ...,\n  link{\n    \n  ...,\n  "internalPageSlug": internalPage->slug.current\n\n  }\n\n    }\n  }\n\n    },\n    menu{\n      ...,\n      links[]{\n        \n  ...,\n  link{\n    \n  ...,\n  "internalPageSlug": internalPage->slug.current\n\n  },\n  subLinks[]{\n    \n  ...,\n  link{\n    \n  ...,\n  "internalPageSlug": internalPage->slug.current\n\n  }\n\n  },\n  megaMenu{\n    ...,\n    groups[]{\n      ...,\n      columns[]{\n        ...,\n        links[]{\n          \n  ...,\n  link{\n    \n  ...,\n  "internalPageSlug": internalPage->slug.current\n\n  }\n\n        }\n      }\n    }\n  }\n\n      }\n    },\n    legalMenu{\n      ...,\n      links[]{\n        \n  ...,\n  link{\n    \n  ...,\n  "internalPageSlug": internalPage->slug.current\n\n  },\n  subLinks[]{\n    \n  ...,\n  link{\n    \n  ...,\n  "internalPageSlug": internalPage->slug.current\n\n  }\n\n  },\n  megaMenu{\n    ...,\n    groups[]{\n      ...,\n      columns[]{\n        ...,\n        links[]{\n          \n  ...,\n  link{\n    \n  ...,\n  "internalPageSlug": internalPage->slug.current\n\n  }\n\n        }\n      }\n    }\n  }\n\n      }\n    }\n  }\n\n  }\n': LayoutQueryResult
     '\n  *[_type == "homePage"]{\n    "language": coalesce(language, "en")\n  }\n': HomePageLanguagesQueryResult
     '\n  *[\n    (_type == "homePage") ||\n    (_type == "page" && defined(slug.current)) ||\n    (_type == "legalPage" && defined(slug))\n  ] | order(_type asc) {\n    "slug": select(_type == "legalPage" => slug, slug.current),\n    "language": coalesce(language, "en"),\n    _type,\n    _updatedAt,\n  }\n': SitemapDataResult
-    '\n  *[\n    _type == "legalPage" &&\n    slug == $slug &&\n    coalesce(language, "en") == $language\n  ][0]{\n    _id,\n    title,\n    slug,\n    language,\n    content,\n    seo{\n      ...,\n      ogImage{\n        ...,\n        asset->\n      }\n    }\n  }\n': LegalPageBySlugQueryResult
+    '\n  *[\n    _type == "legalPage" &&\n    slug == $slug &&\n    coalesce(language, "en") == $language\n  ][0]{\n    _id,\n    title,\n    slug,\n    language,\n    headerAppearance{\n      ...\n    },\n    footerAppearance{\n      ...\n    },\n    content,\n    seo{\n      ...,\n      ogImage{\n        ...,\n        asset->\n      }\n    }\n  }\n': LegalPageBySlugQueryResult
     '\n  *[\n    _type == "page" &&\n    defined(slug.current) &&\n    coalesce(language, "en") == $language\n  ]\n  {"slug": slug.current}\n': PagesSlugsResult
     '\n  *[\n    _type == "page" &&\n    defined(slug.current) &&\n    coalesce(language, "en") != $defaultLanguage\n  ]{\n    "slug": slug.current,\n    "language": coalesce(language, "en")\n  }\n': LocalizedPagesSlugsResult
     '\n  *[\n    _type == "page" &&\n    slug.current == $slug\n  ]{\n    "language": coalesce(language, "en")\n  }\n': PageLanguagesBySlugQueryResult

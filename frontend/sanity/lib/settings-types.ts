@@ -14,12 +14,33 @@ export type MenuGroup = {
   links?: MenuLink[] | null
 }
 
+export type FooterNavigationColumn = {
+  _key?: string
+  links?: MenuLink[] | null
+}
+
+export type FooterNavigationGroup = {
+  _key?: string
+  title?: string | null
+  columns?: FooterNavigationColumn[] | null
+}
+
 export type LayoutSettings = {
   title?: string | null
   logo?: {
     asset?: {_ref?: string} | null
     alt?: string | null
   } | null
+  companyName?: string | null
+  officeLocations?:
+    | Array<{
+        _key?: string
+        title?: string | null
+        address?: string | null
+      }>
+    | null
+  contactPhone?: string | null
+  contactEmail?: string | null
   header?: {
     primaryMenu?: MenuGroup | null
     secondaryMenu?: MenuGroup | null
@@ -27,11 +48,22 @@ export type LayoutSettings = {
     ctaLink?: ContentLink
   } | null
   footer?: {
+    positiveLogo?: {
+      asset?: {_ref?: string} | null
+      alt?: string | null
+    } | null
+    negativeLogo?: {
+      asset?: {_ref?: string} | null
+      alt?: string | null
+    } | null
+    navigationGroups?: FooterNavigationGroup[] | null
     heading?: string | null
     menu?: MenuGroup | null
     legalMenu?: MenuGroup | null
     showDefaultLegalLinks?: boolean | null
     copyrightText?: string | null
+    creditLabel?: string | null
+    creditLink?: ContentLink | null
   } | null
   gtmScript?: string | null
   gaScript?: string | null

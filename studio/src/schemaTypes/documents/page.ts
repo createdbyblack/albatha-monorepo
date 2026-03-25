@@ -90,6 +90,15 @@ export const page = defineType({
       },
     }),
     defineField({
+      name: 'footerAppearance',
+      title: 'Footer',
+      type: 'pageFooterAppearance',
+      group: 'general',
+      initialValue: {
+        variant: 'positive',
+      },
+    }),
+    defineField({
       name: 'pageBuilder',
       title: 'Page builder',
       type: 'array',

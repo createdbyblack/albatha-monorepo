@@ -143,11 +143,49 @@ export type CbNavigationLink = {
   link?: CbLink
 }
 
+export type PageHeaderAppearance = {
+  _type: 'pageHeaderAppearance'
+  variant: 'positive' | 'negative'
+}
+
+export type PageFooterAppearance = {
+  _type: 'pageFooterAppearance'
+  variant: 'positive' | 'negative'
+}
+
 export type MenuSubLink = {
   _type: 'menuSubLink'
   itemId: string
   label: string
   link: CbLink
+}
+
+export type MenuMegaMenuGroup = {
+  _type: 'menuMegaMenuGroup'
+  title: string
+  columns: Array<
+    {
+      _key: string
+    } & MenuMegaMenuColumn
+  >
+}
+
+export type MenuMegaMenuColumn = {
+  _type: 'menuMegaMenuColumn'
+  links: Array<
+    {
+      _key: string
+    } & MenuSubLink
+  >
+}
+
+export type MenuMegaMenu = {
+  _type: 'menuMegaMenu'
+  groups: Array<
+    {
+      _key: string
+    } & MenuMegaMenuGroup
+  >
 }
 
 export type MenuLink = {
@@ -160,6 +198,7 @@ export type MenuLink = {
       _key: string
     } & MenuSubLink
   >
+  megaMenu?: MenuMegaMenu
 }
 
 export type MenuGroup = {
@@ -633,11 +672,50 @@ export type Footer = {
   _createdAt: string
   _updatedAt: string
   _rev: string
+  positiveLogo?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  }
+  negativeLogo?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  }
+  navigationGroups?: Array<
+    {
+      _key: string
+    } & MenuMegaMenuGroup
+  >
   heading?: string
   menu: MenuGroup
   legalMenu?: MenuGroup
   showDefaultLegalLinks?: boolean
   copyrightText?: string
+  creditLabel?: string
+  creditLink?: CbLink
+}
+
+export type SanityImageCrop = {
+  _type: 'sanity.imageCrop'
+  top: number
+  bottom: number
+  left: number
+  right: number
+}
+
+export type SanityImageHotspot = {
+  _type: 'sanity.imageHotspot'
+  x: number
+  y: number
+  height: number
+  width: number
 }
 
 export type Header = {
@@ -646,6 +724,22 @@ export type Header = {
   _createdAt: string
   _updatedAt: string
   _rev: string
+  positiveLogo?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  }
+  negativeLogo?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  }
   primaryMenu: MenuGroup
   secondaryMenu: MenuGroup
   ctaLabel?: string
@@ -688,6 +782,14 @@ export type Settings = {
     alt: string
     _type: 'image'
   }
+  companyName?: string
+  officeLocations?: Array<{
+    title?: string
+    address: string
+    _key: string
+  }>
+  contactPhone?: string
+  contactEmail?: string
   ogImage?: {
     asset?: SanityImageAssetReference
     media?: unknown
@@ -700,22 +802,6 @@ export type Settings = {
   gtmScript?: string
   gaScript?: string
   cookiePolicyScript?: string
-}
-
-export type SanityImageCrop = {
-  _type: 'sanity.imageCrop'
-  top: number
-  bottom: number
-  left: number
-  right: number
-}
-
-export type SanityImageHotspot = {
-  _type: 'sanity.imageHotspot'
-  x: number
-  y: number
-  height: number
-  width: number
 }
 
 export type SanityAssistInstructionTask = {
@@ -898,6 +984,8 @@ export type HomePage = {
   _rev: string
   name: string
   language: string
+  headerAppearance?: PageHeaderAppearance
+  footerAppearance?: PageFooterAppearance
   pageBuilder?: Array<
     {
       _key: string
@@ -931,6 +1019,8 @@ export type LegalPage = {
   title: string
   slug: 'privacy-policy' | 'terms-and-conditions'
   language: string
+  headerAppearance?: PageHeaderAppearance
+  footerAppearance?: PageFooterAppearance
   content: BlockContent
   structuredData?: string
   seo?: {
@@ -959,6 +1049,8 @@ export type Page = {
   name: string
   slug: Slug
   language: string
+  headerAppearance?: PageHeaderAppearance
+  footerAppearance?: PageFooterAppearance
   pageBuilder?: Array<
     {
       _key: string
@@ -1098,7 +1190,12 @@ export type AllSanitySchemaTypes =
   | CbParagraph
   | CbNavigation
   | CbNavigationLink
+  | PageHeaderAppearance
+  | PageFooterAppearance
   | MenuSubLink
+  | MenuMegaMenuGroup
+  | MenuMegaMenuColumn
+  | MenuMegaMenu
   | MenuLink
   | MenuGroup
   | SanityFileAssetReference
@@ -1117,10 +1214,10 @@ export type AllSanitySchemaTypes =
   | CbButton
   | CbBlock
   | Footer
-  | Header
-  | Settings
   | SanityImageCrop
   | SanityImageHotspot
+  | Header
+  | Settings
   | SanityAssistInstructionTask
   | SanityAssistTaskStatus
   | SanityAssistSchemaTypeAnnotations
