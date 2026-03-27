@@ -4,10 +4,13 @@ export default function NotFound() {
   return (
     <div className="container py-24 lg:py-32">
       <div className="max-w-2xl space-y-6">
-        <p className="font-mono text-sm uppercase tracking-wide text-gray-500">404</p>
-        <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-gray-900">Page not found</h1>
+        <p className="font-brand text-sm uppercase tracking-wide text-gray-500">404</p>
+        <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-gray-900">
+          Page not found
+        </h1>
         <p className="text-gray-700">
-          The page you requested does not exist or may have moved. Check the URL or return to the homepage.
+          The page you requested does not exist or may have moved. Check the URL or return to the
+          homepage.
         </p>
         <Link
           href="/"

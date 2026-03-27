@@ -4,7 +4,6 @@ import {SpeedInsights} from '@vercel/speed-insights/next'
 import type {Metadata} from 'next'
 import {Noto_Sans_Arabic, SUSE} from 'next/font/google'
 import {draftMode} from 'next/headers'
-import Script from 'next/script'
 import {toPlainText} from 'next-sanity'
 import {VisualEditing} from 'next-sanity/visual-editing'
 import {Toaster} from 'sonner'
@@ -12,11 +11,12 @@ import {Toaster} from 'sonner'
 import DraftModeToast from '@/app/components/DraftModeToast'
 import {LayoutSettingsProvider} from '@/app/components/LayoutSettingsProvider'
 import LocaleDocumentController from '@/app/components/LocaleDocumentController'
+import SettingsScripts from '@/app/components/SettingsScripts'
 import * as demo from '@/sanity/lib/demo'
 import {sanityFetch, SanityLive} from '@/sanity/lib/live'
 import {layoutQuery, settingsQuery} from '@/sanity/lib/queries'
 import type {LayoutSettings} from '@/sanity/lib/settings-types'
-import {normalizeInlineScript, resolveOpenGraphImage} from '@/sanity/lib/utils'
+import {resolveOpenGraphImage} from '@/sanity/lib/utils'
 import {handleError} from '@/app/client-utils'
 import {buildLanguageAlternates, SUPPORTED_LANGUAGES} from '@/sanity/lib/i18n'
 
@@ -39,8 +39,8 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase = settings?.ogImage?.metadataBase
       ? new URL(settings.ogImage.metadataBase)
       : undefined
-  } catch {
-    // ignore
+  } catch (e) {
+    console.warn('Invalid metadataBase URL:', e)
   }
   return {
     metadataBase,
@@ -104,9 +104,6 @@ export default async function RootLayout({children}: {children: React.ReactNode}
       } as LayoutSettings)
     : null
   const lang = 'en-US'
-  const gtmScript = normalizeInlineScript(layoutSettings?.gtmScript)
-  const gaScript = normalizeInlineScript(layoutSettings?.gaScript)
-  const cookiePolicyScript = normalizeInlineScript(layoutSettings?.cookiePolicyScript)
 
   return (
     <html
@@ -117,22 +114,8 @@ export default async function RootLayout({children}: {children: React.ReactNode}
       <body className="bg-background text-foreground">
         <LayoutSettingsProvider settings={layoutSettings}>
           <LocaleDocumentController />
-          {gtmScript ? (
-            <Script id="settings-gtm-script" strategy="afterInteractive">
-              {gtmScript}
-            </Script>
-          ) : null}
-          {gaScript ? (
-            <Script id="settings-ga-script" strategy="afterInteractive">
-              {gaScript}
-            </Script>
-          ) : null}
-          {cookiePolicyScript ? (
-            <Script id="settings-cookie-policy-script" strategy="afterInteractive">
-              {cookiePolicyScript}
-            </Script>
-          ) : null}
-          <section className="min-h-screen pt-28 md:pt-32">
+          <SettingsScripts settings={layoutSettings} />
+          <div className="min-h-screen">
             {/* The <Toaster> component is responsible for rendering toast notifications used in /app/client-utils.ts and /app/components/DraftModeToast.tsx */}
             <Toaster />
             {isDraftMode && (
@@ -145,7 +128,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
             {/* The <SanityLive> component is responsible for making all sanityFetch calls in your application live, so should always be rendered. */}
             <SanityLive onError={handleError} />
             <main>{children}</main>
-          </section>
+          </div>
         </LayoutSettingsProvider>
         <SpeedInsights />
       </body>

@@ -694,7 +694,6 @@ export type Footer = {
     } & MenuMegaMenuGroup
   >
   heading?: string
-  menu: MenuGroup
   legalMenu?: MenuGroup
   showDefaultLegalLinks?: boolean
   copyrightText?: string
@@ -1585,71 +1584,6 @@ export type LayoutQueryResult = {
       }>
     }> | null
     heading?: string
-    menu: {
-      _type: 'menuGroup'
-      menuId: string
-      title?: string
-      links: Array<{
-        _key: string
-        _type: 'menuLink'
-        itemId: string
-        label: string
-        link: {
-          _type: 'cbLink'
-          linkType?: 'external' | 'internal'
-          externalUrl?: string
-          internalTargetType?: 'page' | 'path'
-          internalPage?: PageReference
-          internalPath?: string
-          openInNewTab?: boolean
-          internalPageSlug: string | null
-        }
-        subLinks: Array<{
-          _key: string
-          _type: 'menuSubLink'
-          itemId: string
-          label: string
-          link: {
-            _type: 'cbLink'
-            linkType?: 'external' | 'internal'
-            externalUrl?: string
-            internalTargetType?: 'page' | 'path'
-            internalPage?: PageReference
-            internalPath?: string
-            openInNewTab?: boolean
-            internalPageSlug: string | null
-          }
-        }> | null
-        megaMenu: {
-          _type: 'menuMegaMenu'
-          groups: Array<{
-            _key: string
-            _type: 'menuMegaMenuGroup'
-            title: string
-            columns: Array<{
-              _key: string
-              _type: 'menuMegaMenuColumn'
-              links: Array<{
-                _key: string
-                _type: 'menuSubLink'
-                itemId: string
-                label: string
-                link: {
-                  _type: 'cbLink'
-                  linkType?: 'external' | 'internal'
-                  externalUrl?: string
-                  internalTargetType?: 'page' | 'path'
-                  internalPage?: PageReference
-                  internalPath?: string
-                  openInNewTab?: boolean
-                  internalPageSlug: string | null
-                }
-              }>
-            }>
-          }>
-        } | null
-      }>
-    }
     legalMenu: {
       _type: 'menuGroup'
       menuId: string
@@ -1728,6 +1662,7 @@ export type LayoutQueryResult = {
       openInNewTab?: boolean
       internalPageSlug: string | null
     } | null
+    menu: null
   } | null
 }
 

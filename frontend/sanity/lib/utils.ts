@@ -91,7 +91,10 @@ export function resolveContentLinkHref(link?: ContentLink): string | null {
   return null
 }
 
-export function localizeHref(href: string | null, locale: SupportedLanguage = DEFAULT_LANGUAGE): string | null {
+export function localizeHref(
+  href: string | null,
+  locale: SupportedLanguage = DEFAULT_LANGUAGE,
+): string | null {
   if (!href || !href.startsWith('/')) {
     return href
   }
@@ -115,12 +118,12 @@ export function isExternalContentLink(link?: ContentLink): boolean {
   return link?.linkType === 'external'
 }
 
-export function normalizeInlineScript(script?: string | null): string {
+export function normalizeInlineScript(script?: string | null): string | null {
   if (!script) {
-    return ''
+    return null
   }
-
   const trimmed = script.trim()
+
   return trimmed.replace(/<\/?script[^>]*>/gi, '').trim()
 }
 
@@ -137,7 +140,10 @@ export function parseJsonObject(value?: string | null): Record<string, unknown> 
   }
 }
 
-export function ensureAbsoluteUrl(value?: string | null, fallback = 'http://localhost:3000'): string {
+export function ensureAbsoluteUrl(
+  value?: string | null,
+  fallback = 'http://localhost:3000',
+): string {
   if (value) {
     try {
       return new URL(value).toString().replace(/\/$/, '')

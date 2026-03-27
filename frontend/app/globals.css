@@ -9,17 +9,15 @@
   }
 
   body {
-    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+    font-family: var(--font-brand), ui-sans-serif, system-ui, sans-serif;
   }
 
   html[dir='rtl'] body {
-    font-family: var(--font-sans-rtl), ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-brand-rtl), ui-sans-serif, system-ui, sans-serif;
   }
 
-  html[dir='rtl'] .font-mono {
-    font-family: var(--font-sans-rtl), ui-sans-serif, system-ui, sans-serif;
+  html[dir='rtl'] .font-brand {
+    font-family: var(--font-brand-rtl), ui-sans-serif, system-ui, sans-serif;
     letter-spacing: normal;
   }
 
@@ -56,25 +54,25 @@
   }
 }
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 @theme {
   --shadow-layer: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
 
+  /* === Typography === */
   --font-brand: var(--font-suse);
-  --font-sans: var(--font-brand);
-  --font-sans-rtl: var(--font-suse), var(--font-arabic);
-  --font-mono: var(--font-brand);
+  --font-brand-rtl: var(--font-suse), var(--font-arabic);
+  --font-mono: ui-monospace, 'Cascadia Code', monospace --color-albatha-blue: #0daee4;
 
-  --color-albatha-blue: #0daee4;
+  /* === Colors: Primitives === */
   --color-albatha-orange: #f25e03;
   --color-albatha-midnight: #151d28;
   --color-albatha-ink: #11161f;
   --color-albatha-white: #f8f8f8;
+  --color-albatha-teal: #0099a8;
   --color-albatha-white-strong: #ffffff;
   --color-albatha-surface: #f9f9f9;
   --color-albatha-border: #dde1e5;
 
+  /* === Colors: Semantic === */
   --color-background: var(--color-albatha-white);
   --color-foreground: var(--color-albatha-midnight);
   --color-surface: var(--color-albatha-surface);
@@ -89,6 +87,7 @@
   --color-secondary-foreground: var(--color-albatha-midnight);
   --color-ring: var(--color-albatha-blue);
 
+  /* === Header === */
   --color-header-positive-background: var(--color-background);
   --color-header-positive-foreground: var(--color-foreground);
   --color-header-positive-border: color-mix(
@@ -106,16 +105,10 @@
     var(--color-header-positive-foreground) 10%,
     transparent
   );
-  --color-header-positive-hover: color-mix(
-    in oklab,
-    var(--color-header-brand) 8%,
-    transparent
-  );
-  --color-header-positive-active: color-mix(
-    in oklab,
-    var(--color-header-brand) 10%,
-    transparent
-  );
+
+  --color-header-brand: var(--color-albatha-teal);
+  --color-header-positive-hover: color-mix(in oklab, var(--color-header-brand) 8%, transparent);
+  --color-header-positive-active: color-mix(in oklab, var(--color-header-brand) 10%, transparent);
 
   --color-header-negative-background: transparent;
   --color-header-negative-foreground: var(--color-albatha-white-strong);
@@ -145,7 +138,6 @@
     transparent
   );
 
-  --color-header-brand: #0099a8;
   --color-header-brand-foreground: var(--color-albatha-white-strong);
   --color-header-dropdown-background: var(--color-header-brand);
   --color-header-dropdown-muted: color-mix(
@@ -161,12 +153,22 @@
   --color-button-secondary-foreground: var(--color-secondary-foreground);
   --color-button-secondary-hover: var(--color-albatha-border);
 
-  --background-image-brand-gradient:
-    linear-gradient(180deg, #0daee4 40%, #17aad9 41%, #74897e 52%, #b7723c 60%, #e16312 67%, #f25e03 70%);
+  /* === Backgrounds === */
+  --background-image-brand-gradient: linear-gradient(
+    180deg,
+    #0daee4 40%,
+    #17aad9 41%,
+    #74897e 52%,
+    #b7723c 60%,
+    #e16312 67%,
+    #f25e03 70%
+  );
 
+  /* === Layout Widths === */
   --content-width: 49.375rem;
   --wide-width: 100rem;
 
+  /* === Spacing === */
   --spacing-gutenberg-gap-sm: 0.75rem;
   --spacing-gutenberg-gap-md: 1.5rem;
   --spacing-gutenberg-gap-lg: 2.5rem;
@@ -186,6 +188,7 @@
   --spacing-cover-md: 50rem;
   --spacing-cover-lg: 66.875rem;
 
+  /* === Typography Scale === */
   --text-button-sm: 0.75rem;
   --text-button-md: 0.875rem;
   --text-button-lg: 1rem;
@@ -194,5 +197,6 @@
   --text-copy-lg: 1.25rem;
   --text-copy-xl: 1.875rem;
 
+  /* === Motion === */
   --default-transition-duration: 250ms;
 }

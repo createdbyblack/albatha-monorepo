@@ -3,11 +3,7 @@ import {createClient} from 'next-sanity'
 import {apiVersion, dataset, projectId, studioUrl} from '@/sanity/lib/api'
 import {token} from '@/sanity/lib/token'
 
-const STEGA_SKIPPED_ENUM_FIELDS = new Set([
-  'width',
-  'gap',
-  'verticalAlignment',
-])
+const STEGA_SKIPPED_ENUM_FIELDS = new Set(['width', 'gap', 'verticalAlignment'])
 
 export const client = createClient({
   projectId,

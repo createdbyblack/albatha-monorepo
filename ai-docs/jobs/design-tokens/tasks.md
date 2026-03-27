@@ -1,6 +1,5 @@
 # Page Task Template
 
-
 Developers and Codex both update this file. Follow the ownership labels in each section.
 
 ## Ownership Rules
@@ -25,14 +24,12 @@ TARGET_PAGE_NODE_URL: N/A
 LOCALE_SCOPE: N/A
 ```
 
-
 ## Shared Notes `(Developer-Owned)`
 
 ```md
 PAGE_NOTES: N/A
 GLOBAL_NOTES: N/A
 ```
-
 
 ## Agent 2
 
@@ -75,8 +72,8 @@ NEXT_AGENT: Agent 3
 
 ```md
 REVIEW_DECISION: approved
-REVIEW_DATE: 
-REVIEW_NOTES: 
+REVIEW_DATE:
+REVIEW_NOTES:
 CORRECTION_ITEMS:
 ```
 
@@ -97,7 +94,6 @@ HANDOFF_SUMMARY: The frontend token baseline now reflects the Figma palette, con
 REQUIRED_NEXT_STEPS: Agent 3 should build shared blocks against the existing semantic color and SUSE-based typography tokens instead of adding new hardcoded palette values.
 CONSTRAINTS_FOR_NEXT_AGENT: Use the current semantic tokens and treat SUSE as the sitewide brand family. Reuse the existing global theme names before proposing new ones.
 ```
-
 
 ## Execution Log `(Codex-Owned)`
 

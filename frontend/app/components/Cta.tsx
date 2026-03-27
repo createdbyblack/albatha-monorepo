@@ -29,7 +29,7 @@ export default function CTA({block}: CtaProps) {
             className={`${isImageFirst && image ? 'row-start-2 lg:row-start-1 lg:col-start-2' : ''} flex flex-col gap-2 `}
           >
             {eyebrow && (
-              <span className="text-sm uppercase dark:text-white font-mono tracking-tight opacity-70">
+              <span className="text-sm uppercase dark:text-white font-brand tracking-tight opacity-70">
                 {eyebrow}
               </span>
             )}
@@ -46,7 +46,7 @@ export default function CTA({block}: CtaProps) {
               <div className="flex mt-4">
                 <ResolvedLink
                   link={button?.link}
-                  className="rounded-full flex gap-2 font-mono text-sm whitespace-nowrap items-center bg-black dark:bg-white hover:bg-blue focus:bg-blue py-3 px-6 text-white dark:text-black dark:hover:text-white transition-colors duration-200"
+                  className="rounded-full flex gap-2 font-brand text-sm whitespace-nowrap items-center bg-black dark:bg-white hover:bg-blue focus:bg-blue py-3 px-6 text-white dark:text-black dark:hover:text-white transition-colors duration-200"
                 >
                   {button?.buttonText}
                 </ResolvedLink>

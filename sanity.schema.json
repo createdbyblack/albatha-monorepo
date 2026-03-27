@@ -4178,14 +4178,6 @@
         },
         "optional": true
       },
-      "menu": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "inline",
-          "name": "menuGroup"
-        },
-        "optional": false
-      },
       "legalMenu": {
         "type": "objectAttribute",
         "value": {

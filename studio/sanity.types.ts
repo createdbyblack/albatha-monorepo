@@ -694,7 +694,6 @@ export type Footer = {
     } & MenuMegaMenuGroup
   >
   heading?: string
-  menu: MenuGroup
   legalMenu?: MenuGroup
   showDefaultLegalLinks?: boolean
   copyrightText?: string

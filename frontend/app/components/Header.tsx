@@ -605,7 +605,7 @@ export default function Header({variant}: {variant?: HeaderVariant | null}) {
   return (
     <header
       className={cn(
-        'fixed inset-x-0 top-0 z-50',
+        'relative z-50',
         isNegative
           ? 'bg-header-negative-background text-header-negative-foreground'
           : 'bg-header-positive-background text-header-positive-foreground',
