@@ -189,8 +189,8 @@ HANDOFF_SUMMARY: Agent 1 is approved and closed. The homepage schema/query/manua
 ### Inputs `(Developer-Owned)`
 
 ```md
-ACTIVE_SECTION: Blog posts
-TARGET_NODE_URL: https://www.figma.com/design/SHmyeVzNQcnZ5cf20V3uIh/Albatha-Website?node-id=147-2382&m=dev
+ACTIVE_SECTION:
+TARGET_NODE_URL:
 SECTIONS_IN_SCOPE:
 SEEDING_SCOPE:
 NOTES:
@@ -220,8 +220,8 @@ BLOCKERS:
 
 ```md
 STATUS: awaiting-decision
-CORRECTION_ROUND: 3
-LAST_ACTION: start
+CORRECTION_ROUND: 4
+LAST_ACTION: correction
 NEXT_ACTION: developer-review
 HANDOFF_READY: no
 NEXT_AGENT: none
@@ -230,12 +230,12 @@ NEXT_AGENT: none
 ### Decision `(Developer-Owned)`
 
 ```md
-DECISION:
+DECISION: changes-requested
 DECIDED_BY:
 DECISION_DATE:
-NOTES:
+NOTES: Page sections should be extracted into a standalone React component and rendered inside block renderer but it must live in different file and imported only.
 
-CORRECTION_ITEMS: Home Hero section
+CORRECTION_ITEMS: Whole /frontend/components folder
 ```
 
 ### Outputs `(Codex-Owned)`
@@ -267,12 +267,19 @@ RENDERER_CHANGES:
 - frontend/app/components/BlockRenderer.tsx
 - frontend/app/components/PageBuilder.tsx
 - frontend/app/components/home/CompanyFeatureLink.tsx
+- frontend/app/components/home/HomeAboutSection.tsx
 - frontend/app/components/home/HomeBlogPostCard.tsx
+- frontend/app/components/home/HomeBlogPostsSection.tsx
+- frontend/app/components/home/HomeCompaniesSection.tsx
+- frontend/app/components/home/HomeHeroSection.tsx
+- frontend/app/components/home/HomeSectorsSection.tsx
 - frontend/app/components/home/HeroPhraseBadge.tsx
 - frontend/app/components/home/FloatingSectionAction.tsx
 - frontend/app/components/home/CountUpText.tsx
 - frontend/app/components/home/SectionArrowCta.tsx
 - frontend/app/components/home/SectionArrowIconButton.tsx
+- frontend/app/components/home/homeSectionRendering.tsx
+- frontend/app/components/home/homeSectionUtils.ts
 
 SEEDING_CHANGES:
 
@@ -312,6 +319,7 @@ DRAG_AND_DROP_NOTES:
 
 - Homepage nested content blocks now bypass the default `BlockSlot` surface styling while they are rendered inside the homepage custom sections, so headings, paragraphs, buttons, lists, and other nested builder blocks keep the intended section styling instead of inheriting the generic bordered card chrome.
 - The homepage hero, about, sectors, and companies section renderers now hand their top-level `contents[]` rows back to `BlockRenderer`, so each row is rendered as its own `cbColumns` block and keeps its layout styling when reordered in Visual Editing.
+- The homepage hero, about, sectors, companies, and blog-posts section JSX now lives in standalone `frontend/app/components/home/*Section.tsx` files, while `BlockRenderer` only imports and dispatches those components with the same keyed `contents[]` and `posts[]` paths.
 - The hero section, `phrases[]`, top-level `contents[]` rows, and nested `columns[]` all render keyed `data-sanity` paths so Presentation drag-and-drop can target the Agent 1 schema shape directly.
 - The hero still renders the CMS-managed `contents[] -> columns[] -> contents[]` structure through the existing page-builder recursion rather than flattening the section into hardcoded JSX content.
 - The About section keeps the Agent 1 structure intact: top-level `contents[]` rows, row `columns[]`, and nested `homeAboutImageBlock`, `cbParagraph`, `cbHeading`, `cbButton`, and `homeAboutStatsBlock` items all resolve keyed `data-sanity` paths.
@@ -326,12 +334,14 @@ VERIFICATION:
 - `npm.cmd run type-check --workspace=frontend` -> passed
 - `npm.cmd exec --workspace=frontend -- eslint app/components/BlockRenderer.tsx app/components/home/HeroPhraseBadge.tsx` -> passed
 - `npm.cmd exec --workspace=frontend -- eslint app/components/BlockRenderer.tsx app/components/PageBuilder.tsx app/components/home/HomeBlogPostCard.tsx sanity/lib/queries.ts sanity/lib/types.ts` -> passed
+- `npm.cmd exec --workspace=frontend -- eslint app/components/BlockRenderer.tsx app/components/home/HomeHeroSection.tsx app/components/home/HomeAboutSection.tsx app/components/home/HomeSectorsSection.tsx app/components/home/HomeCompaniesSection.tsx app/components/home/HomeBlogPostsSection.tsx app/components/home/homeSectionRendering.tsx app/components/home/homeSectionUtils.ts` -> passed
 - `npm.cmd run lint --workspace=frontend` -> fails on pre-existing issues outside the Blog posts scope in `frontend/app/[...segments]/page.tsx`, `frontend/app/components/Header.tsx`, and `frontend/app/lib/resolve-page-metadata.ts`; existing `@next/next/no-img-element` warnings in `frontend/app/components/atoms/image/index.tsx`, `frontend/app/components/atoms/site-logo/index.tsx`, and `frontend/app/components/organisms/cover/index.tsx` remain unchanged
 
 OPEN_DECISIONS:
 
 - The hero heading and supporting copy now bypass the generic atom typography inside homepage custom sections, so the section-owned Figma typography classes control the rendered sizes, line-height, and widths directly.
 - The companies section now renders the corrected Agent 1 schema shape; no additional schema, query, or manual-type changes were required for this start pass.
+- This correction pass is architectural only: homepage section behavior, styling, data bindings, and Visual Editing paths were preserved while moving the section JSX into dedicated imported components.
 - The blog cards only resolve clickable destinations when a curated post provides `seo.canonicalUrl`; the repository still has no approved frontend route contract for `post` documents, so Agent 4 did not invent one during this homepage section pass.
 - Workspace-wide `npm run lint --workspace=frontend` still fails on pre-existing issues outside the Agent 4 scope in `frontend/app/[...segments]/page.tsx`, `frontend/app/components/Header.tsx`, and `frontend/app/lib/resolve-page-metadata.ts`. The existing `@next/next/no-img-element` warnings in `frontend/app/components/atoms/image/index.tsx`, `frontend/app/components/atoms/site-logo/index.tsx`, and `frontend/app/components/organisms/cover/index.tsx` also remain unchanged.
 ```
@@ -339,7 +349,7 @@ OPEN_DECISIONS:
 ### Handoff `(Codex-Owned)`
 
 ```md
-HANDOFF_SUMMARY: Agent 4 `start` has now implemented the homepage hero, about, sectors, companies, and blog posts renderers, added reusable homepage helpers for the floating CTA, split CTA button, corner arrow button, company feature link, phrase reveal, stat count-up behavior, and blog post cards, updated the homepage builder layout so the negative header overlays the hero instead of rendering above a generic page title shell, and added a page-builder `top` anchor for the reused back-to-top CTA.
+HANDOFF_SUMMARY: Agent 4 `correction` extracted the homepage hero, about, sectors, companies, and blog-posts section JSX into standalone components under `frontend/app/components/home`, kept `BlockRenderer` as the import-and-dispatch layer, preserved the existing nested `contents[]` and `posts[]` Visual Editing bindings, and re-verified the frontend type-check plus targeted ESLint for the refactored files.
 REQUIRED_NEXT_STEPS:
 
 - Developer should review the hero, about, sectors, companies, and blog posts sections against desktop/mobile expectations and confirm the fixed CTA target path, About image crop, stat-card composition, sectors list blur hierarchy, featured-card crop, the reusable orange arrow-button treatment, the companies background overlay plus item wrapping behavior, and the blog featured-card image/editorial balance plus supporting-card spacing.
@@ -349,6 +359,7 @@ REQUIRED_NEXT_STEPS:
 CONSTRAINTS_FOR_NEXT_AGENT:
 
 - Keep homepage sections rendering through the page builder; do not move homepage content assembly into `frontend/app/page.tsx`.
+- Keep homepage section JSX in the dedicated `frontend/app/components/home/*Section.tsx` files; `frontend/app/components/BlockRenderer.tsx` should stay a dispatcher plus shared nested-block renderer.
 - Reuse `FloatingSectionAction` for the blog-posts back-to-top behavior instead of creating a second floating CTA implementation.
 - Preserve the keyed `data-sanity` paths on `phrases[]`, `contents[]`, and `columns[]` for Visual Editing.
 - Reuse `SectionArrowCta` for later homepage CTAs where the Figma split dark/orange button appears instead of restyling individual `cbButton` blocks ad hoc.
@@ -378,4 +389,5 @@ CONSTRAINTS_FOR_NEXT_AGENT:
 - 2026-03-30: Agent 4 `correction` completed for homepage nested block styling. Removed the default `BlockSlot` card chrome from nested homepage builder blocks so text and other child content render with the section-owned Figma styling instead of inheriting the generic bordered background, and re-verified with `npm.cmd run type-check --workspace=frontend` plus `npm.cmd exec --workspace=frontend -- eslint app/components/BlockRenderer.tsx`.
 - 2026-03-30: Agent 4 `correction` completed for homepage hero typography. Removed the generic heading and paragraph atom typography from homepage custom-section rendering, tightened the hero headline and supporting-copy dimensions to the Figma spec, refined the floating phrase badge text treatment, and verified with `npm.cmd run type-check --workspace=frontend` plus `npm.cmd exec --workspace=frontend -- eslint app/components/BlockRenderer.tsx app/components/home/HeroPhraseBadge.tsx`.
 - 2026-03-30: Agent 4 `start` continued for Blog posts after the developer set `ACTIVE_SECTION` to the blog scope. Added the `homeBlogPostsSection` renderer plus reusable `HomeBlogPostCard` variants, reused `FloatingSectionAction` for the back-to-top CTA, added `id="top"` on the page-builder shell so the CTA resolves an in-page anchor, preserved `posts[]` reference `_key` values in the homepage query/manual types for stable `data-sanity` targeting, ran `npm.cmd run type-check --workspace=frontend` successfully, confirmed the changed files pass targeted ESLint, and verified that workspace-wide frontend lint still fails only on pre-existing issues outside the Agent 4 scope.
+- 2026-03-30: Agent 4 `correction` extracted the homepage hero, about, sectors, companies, and blog-posts section JSX into standalone components under `frontend/app/components/home`, moved the shared homepage row/column context logic into `homeSectionRendering.tsx`, kept `BlockRenderer.tsx` as the imported dispatcher for those sections, and verified with `npm.cmd run type-check --workspace=frontend` plus targeted ESLint for `BlockRenderer.tsx`, the new section files, and the shared home-section helper files.
 ```

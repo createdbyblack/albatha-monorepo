@@ -1,16 +1,34 @@
 'use client'
 
 import Link from 'next/link'
-import {createContext, useContext} from 'react'
+import {useContext} from 'react'
 import {stegaClean} from '@sanity/client/stega'
 
 import CTA from '@/app/components/Cta'
 import SanityImage from '@/app/components/SanityImage'
 import CompanyFeatureLink from '@/app/components/home/CompanyFeatureLink'
-import HomeBlogPostCard from '@/app/components/home/HomeBlogPostCard'
 import CountUpText from '@/app/components/home/CountUpText'
-import FloatingSectionAction from '@/app/components/home/FloatingSectionAction'
-import HeroPhraseBadge from '@/app/components/home/HeroPhraseBadge'
+import HomeAboutSection from '@/app/components/home/HomeAboutSection'
+import HomeBlogPostsSection from '@/app/components/home/HomeBlogPostsSection'
+import HomeCompaniesSection from '@/app/components/home/HomeCompaniesSection'
+import HomeHeroSection from '@/app/components/home/HomeHeroSection'
+import {
+  HomeColumnVariantContext,
+  HomeSectionRenderContext,
+  resolveHomeSectionColumnClassName,
+  resolveHomeSectionColumnVariant,
+  resolveHomeSectionColumnVerticalAlignment,
+  resolveHomeSectionRowClassName,
+  resolveHomeSectionRowVerticalAlignment,
+} from '@/app/components/home/homeSectionRendering'
+import {
+  imageAssetRefToUrl,
+  resolveImageAssetId,
+  resolveLinkHref,
+  resolveLinkTarget,
+  resolveMediaUrls,
+} from '@/app/components/home/homeSectionUtils'
+import HomeSectorsSection from '@/app/components/home/HomeSectorsSection'
 import SectionArrowCta from '@/app/components/home/SectionArrowCta'
 import SectionArrowIconButton from '@/app/components/home/SectionArrowIconButton'
 import InfoSection from '@/app/components/InfoSection'
@@ -41,17 +59,12 @@ import {
   type CbBlock,
   type CbButton,
   type CbColumn,
-  type CbColumns,
   type CbCover,
   type CbGroup,
-  type CbLink,
-  type CbMedia,
   type CbNavigationLink,
   type HomeCompanyItem,
   type HomeCompanyItemsBlock,
   type HomeAboutStat,
-  type PostPreview,
-  type HomeHeroPhrase,
   type HomeSectorItem,
   type HomeSectorListBlock,
   type HomeSectorListItem,
@@ -75,26 +88,6 @@ type RenderableListItem = {
   content?: string | null
   path: string
 }
-
-type HomeSectionRenderContextValue = 'hero' | 'about' | 'sectors' | 'companies' | 'blog-posts' | null
-
-type HomeColumnVariant =
-  | 'hero-heading'
-  | 'hero-copy'
-  | 'about-image'
-  | 'about-copy'
-  | 'about-stats'
-  | 'sectors-heading'
-  | 'sectors-list'
-  | 'sectors-featured'
-  | 'companies-copy'
-  | 'companies-grid'
-  | 'blog-heading'
-  | 'blog-copy'
-  | null
-
-const HomeSectionRenderContext = createContext<HomeSectionRenderContextValue>(null)
-const HomeColumnVariantContext = createContext<HomeColumnVariant>(null)
 
 function resolveNestedArray(
   block: {
@@ -127,197 +120,6 @@ function resolveNestedArray(
   return {items: preferredItems || [], fieldName: preferredField}
 }
 
-function resolveColumnItems(column: CbColumn) {
-  return resolveNestedArray(column, 'contents').items
-}
-
-function columnIncludesBlockType(column: CbColumn, ...blockTypes: string[]) {
-  const columnItems = resolveColumnItems(column)
-  return columnItems.some((item) => blockTypes.includes(item._type))
-}
-
-function rowIncludesColumnBlockType(row: CbColumns, ...blockTypes: string[]) {
-  return (row.columns || []).some((column) => columnIncludesBlockType(column, ...blockTypes))
-}
-
-function resolveHomeSectionRowClassName(
-  section: HomeSectionRenderContextValue,
-  row: CbColumns,
-) {
-  switch (section) {
-    case 'hero':
-      return rowIncludesColumnBlockType(row, 'cbHeading', 'cbParagraph') ? 'justify-between' : undefined
-    case 'about':
-      return rowIncludesColumnBlockType(row, 'homeAboutImageBlock')
-        ? 'items-center gap-10 lg:gap-16'
-        : undefined
-    case 'sectors':
-      if (rowIncludesColumnBlockType(row, 'homeSectorListBlock', 'homeSectorItem')) {
-        return 'items-end gap-8 lg:gap-16 xl:gap-24'
-      }
-
-      return rowIncludesColumnBlockType(row, 'cbHeading', 'cbParagraph')
-        ? 'max-w-4xl gap-6'
-        : undefined
-    case 'companies':
-      if (rowIncludesColumnBlockType(row, 'homeCompanyItemsBlock')) {
-        return 'gap-6'
-      }
-
-      return rowIncludesColumnBlockType(row, 'cbParagraph')
-        ? 'mx-auto max-w-6xl justify-center'
-        : undefined
-    case 'blog-posts':
-      if (rowIncludesColumnBlockType(row, 'cbHeading', 'cbParagraph', 'cbButton')) {
-        return 'items-end gap-8 lg:gap-16'
-      }
-
-      return undefined
-    default:
-      return undefined
-  }
-}
-
-function resolveHomeSectionColumnVariant(
-  section: HomeSectionRenderContextValue,
-  column: CbColumn,
-): HomeColumnVariant {
-  if (columnIncludesBlockType(column, 'cbHeading')) {
-    if (section === 'hero') {
-      return 'hero-heading'
-    }
-
-    if (section === 'sectors') {
-      return 'sectors-heading'
-    }
-  }
-
-  if (columnIncludesBlockType(column, 'homeAboutImageBlock')) {
-    return 'about-image'
-  }
-
-  if (columnIncludesBlockType(column, 'homeAboutStatsBlock')) {
-    return 'about-stats'
-  }
-
-  if (columnIncludesBlockType(column, 'homeSectorListBlock')) {
-    return 'sectors-list'
-  }
-
-  if (columnIncludesBlockType(column, 'homeSectorItem')) {
-    return 'sectors-featured'
-  }
-
-  if (columnIncludesBlockType(column, 'homeCompanyItemsBlock')) {
-    return 'companies-grid'
-  }
-
-  if (columnIncludesBlockType(column, 'cbButton', 'cbParagraph')) {
-    if (section === 'hero') {
-      return 'hero-copy'
-    }
-
-    if (section === 'about') {
-      return 'about-copy'
-    }
-
-    if (section === 'companies') {
-      return 'companies-copy'
-    }
-
-    if (section === 'blog-posts') {
-      return 'blog-copy'
-    }
-  }
-
-  if (section === 'blog-posts' && columnIncludesBlockType(column, 'cbHeading')) {
-    return 'blog-heading'
-  }
-
-  return null
-}
-
-function resolveHomeSectionColumnClassName(columnVariant: HomeColumnVariant) {
-  switch (columnVariant) {
-    case 'hero-heading':
-      return 'max-w-[54rem] [&_h1]:text-[4.75rem] [&_h1]:font-normal [&_h1]:leading-[0.92] [&_h1]:tracking-[-0.03em] sm:[&_h1]:text-[6rem] lg:[&_h1]:max-w-[8.2ch] lg:[&_h1]:text-[8.75rem]'
-    case 'hero-copy':
-      return 'max-w-xl lg:ml-auto lg:max-w-[32.3125rem] lg:pb-2 [&_p]:mt-0 [&_p]:text-lg [&_p]:leading-[1.35] [&_p]:text-white sm:[&_p]:text-xl lg:[&_p]:text-[1.875rem] lg:[&_p]:leading-[1.3]'
-    case 'about-image':
-      return 'lg:-ml-24 xl:-ml-40'
-    case 'about-copy':
-      return 'max-w-3xl space-y-6 [&_h2]:text-4xl [&_h2]:font-normal [&_h2]:leading-snug [&_h2]:text-albatha-midnight sm:[&_h2]:text-5xl [&_p]:mt-0 [&_p]:text-lg [&_p]:leading-snug [&_p]:text-albatha-midnight/90 sm:[&_p]:text-xl lg:[&_p]:text-2xl'
-    case 'sectors-heading':
-      return 'space-y-4 [&_h2]:text-4xl [&_h2]:font-normal [&_h2]:leading-tight [&_h2]:text-albatha-midnight sm:[&_h2]:text-5xl lg:[&_h2]:text-[2.5rem]'
-    case 'sectors-list':
-      return 'order-2 lg:order-1'
-    case 'sectors-featured':
-      return 'order-1 mx-auto w-full max-w-md lg:order-2 lg:max-w-none'
-    case 'companies-copy':
-      return 'space-y-4 [&_p]:mt-0 [&_p]:text-center [&_p]:text-xl [&_p]:leading-snug [&_p]:text-white sm:[&_p]:text-2xl lg:[&_p]:text-[2.1875rem] lg:[&_p]:leading-[1.2857142857]'
-    case 'blog-heading':
-      return 'max-w-3xl [&_h2]:text-4xl [&_h2]:font-normal [&_h2]:leading-tight [&_h2]:text-white sm:[&_h2]:text-5xl lg:[&_h2]:text-[2.5rem]'
-    case 'blog-copy':
-      return 'max-w-2xl lg:ml-auto [&_p]:mt-0 [&_p]:text-lg [&_p]:leading-snug [&_p]:text-white/80 sm:[&_p]:text-xl lg:[&_p]:text-[1.625rem]'
-    default:
-      return undefined
-  }
-}
-
-function resolveHomeSectionRowVerticalAlignment(
-  section: HomeSectionRenderContextValue,
-  row: CbColumns,
-) {
-  if (row.verticalAlignment) {
-    return row.verticalAlignment
-  }
-
-  switch (section) {
-    case 'hero':
-      return 'bottom'
-    case 'about':
-      return rowIncludesColumnBlockType(row, 'homeAboutImageBlock') ? 'center' : 'top'
-    case 'sectors':
-      return rowIncludesColumnBlockType(row, 'homeSectorListBlock', 'homeSectorItem')
-        ? 'bottom'
-        : 'top'
-    case 'companies':
-      return rowIncludesColumnBlockType(row, 'homeCompanyItemsBlock') ? 'bottom' : 'center'
-    case 'blog-posts':
-      return rowIncludesColumnBlockType(row, 'cbHeading', 'cbParagraph', 'cbButton')
-        ? 'bottom'
-        : 'top'
-    default:
-      return 'top'
-  }
-}
-
-function resolveHomeSectionColumnVerticalAlignment(
-  section: HomeSectionRenderContextValue,
-  columnVariant: HomeColumnVariant,
-  column: CbColumn,
-) {
-  if (column.verticalAlignment) {
-    return column.verticalAlignment
-  }
-
-  switch (section) {
-    case 'hero':
-      return 'bottom'
-    case 'about':
-      return columnVariant === 'about-image' || columnVariant === 'about-copy' ? 'center' : 'top'
-    case 'sectors':
-      return columnVariant === 'sectors-list' || columnVariant === 'sectors-featured'
-        ? 'bottom'
-        : 'top'
-    case 'companies':
-      return columnVariant === 'companies-copy' ? 'center' : 'bottom'
-    case 'blog-posts':
-      return columnVariant === 'blog-copy' ? 'bottom' : 'top'
-    default:
-      return 'top'
-  }
-}
 
 function renderBlockArray(
   blocks: PageBuilderBlock[],
@@ -337,41 +139,6 @@ function renderBlockArray(
       isDraftMode={isDraftMode}
     />
   ))
-}
-
-function resolveLinkHref(link?: CbLink | null, fallbackUrl?: string | null): string | null {
-  if (
-    link?.linkType === 'internal' &&
-    (link.internalTargetType === 'page' || link.internalTargetType == null) &&
-    link.internalPageSlug
-  ) {
-    return `/${link.internalPageSlug}`
-  }
-
-  if (link?.linkType === 'internal' && link.internalPath) {
-    return link.internalPath.startsWith('/') ? link.internalPath : `/${link.internalPath}`
-  }
-
-  if (link?.linkType === 'external' && link.externalUrl) {
-    return link.externalUrl
-  }
-
-  return fallbackUrl || null
-}
-
-function resolveLinkTarget(
-  explicitTarget?: '_self' | '_blank' | string | null,
-  openInNewTab?: boolean | null,
-): '_self' | '_blank' | undefined {
-  if (explicitTarget === '_blank') {
-    return '_blank'
-  }
-
-  if (openInNewTab) {
-    return '_blank'
-  }
-
-  return explicitTarget === '_self' ? '_self' : undefined
 }
 
 function normalizeHeadingLevel(
@@ -398,120 +165,6 @@ function normalizeHeadingLevel(
   return 'h2'
 }
 
-function imageAssetRefToUrl(ref?: string | null): string | null {
-  if (!ref) {
-    return null
-  }
-
-  const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
-  const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET
-  if (!projectId || !dataset) {
-    return null
-  }
-
-  const match = ref.match(/^image-([^-]+-\d+x\d+)-([a-z0-9]+)$/i)
-  if (!match) {
-    return null
-  }
-
-  return `https://cdn.sanity.io/images/${projectId}/${dataset}/${match[1]}.${match[2]}`
-}
-
-function imageAssetToUrl(
-  asset?: {url?: string | null; _ref?: string | null; _id?: string | null} | null,
-) {
-  if (asset?.url) {
-    return asset.url
-  }
-
-  return imageAssetRefToUrl(asset?._ref || asset?._id)
-}
-
-function fileAssetRefToUrl(ref?: string | null): string | null {
-  if (!ref) {
-    return null
-  }
-
-  const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
-  const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET
-  if (!projectId || !dataset) {
-    return null
-  }
-
-  const match = ref.match(/^file-([^-]+)-([a-z0-9]+)$/i)
-  if (!match) {
-    return null
-  }
-
-  return `https://cdn.sanity.io/files/${projectId}/${dataset}/${match[1]}.${match[2]}`
-}
-
-function fileAssetToUrl(
-  asset?: {url?: string | null; _ref?: string | null; _id?: string | null} | null,
-) {
-  if (asset?.url) {
-    return asset.url
-  }
-
-  return fileAssetRefToUrl(asset?._ref || asset?._id)
-}
-
-function resolveMediaUrls(media?: CbMedia | null) {
-  return {
-    imageUrl: imageAssetToUrl(media?.image?.asset),
-    videoUrl: fileAssetToUrl(media?.videoFile?.asset),
-    alt: media?.image?.alt || '',
-    mediaType: media?.mediaType || 'image',
-  }
-}
-
-function resolveImageAssetId(asset?: {_ref?: string | null; _id?: string | null} | null) {
-  return asset?._ref || asset?._id || null
-}
-
-function resolveHeroPhrasePlacement(placement?: HomeHeroPhrase['placement'] | null) {
-  switch (stegaClean(placement) || placement) {
-    case 'middleRight':
-      return 'right-4 top-72 sm:right-8 sm:top-80 lg:right-10 lg:top-80 xl:right-32 xl:top-64'
-    case 'lowerLeft':
-      return 'left-4 bottom-28 sm:left-8 sm:bottom-36 lg:left-12 xl:left-32'
-    case 'upperLeft':
-    default:
-      return 'left-4 top-28 sm:left-8 sm:top-36 lg:left-12 lg:top-44 xl:left-80 xl:top-56'
-  }
-}
-
-function formatPostDate(publishedAt?: string | null) {
-  if (!publishedAt) {
-    return 'No date'
-  }
-
-  const parsedDate = new Date(publishedAt)
-  if (Number.isNaN(parsedDate.getTime())) {
-    return 'No date'
-  }
-
-  return new Intl.DateTimeFormat('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'UTC',
-  }).format(parsedDate)
-}
-
-function resolvePostHref(post: PostPreview) {
-  return post.seo?.canonicalUrl || null
-}
-
-function resolvePostExcerpt(post: PostPreview) {
-  const summary = post.seo?.metaDescription || post.seo?.ogDescription || null
-  if (!summary) {
-    return null
-  }
-
-  return stegaClean(summary) || summary
-}
-
 function renderHomeHeroSection(
   block: Extract<PageBuilderBlock, {_type: 'homeHeroSection'}>,
   pageId: string,
@@ -519,103 +172,17 @@ function renderHomeHeroSection(
   blockPath: string,
   isDraftMode: boolean,
 ) {
-  const backgroundMedia = resolveMediaUrls(block.backgroundMedia)
-  const backgroundImageAssetId = resolveImageAssetId(block.backgroundMedia?.image?.asset)
-  const floatingActionHref = resolveLinkHref(block.floatingActionLink)
-  const contentPath = `${blockPath}.contents`
-  const sectionId = block._key ? `home-hero-${block._key}` : 'home-hero'
-
   return (
-    <section
-      id={sectionId}
-      className="relative isolate overflow-hidden bg-albatha-midnight text-white"
-      data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, blockPath)}
-    >
-      <div className="absolute inset-0">
-        {backgroundMedia.videoUrl && backgroundMedia.mediaType === 'video' ? (
-          <video
-            className="h-full w-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            aria-hidden="true"
-            poster={backgroundMedia.imageUrl || undefined}
-          >
-            <source src={backgroundMedia.videoUrl} />
-          </video>
-        ) : backgroundImageAssetId ? (
-          <SanityImage
-            id={backgroundImageAssetId}
-            alt=""
-            width={1920}
-            height={1080}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="h-full w-full bg-black" aria-hidden="true" />
-        )}
-      </div>
-
-      <div
-        className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/30 to-black/65"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/80"
-        aria-hidden="true"
-      />
-
-      {(block.phrases || []).map((phrase, phraseIndex) => (
-        <div
-          key={phrase._key || `hero-phrase-${phraseIndex}`}
-          className={cn(
-            'pointer-events-none absolute z-10 hidden lg:block',
-            resolveHeroPhrasePlacement(phrase.placement),
-          )}
-        >
-          <HeroPhraseBadge
-            text={phrase.text || 'Hero phrase'}
-            delayMs={phraseIndex * 1000}
-            data-sanity={getSanityDataAttribute(
-              isDraftMode,
-              {id: pageId, type: pageType},
-              toArrayItemPath(`${blockPath}.phrases`, phrase._key, phraseIndex),
-            )}
-          />
-        </div>
-      ))}
-
-      <div className="relative z-10 flex min-h-screen items-end px-4 pb-20 pt-32 sm:px-8 sm:pb-24 sm:pt-36 lg:px-10 lg:pb-28 lg:pt-40 xl:px-20">
-        <div className="mx-auto w-full max-w-wide">
-          <HomeSectionRenderContext.Provider value="hero">
-            <div
-              className="space-y-8 lg:space-y-12"
-              data-sanity={getSanityDataAttribute(
-                isDraftMode,
-                {id: pageId, type: pageType},
-                contentPath,
-              )}
-            >
-              {renderBlockArray(block.contents || [], contentPath, pageId, pageType, isDraftMode)}
-            </div>
-          </HomeSectionRenderContext.Provider>
-        </div>
-      </div>
-
-      <FloatingSectionAction
-        label={block.floatingActionLabel || 'Know More'}
-        href={floatingActionHref}
-        sectionId={sectionId}
-        data-sanity={getSanityDataAttribute(
-          isDraftMode,
-          {id: pageId, type: pageType},
-          block.floatingActionLink
-            ? `${blockPath}.floatingActionLink`
-            : `${blockPath}.floatingActionLabel`,
-        )}
-      />
-    </section>
+    <HomeHeroSection
+      block={block}
+      pageId={pageId}
+      pageType={pageType}
+      blockPath={blockPath}
+      isDraftMode={isDraftMode}
+      renderBlocks={(blocks, nextBlockPath) =>
+        renderBlockArray(blocks, nextBlockPath, pageId, pageType, isDraftMode)
+      }
+    />
   )
 }
 
@@ -686,29 +253,17 @@ function renderHomeAboutSection(
   blockPath: string,
   isDraftMode: boolean,
 ) {
-  const contentPath = `${blockPath}.contents`
-
   return (
-    <section
-      id="about-us"
-      className="bg-background py-20 sm:py-24 lg:py-28"
-      data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, blockPath)}
-    >
-      <HomeSectionRenderContext.Provider value="about">
-        <div className="mx-auto w-full max-w-wide overflow-hidden px-4 sm:px-8 lg:px-10 xl:px-20">
-          <div
-            className="space-y-12 sm:space-y-16 lg:space-y-20"
-            data-sanity={getSanityDataAttribute(
-              isDraftMode,
-              {id: pageId, type: pageType},
-              contentPath,
-            )}
-          >
-            {renderBlockArray(block.contents || [], contentPath, pageId, pageType, isDraftMode)}
-          </div>
-        </div>
-      </HomeSectionRenderContext.Provider>
-    </section>
+    <HomeAboutSection
+      block={block}
+      pageId={pageId}
+      pageType={pageType}
+      blockPath={blockPath}
+      isDraftMode={isDraftMode}
+      renderBlocks={(blocks, nextBlockPath) =>
+        renderBlockArray(blocks, nextBlockPath, pageId, pageType, isDraftMode)
+      }
+    />
   )
 }
 
@@ -917,29 +472,17 @@ function renderHomeSectorsSection(
   blockPath: string,
   isDraftMode: boolean,
 ) {
-  const contentPath = `${blockPath}.contents`
-
   return (
-    <section
-      id="sectors"
-      className="bg-background py-20 sm:py-24 lg:py-28"
-      data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, blockPath)}
-    >
-      <HomeSectionRenderContext.Provider value="sectors">
-        <div className="mx-auto w-full max-w-wide px-4 sm:px-8 lg:px-10 xl:px-20">
-          <div
-            className="space-y-12 sm:space-y-16 lg:space-y-20"
-            data-sanity={getSanityDataAttribute(
-              isDraftMode,
-              {id: pageId, type: pageType},
-              contentPath,
-            )}
-          >
-            {renderBlockArray(block.contents || [], contentPath, pageId, pageType, isDraftMode)}
-          </div>
-        </div>
-      </HomeSectionRenderContext.Provider>
-    </section>
+    <HomeSectorsSection
+      block={block}
+      pageId={pageId}
+      pageType={pageType}
+      blockPath={blockPath}
+      isDraftMode={isDraftMode}
+      renderBlocks={(blocks, nextBlockPath) =>
+        renderBlockArray(blocks, nextBlockPath, pageId, pageType, isDraftMode)
+      }
+    />
   )
 }
 
@@ -1002,49 +545,17 @@ function renderHomeCompaniesSection(
   blockPath: string,
   isDraftMode: boolean,
 ) {
-  const contentPath = `${blockPath}.contents`
-  const backgroundImageAssetId = resolveImageAssetId(block.backgroundImage?.asset)
-
   return (
-    <section
-      id="companies"
-      className="relative isolate overflow-hidden bg-albatha-midnight pb-10 pt-24 text-white sm:pb-12 sm:pt-28 lg:pb-10 lg:pt-32"
-      data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, blockPath)}
-    >
-      <div className="absolute inset-0">
-        {backgroundImageAssetId ? (
-          <SanityImage
-            id={backgroundImageAssetId}
-            alt=""
-            width={1920}
-            height={1085}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="h-full w-full bg-albatha-midnight" aria-hidden="true" />
-        )}
-      </div>
-
-      <div
-        className="absolute inset-0 bg-gradient-to-b from-albatha-midnight/15 via-albatha-midnight/40 to-albatha-midnight"
-        aria-hidden="true"
-      />
-
-      <HomeSectionRenderContext.Provider value="companies">
-        <div className="relative z-10 mx-auto w-full max-w-wide px-4 sm:px-8 lg:px-10 xl:px-20">
-          <div
-            className="space-y-12 sm:space-y-14 lg:space-y-[3.75rem]"
-            data-sanity={getSanityDataAttribute(
-              isDraftMode,
-              {id: pageId, type: pageType},
-              contentPath,
-            )}
-          >
-            {renderBlockArray(block.contents || [], contentPath, pageId, pageType, isDraftMode)}
-          </div>
-        </div>
-      </HomeSectionRenderContext.Provider>
-    </section>
+    <HomeCompaniesSection
+      block={block}
+      pageId={pageId}
+      pageType={pageType}
+      blockPath={blockPath}
+      isDraftMode={isDraftMode}
+      renderBlocks={(blocks, nextBlockPath) =>
+        renderBlockArray(blocks, nextBlockPath, pageId, pageType, isDraftMode)
+      }
+    />
   )
 }
 
@@ -1055,95 +566,17 @@ function renderHomeBlogPostsSection(
   blockPath: string,
   isDraftMode: boolean,
 ) {
-  const sectionId = 'blog-posts'
-  const contentPath = `${blockPath}.contents`
-  const postsPath = `${blockPath}.posts`
-  const floatingActionHref = resolveLinkHref(block.floatingActionLink) || '/#top'
-  const posts = block.posts || []
-  const featuredPost = posts[0]
-  const supportingPosts = posts.slice(1, 4)
-
   return (
-    <section
-      id={sectionId}
-      className="relative isolate bg-albatha-midnight pb-20 pt-10 text-white sm:pb-24 sm:pt-12 lg:pb-[7.5rem] lg:pt-10"
-      data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, blockPath)}
-    >
-      <HomeSectionRenderContext.Provider value="blog-posts">
-        <div className="mx-auto w-full max-w-wide px-4 sm:px-8 lg:px-10 xl:px-20">
-          <div className="space-y-8 sm:space-y-10 lg:space-y-12">
-            {block.contents?.length ? (
-              <div
-                className="space-y-6 lg:space-y-8"
-                data-sanity={getSanityDataAttribute(
-                  isDraftMode,
-                  {id: pageId, type: pageType},
-                  contentPath,
-                )}
-              >
-                {renderBlockArray(block.contents, contentPath, pageId, pageType, isDraftMode)}
-              </div>
-            ) : null}
-
-            {featuredPost ? (
-              <div
-                className="space-y-7 sm:space-y-8"
-                data-sanity={getSanityDataAttribute(
-                  isDraftMode,
-                  {id: pageId, type: pageType},
-                  postsPath,
-                )}
-              >
-                <HomeBlogPostCard
-                  variant="featured"
-                  title={stegaClean(featuredPost.title) || featuredPost.title || 'Featured post'}
-                  publishedLabel={formatPostDate(featuredPost.publishedAt)}
-                  excerpt={resolvePostExcerpt(featuredPost)}
-                  href={resolvePostHref(featuredPost)}
-                  imageAssetId={resolveImageAssetId(featuredPost.image?.asset)}
-                  imageAlt={featuredPost.image?.alt || featuredPost.title || 'Featured post'}
-                  data-sanity={getSanityDataAttribute(
-                    isDraftMode,
-                    {id: pageId, type: pageType},
-                    toArrayItemPath(postsPath, featuredPost._key, 0),
-                  )}
-                />
-
-                {supportingPosts.length ? (
-                  <div className="grid gap-6 lg:grid-cols-3">
-                    {supportingPosts.map((post, postIndex) => (
-                      <HomeBlogPostCard
-                        key={post._key || post._id || `blog-post-${postIndex + 1}`}
-                        title={stegaClean(post.title) || post.title || 'Post'}
-                        publishedLabel={formatPostDate(post.publishedAt)}
-                        href={resolvePostHref(post)}
-                        data-sanity={getSanityDataAttribute(
-                          isDraftMode,
-                          {id: pageId, type: pageType},
-                          toArrayItemPath(postsPath, post._key, postIndex + 1),
-                        )}
-                      />
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </HomeSectionRenderContext.Provider>
-
-      <FloatingSectionAction
-        label={block.floatingActionLabel || 'Back to Top'}
-        href={floatingActionHref}
-        direction="up"
-        sectionId={sectionId}
-        data-sanity={getSanityDataAttribute(
-          isDraftMode,
-          {id: pageId, type: pageType},
-          block.floatingActionLink ? `${blockPath}.floatingActionLink` : `${blockPath}.floatingActionLabel`,
-        )}
-      />
-    </section>
+    <HomeBlogPostsSection
+      block={block}
+      pageId={pageId}
+      pageType={pageType}
+      blockPath={blockPath}
+      isDraftMode={isDraftMode}
+      renderBlocks={(blocks, nextBlockPath) =>
+        renderBlockArray(blocks, nextBlockPath, pageId, pageType, isDraftMode)
+      }
+    />
   )
 }
 
