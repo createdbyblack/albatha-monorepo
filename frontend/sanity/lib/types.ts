@@ -1,5 +1,24 @@
 import type {CropData, HotspotData} from 'sanity-image'
 
+export type SanityImageAsset = {
+  _ref?: string | null
+  _id?: string | null
+  url?: string | null
+}
+
+export type SanityFileAsset = {
+  _ref?: string | null
+  _id?: string | null
+  url?: string | null
+}
+
+export type SanityImageValue = {
+  asset?: SanityImageAsset | null
+  alt?: string | null
+  crop?: CropData
+  hotspot?: HotspotData
+}
+
 export type CbButton = {
   _key?: string
   _type: 'cbButton'
@@ -50,14 +69,9 @@ export type CbMedia = {
   _key?: string
   _type: 'cbMedia'
   mediaType?: 'image' | 'video' | null
-  image?: {
-    asset?: {_ref?: string} | null
-    alt?: string | null
-    crop?: CropData
-    hotspot?: HotspotData
-  } | null
+  image?: SanityImageValue | null
   videoFile?: {
-    asset?: {_ref?: string} | null
+    asset?: SanityFileAsset | null
   } | null
 }
 
@@ -179,6 +193,128 @@ export type PageFooterAppearance = {
   variant?: FooterVariant | null
 }
 
+export type HomeHeroPhrase = {
+  _key?: string
+  _type: 'homeHeroPhrase'
+  text?: string | null
+  placement?: 'upperLeft' | 'middleRight' | 'lowerLeft' | null
+}
+
+export type HomeAboutStat = {
+  _key?: string
+  _type: 'homeAboutStat'
+  value?: string | null
+  label?: string | null
+  tone?: 'dark' | 'blue' | 'outlineDark' | null
+  height?: 'sm' | 'md' | 'lg' | null
+}
+
+export type HomeSectorItem = {
+  _key?: string
+  _type: 'homeSectorItem'
+  title?: string | null
+  ctaLabel?: string | null
+  image?: SanityImageValue | null
+  link?: CbLink | null
+}
+
+export type HomeCompanyItem = {
+  _key?: string
+  _type: 'homeCompanyItem'
+  name?: string | null
+  category?: string | null
+  link?: CbLink | null
+}
+
+export type HomeAboutImageBlock = {
+  _key?: string
+  _type: 'homeAboutImageBlock'
+  image?: SanityImageValue | null
+}
+
+export type HomeAboutStatsBlock = {
+  _key?: string
+  _type: 'homeAboutStatsBlock'
+  stats?: HomeAboutStat[] | null
+}
+
+export type HomeCompanyItemsBlock = {
+  _key?: string
+  _type: 'homeCompanyItemsBlock'
+  items?: HomeCompanyItem[] | null
+}
+
+export type HomeSectorListItem = {
+  _key?: string
+  _type: 'homeSectorListItem'
+  title?: string | null
+  link?: CbLink | null
+  isHighlighted?: boolean | null
+}
+
+export type HomeSectorListBlock = {
+  _key?: string
+  _type: 'homeSectorListBlock'
+  image?: SanityImageValue | null
+  items?: HomeSectorListItem[] | null
+}
+
+export type PostPreview = {
+  _id?: string
+  _type: 'post'
+  title?: string | null
+  slug?: {current?: string | null} | null
+  publishedAt?: string | null
+  image?: SanityImageValue | null
+  seo?: {
+    metaTitle?: string | null
+    metaDescription?: string | null
+    canonicalUrl?: string | null
+    noIndex?: boolean | null
+    ogTitle?: string | null
+    ogDescription?: string | null
+    ogImage?: SanityImageValue | null
+  } | null
+}
+
+export type HomeHeroSection = {
+  _key?: string
+  _type: 'homeHeroSection'
+  backgroundMedia?: CbMedia | null
+  phrases?: HomeHeroPhrase[] | null
+  contents?: CbColumns[] | null
+  floatingActionLabel?: string | null
+  floatingActionLink?: CbLink | null
+}
+
+export type HomeAboutSection = {
+  _key?: string
+  _type: 'homeAboutSection'
+  contents?: CbColumns[] | null
+}
+
+export type HomeSectorsSection = {
+  _key?: string
+  _type: 'homeSectorsSection'
+  contents?: CbColumns[] | null
+}
+
+export type HomeCompaniesSection = {
+  _key?: string
+  _type: 'homeCompaniesSection'
+  backgroundImage?: SanityImageValue | null
+  contents?: CbColumns[] | null
+}
+
+export type HomeBlogPostsSection = {
+  _key?: string
+  _type: 'homeBlogPostsSection'
+  contents?: CbColumns[] | null
+  posts?: PostPreview[] | null
+  floatingActionLabel?: string | null
+  floatingActionLink?: CbLink | null
+}
+
 export type LegacyCallToAction = {
   _key?: string
   _type: 'callToAction'
@@ -208,10 +344,19 @@ export type LegacyInfoSection = {
 export type PageBuilderBlock =
   | PageBuilderAtom
   | PageBuilderContainer
+  | PageBuilderCustomBlock
+  | HomePageSection
   | LegacyCallToAction
   | LegacyInfoSection
 
-export type PageBuilderSection = CbColumns | LegacyCallToAction | LegacyInfoSection
+export type HomePageSection =
+  | HomeHeroSection
+  | HomeAboutSection
+  | HomeSectorsSection
+  | HomeCompaniesSection
+  | HomeBlogPostsSection
+
+export type PageBuilderSection = PageBuilderBlock
 
 export type PageBuilderAtom =
   | CbBlock
@@ -233,6 +378,13 @@ export type PageBuilderContainer =
   | CbColumn
   | CbColumns
   | CbCover
+
+export type PageBuilderCustomBlock =
+  | HomeAboutImageBlock
+  | HomeAboutStatsBlock
+  | HomeCompanyItemsBlock
+  | HomeSectorItem
+  | HomeSectorListBlock
 
 export type CbGroup = {
   _key?: string

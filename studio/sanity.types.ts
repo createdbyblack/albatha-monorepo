@@ -153,6 +153,171 @@ export type PageFooterAppearance = {
   variant: 'positive' | 'negative'
 }
 
+export type HomeSectorsSection = {
+  _type: 'homeSectorsSection'
+  contents: Array<
+    {
+      _key: string
+    } & CbColumns
+  >
+}
+
+export type HomeSectorListItem = {
+  _type: 'homeSectorListItem'
+  title: string
+  link?: CbLink
+  isHighlighted?: boolean
+}
+
+export type HomeSectorListBlock = {
+  _type: 'homeSectorListBlock'
+  image: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  }
+  items: Array<
+    {
+      _key: string
+    } & HomeSectorListItem
+  >
+}
+
+export type HomeSectorItem = {
+  _type: 'homeSectorItem'
+  title: string
+  ctaLabel?: string
+  image: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  }
+  link: CbLink
+}
+
+export type HomeHeroSection = {
+  _type: 'homeHeroSection'
+  backgroundMedia?: CbMedia
+  phrases: Array<
+    {
+      _key: string
+    } & HomeHeroPhrase
+  >
+  contents: Array<
+    {
+      _key: string
+    } & CbColumns
+  >
+  floatingActionLabel?: string
+  floatingActionLink?: CbLink
+}
+
+export type HomeHeroPhrase = {
+  _type: 'homeHeroPhrase'
+  text: string
+  placement: 'upperLeft' | 'middleRight' | 'lowerLeft'
+}
+
+export type HomeCompanyItem = {
+  _type: 'homeCompanyItem'
+  name: string
+  category: string
+  link?: CbLink
+}
+
+export type HomeCompaniesSection = {
+  _type: 'homeCompaniesSection'
+  backgroundImage: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  }
+  contents: Array<
+    {
+      _key: string
+    } & CbColumns
+  >
+}
+
+export type HomeCompanyItemsBlock = {
+  _type: 'homeCompanyItemsBlock'
+  items: Array<
+    {
+      _key: string
+    } & HomeCompanyItem
+  >
+}
+
+export type PostReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'post'
+}
+
+export type HomeBlogPostsSection = {
+  _type: 'homeBlogPostsSection'
+  contents?: Array<
+    {
+      _key: string
+    } & CbColumns
+  >
+  posts: Array<
+    {
+      _key: string
+    } & PostReference
+  >
+  floatingActionLabel?: string
+  floatingActionLink?: CbLink
+}
+
+export type HomeAboutSection = {
+  _type: 'homeAboutSection'
+  contents: Array<
+    {
+      _key: string
+    } & CbColumns
+  >
+}
+
+export type HomeAboutStatsBlock = {
+  _type: 'homeAboutStatsBlock'
+  stats: Array<
+    {
+      _key: string
+    } & HomeAboutStat
+  >
+}
+
+export type HomeAboutStat = {
+  _type: 'homeAboutStat'
+  value: string
+  label: string
+  tone: 'dark' | 'blue' | 'outlineDark'
+  height: 'sm' | 'md' | 'lg'
+}
+
+export type HomeAboutImageBlock = {
+  _type: 'homeAboutImageBlock'
+  image: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  }
+}
+
 export type MenuSubLink = {
   _type: 'menuSubLink'
   itemId: string
@@ -345,6 +510,21 @@ export type CbGroup = {
     | ({
         _key: string
       } & CbColumns)
+    | ({
+        _key: string
+      } & HomeAboutImageBlock)
+    | ({
+        _key: string
+      } & HomeAboutStatsBlock)
+    | ({
+        _key: string
+      } & HomeCompanyItemsBlock)
+    | ({
+        _key: string
+      } & HomeSectorItem)
+    | ({
+        _key: string
+      } & HomeSectorListBlock)
   >
   children?: Array<
     | ({
@@ -395,6 +575,21 @@ export type CbGroup = {
     | ({
         _key: string
       } & CbColumns)
+    | ({
+        _key: string
+      } & HomeAboutImageBlock)
+    | ({
+        _key: string
+      } & HomeAboutStatsBlock)
+    | ({
+        _key: string
+      } & HomeCompanyItemsBlock)
+    | ({
+        _key: string
+      } & HomeSectorItem)
+    | ({
+        _key: string
+      } & HomeSectorListBlock)
   >
 }
 
@@ -467,6 +662,21 @@ export type CbCover = {
     | ({
         _key: string
       } & CbColumns)
+    | ({
+        _key: string
+      } & HomeAboutImageBlock)
+    | ({
+        _key: string
+      } & HomeAboutStatsBlock)
+    | ({
+        _key: string
+      } & HomeCompanyItemsBlock)
+    | ({
+        _key: string
+      } & HomeSectorItem)
+    | ({
+        _key: string
+      } & HomeSectorListBlock)
   >
   content?: Array<
     | ({
@@ -517,6 +727,21 @@ export type CbCover = {
     | ({
         _key: string
       } & CbColumns)
+    | ({
+        _key: string
+      } & HomeAboutImageBlock)
+    | ({
+        _key: string
+      } & HomeAboutStatsBlock)
+    | ({
+        _key: string
+      } & HomeCompanyItemsBlock)
+    | ({
+        _key: string
+      } & HomeSectorItem)
+    | ({
+        _key: string
+      } & HomeSectorListBlock)
   >
 }
 
@@ -585,6 +810,21 @@ export type CbColumn = {
     | ({
         _key: string
       } & CbColumns)
+    | ({
+        _key: string
+      } & HomeAboutImageBlock)
+    | ({
+        _key: string
+      } & HomeAboutStatsBlock)
+    | ({
+        _key: string
+      } & HomeCompanyItemsBlock)
+    | ({
+        _key: string
+      } & HomeSectorItem)
+    | ({
+        _key: string
+      } & HomeSectorListBlock)
   >
   children?: Array<
     | ({
@@ -635,6 +875,21 @@ export type CbColumn = {
     | ({
         _key: string
       } & CbColumns)
+    | ({
+        _key: string
+      } & HomeAboutImageBlock)
+    | ({
+        _key: string
+      } & HomeAboutStatsBlock)
+    | ({
+        _key: string
+      } & HomeCompanyItemsBlock)
+    | ({
+        _key: string
+      } & HomeSectorItem)
+    | ({
+        _key: string
+      } & HomeSectorListBlock)
   >
 }
 
@@ -664,6 +919,72 @@ export type CbButton = {
 export type CbBlock = {
   _type: 'cbBlock'
   ref: string
+}
+
+export type Post = {
+  _id: string
+  _type: 'post'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  title: string
+  slug: Slug
+  language: string
+  publishedAt: string
+  image: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  }
+  headerAppearance?: PageHeaderAppearance
+  footerAppearance?: PageFooterAppearance
+  pageBuilder?: Array<
+    {
+      _key: string
+    } & CbColumns
+  >
+  seo?: {
+    metaTitle?: string
+    metaDescription?: string
+    canonicalUrl?: string
+    noIndex?: boolean
+    ogTitle?: string
+    ogDescription?: string
+    ogImage?: {
+      asset?: SanityImageAssetReference
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      alt?: string
+      _type: 'image'
+    }
+  }
+  structuredData?: string
+}
+
+export type SanityImageCrop = {
+  _type: 'sanity.imageCrop'
+  top: number
+  bottom: number
+  left: number
+  right: number
+}
+
+export type SanityImageHotspot = {
+  _type: 'sanity.imageHotspot'
+  x: number
+  y: number
+  height: number
+  width: number
+}
+
+export type Slug = {
+  _type: 'slug'
+  current: string
+  source?: string
 }
 
 export type Footer = {
@@ -699,22 +1020,6 @@ export type Footer = {
   copyrightText?: string
   creditLabel?: string
   creditLink?: CbLink
-}
-
-export type SanityImageCrop = {
-  _type: 'sanity.imageCrop'
-  top: number
-  bottom: number
-  left: number
-  right: number
-}
-
-export type SanityImageHotspot = {
-  _type: 'sanity.imageHotspot'
-  x: number
-  y: number
-  height: number
-  width: number
 }
 
 export type Header = {
@@ -986,9 +1291,21 @@ export type HomePage = {
   headerAppearance?: PageHeaderAppearance
   footerAppearance?: PageFooterAppearance
   pageBuilder?: Array<
-    {
-      _key: string
-    } & CbColumns
+    | ({
+        _key: string
+      } & HomeHeroSection)
+    | ({
+        _key: string
+      } & HomeAboutSection)
+    | ({
+        _key: string
+      } & HomeSectorsSection)
+    | ({
+        _key: string
+      } & HomeCompaniesSection)
+    | ({
+        _key: string
+      } & HomeBlogPostsSection)
   >
   seo?: {
     metaTitle?: string
@@ -1072,12 +1389,6 @@ export type Page = {
     }
   }
   structuredData?: string
-}
-
-export type Slug = {
-  _type: 'slug'
-  current: string
-  source?: string
 }
 
 export type SanityImagePaletteSwatch = {
@@ -1191,6 +1502,21 @@ export type AllSanitySchemaTypes =
   | CbNavigationLink
   | PageHeaderAppearance
   | PageFooterAppearance
+  | HomeSectorsSection
+  | HomeSectorListItem
+  | HomeSectorListBlock
+  | HomeSectorItem
+  | HomeHeroSection
+  | HomeHeroPhrase
+  | HomeCompanyItem
+  | HomeCompaniesSection
+  | HomeCompanyItemsBlock
+  | PostReference
+  | HomeBlogPostsSection
+  | HomeAboutSection
+  | HomeAboutStatsBlock
+  | HomeAboutStat
+  | HomeAboutImageBlock
   | MenuSubLink
   | MenuMegaMenuGroup
   | MenuMegaMenuColumn
@@ -1212,9 +1538,11 @@ export type AllSanitySchemaTypes =
   | CbButtons
   | CbButton
   | CbBlock
-  | Footer
+  | Post
   | SanityImageCrop
   | SanityImageHotspot
+  | Slug
+  | Footer
   | Header
   | Settings
   | SanityAssistInstructionTask
@@ -1238,7 +1566,6 @@ export type AllSanitySchemaTypes =
   | HomePage
   | LegalPage
   | Page
-  | Slug
   | SanityImagePaletteSwatch
   | SanityImagePalette
   | SanityImageDimensions

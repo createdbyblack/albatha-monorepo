@@ -7,6 +7,22 @@ import {parseJsonObject} from '@/sanity/lib/utils'
 
 export default function BuilderPageLayout({page}: {page: BuilderPageData}) {
   const customStructuredData = parseJsonObject(page.structuredData)
+  const isHomePage = page._type === 'homePage'
+
+  if (isHomePage) {
+    return (
+      <>
+        {customStructuredData ? <StructuredDataScript data={customStructuredData} /> : null}
+        <div className="relative">
+          <div className="absolute inset-x-0 top-0 z-50">
+            <Header variant={page.headerAppearance?.variant ?? null} />
+          </div>
+          <PageBuilderPage page={page} />
+        </div>
+        <Footer variant={page.footerAppearance?.variant ?? null} />
+      </>
+    )
+  }
 
   return (
     <>

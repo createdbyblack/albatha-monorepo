@@ -12,9 +12,9 @@ Agent 1 owns Sanity schema generation, dynamic section schema generation, shared
 
 - Reuse existing `cb*` block types first.
 - Keep schema, query, and type contracts synchronized.
+- Top-level sections must live in `pageBuilder[]`.
 - Prefer reusable schema objects over page-specific one-offs.
 - Keep fields minimal but expressive.
-- Top-level sections must live in `pageBuilder[]`.
 - Each section's dynamic editable body must use a field named `contents` with the title `Contents`.
 - `contents[]` is the section's top-level rows array.
 - Each row must be an object with a `columns[]` array.

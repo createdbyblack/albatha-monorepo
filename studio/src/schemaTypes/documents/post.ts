@@ -1,13 +1,13 @@
-import {DocumentIcon} from '@sanity/icons'
+import {DocumentTextIcon} from '@sanity/icons'
 import {defineField, defineType} from 'sanity'
 
-import {homePageSectionBlockTypes} from '../objects/pageBuilderBlockTypes'
+import {pageBuilderRowBlockTypes} from '../objects/pageBuilderBlockTypes'
 
-export const homePage = defineType({
-  name: 'homePage',
-  title: 'Home Page',
+export const post = defineType({
+  name: 'post',
+  title: 'Post',
   type: 'document',
-  icon: DocumentIcon,
+  icon: DocumentTextIcon,
   groups: [
     {name: 'general', title: 'General', default: true},
     {name: 'content', title: 'Content'},
@@ -15,12 +15,49 @@ export const homePage = defineType({
   ],
   fields: [
     defineField({
-      name: 'name',
-      title: 'Name',
+      name: 'title',
+      title: 'Title',
       type: 'string',
       group: 'general',
-      initialValue: 'Home',
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      group: 'general',
+      description: 'Editable on default language only. Translations inherit the same slug.',
+      readOnly: ({document}) => {
+        const language = (document as {language?: string} | undefined)?.language || 'en'
+        return language !== 'en'
+      },
+      validation: (Rule) => Rule.required(),
+      options: {
+        source: 'title',
+        maxLength: 96,
+        isUnique: async (slug, context) => {
+          const document = context.document as {_id?: string; language?: string}
+          const client = context.getClient({apiVersion: '2025-09-25'})
+          const id = document?._id?.replace(/^drafts\./, '')
+          const params = {
+            draft: `drafts.${id}`,
+            published: id,
+            slug,
+            language: document?.language || 'en',
+          }
+
+          const query = `
+            !defined(*[
+              !(_id in [$draft, $published]) &&
+              _type == "post" &&
+              slug.current == $slug &&
+              coalesce(language, "en") == $language
+            ][0]._id)
+          `
+
+          return client.fetch(query, params)
+        },
+      },
     }),
     defineField({
       name: 'language',
@@ -30,6 +67,31 @@ export const homePage = defineType({
       hidden: true,
       initialValue: 'en',
       group: 'general',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'publishedAt',
+      title: 'Published At',
+      type: 'datetime',
+      group: 'general',
+      initialValue: () => new Date().toISOString(),
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'image',
+      title: 'Image',
+      type: 'image',
+      group: 'general',
+      options: {
+        hotspot: true,
+      },
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alternative text',
+          type: 'string',
+        }),
+      ],
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -55,8 +117,9 @@ export const homePage = defineType({
       title: 'Page builder',
       type: 'array',
       group: 'content',
-      description: 'Home page content is assembled from section objects.',
-      of: homePageSectionBlockTypes,
+      description:
+        'Posts are assembled from rows. Add content inside columns and nest another row only when the layout requires it.',
+      of: pageBuilderRowBlockTypes,
       options: {
         insertMenu: {
           views: [
@@ -149,13 +212,18 @@ export const homePage = defineType({
   ],
   preview: {
     select: {
+      title: 'title',
+      publishedAt: 'publishedAt',
       language: 'language',
+      media: 'image',
     },
-    prepare({language}) {
+    prepare({title, publishedAt, language, media}) {
       const languageLabel = (language || 'en').toUpperCase()
+      const publishedLabel = publishedAt ? new Date(publishedAt).toLocaleDateString('en-US') : 'No date'
       return {
-        title: 'Home Page',
-        subtitle: `[${languageLabel}] /`,
+        title: title || 'Untitled post',
+        subtitle: `[${languageLabel}] ${publishedLabel}`,
+        media,
       }
     },
   },

@@ -5,6 +5,22 @@ const resolvedContentLinkProjection = /* groq */ `
   "internalPageSlug": internalPage->slug.current
 `
 
+const imageWithAssetProjection = /* groq */ `
+  ...,
+  asset->
+`
+
+const mediaWithAssetProjection = /* groq */ `
+  ...,
+  image{
+    ${imageWithAssetProjection}
+  },
+  videoFile{
+    ...,
+    asset->
+  }
+`
+
 const resolvedMenuSubLinkProjection = /* groq */ `
   ...,
   link{
@@ -158,7 +174,7 @@ const cbWysiwygWithResolvedLinksProjection = /* groq */ `
   }
 `
 
-const MAX_PAGE_BUILDER_NESTING = 3
+const MAX_PAGE_BUILDER_NESTING = 2
 
 function createPageBuilderBlockProjection(depth = 0): string {
   const baseProjection = `
@@ -195,6 +211,48 @@ function createPageBuilderBlockProjection(depth = 0): string {
         ${nestedProjection}
       }
     },
+    _type == "homeAboutImageBlock" => {
+      ...,
+      image{
+        ${imageWithAssetProjection}
+      }
+    },
+    _type == "homeAboutStatsBlock" => {
+      ...,
+      stats[]{
+        ...
+      }
+    },
+    _type == "homeCompanyItemsBlock" => {
+      ...,
+      items[]{
+        ...,
+        link{
+          ${resolvedContentLinkProjection}
+        }
+      }
+    },
+    _type == "homeSectorListBlock" => {
+      ...,
+      image{
+        ${imageWithAssetProjection}
+      },
+      items[]{
+        ...,
+        link{
+          ${resolvedContentLinkProjection}
+        }
+      }
+    },
+    _type == "homeSectorItem" => {
+      ...,
+      image{
+        ${imageWithAssetProjection}
+      },
+      link{
+        ${resolvedContentLinkProjection}
+      }
+    },
     _type == "cbColumns" => {
       ...,
       columns[]{
@@ -211,6 +269,74 @@ function createPageBuilderBlockProjection(depth = 0): string {
 }
 
 const pageBuilderBlockProjection = createPageBuilderBlockProjection()
+
+const postCardProjection = /* groq */ `
+  _id,
+  _type,
+  title,
+  slug,
+  publishedAt,
+  image{
+    ${imageWithAssetProjection}
+  },
+  seo{
+    ...,
+    ogImage{
+      ${imageWithAssetProjection}
+    }
+  }
+`
+
+const homePageSectionProjection = /* groq */ `
+  _type == "homeHeroSection" => {
+    ...,
+    backgroundMedia{
+      ${mediaWithAssetProjection}
+    },
+    phrases[]{
+      ...
+    },
+    contents[]{
+      ${pageBuilderBlockProjection}
+    },
+    floatingActionLink{
+      ${resolvedContentLinkProjection}
+    }
+  },
+  _type == "homeAboutSection" => {
+    ...,
+    contents[]{
+      ${pageBuilderBlockProjection}
+    }
+  },
+  _type == "homeSectorsSection" => {
+    ...,
+    contents[]{
+      ${pageBuilderBlockProjection}
+    }
+  },
+  _type == "homeCompaniesSection" => {
+    ...,
+    backgroundImage{
+      ${imageWithAssetProjection}
+    },
+    contents[]{
+      ${pageBuilderBlockProjection}
+    }
+  },
+  _type == "homeBlogPostsSection" => {
+    ...,
+    contents[]{
+      ${pageBuilderBlockProjection}
+    },
+    posts[]->{
+      ${postCardProjection}
+    },
+    floatingActionLink{
+      ${resolvedContentLinkProjection}
+    }
+  }
+`
 
 export const getPageQuery = defineQuery(`
   *[
@@ -266,7 +392,8 @@ export const homePageQuery = defineQuery(`
     },
     structuredData,
     "pageBuilder": pageBuilder[]{
-      ${pageBuilderBlockProjection}
+      ${pageBuilderBlockProjection},
+      ${homePageSectionProjection}
     }
   }
 `)

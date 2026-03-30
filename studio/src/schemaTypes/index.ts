@@ -1,5 +1,6 @@
 import {page} from './documents/page'
 import {legalPage} from './documents/legalPage'
+import {post} from './documents/post'
 import {settings} from './singletons/settings'
 import {homePage} from './singletons/homePage'
 import {header} from './singletons/header'
@@ -26,6 +27,20 @@ import {menuMegaMenu} from './objects/menuMegaMenu'
 import {menuMegaMenuColumn} from './objects/menuMegaMenuColumn'
 import {menuMegaMenuGroup} from './objects/menuMegaMenuGroup'
 import {menuSubLink} from './objects/menuSubLink'
+import {homeAboutImageBlock} from './objects/homeAboutImageBlock'
+import {homeAboutStat} from './objects/homeAboutStat'
+import {homeAboutStatsBlock} from './objects/homeAboutStatsBlock'
+import {homeAboutSection} from './objects/homeAboutSection'
+import {homeBlogPostsSection} from './objects/homeBlogPostsSection'
+import {homeCompanyItemsBlock} from './objects/homeCompanyItemsBlock'
+import {homeCompaniesSection} from './objects/homeCompaniesSection'
+import {homeCompanyItem} from './objects/homeCompanyItem'
+import {homeHeroPhrase} from './objects/homeHeroPhrase'
+import {homeHeroSection} from './objects/homeHeroSection'
+import {homeSectorItem} from './objects/homeSectorItem'
+import {homeSectorListBlock} from './objects/homeSectorListBlock'
+import {homeSectorListItem} from './objects/homeSectorListItem'
+import {homeSectorsSection} from './objects/homeSectorsSection'
 import {pageFooterAppearance} from './objects/pageFooterAppearance'
 import {pageHeaderAppearance} from './objects/pageHeaderAppearance'
 import cbNavigationLink from './objects/navigation-link'
@@ -47,6 +62,7 @@ export const schemaTypes = [
   // Documents
   page,
   legalPage,
+  post,
   // Objects
   cbBlock,
   cbButton,
@@ -68,6 +84,20 @@ export const schemaTypes = [
   menuMegaMenuColumn,
   menuMegaMenuGroup,
   menuSubLink,
+  homeAboutImageBlock,
+  homeAboutStat,
+  homeAboutStatsBlock,
+  homeAboutSection,
+  homeBlogPostsSection,
+  homeCompanyItemsBlock,
+  homeCompaniesSection,
+  homeCompanyItem,
+  homeHeroPhrase,
+  homeHeroSection,
+  homeSectorItem,
+  homeSectorListBlock,
+  homeSectorListItem,
+  homeSectorsSection,
   pageFooterAppearance,
   pageHeaderAppearance,
   cbNavigationLink,
