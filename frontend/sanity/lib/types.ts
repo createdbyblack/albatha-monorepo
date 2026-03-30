@@ -260,6 +260,7 @@ export type HomeSectorListBlock = {
 }
 
 export type PostPreview = {
+  _key?: string
   _id?: string
   _type: 'post'
   title?: string | null

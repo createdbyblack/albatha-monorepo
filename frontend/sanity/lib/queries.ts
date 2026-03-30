@@ -324,17 +324,20 @@ const homePageSectionProjection = /* groq */ `
       ${pageBuilderBlockProjection}
     }
   },
-  _type == "homeBlogPostsSection" => {
-    ...,
-    contents[]{
-      ${pageBuilderBlockProjection}
-    },
-    posts[]->{
-      ${postCardProjection}
-    },
-    floatingActionLink{
-      ${resolvedContentLinkProjection}
-    }
+    _type == "homeBlogPostsSection" => {
+      ...,
+      contents[]{
+        ${pageBuilderBlockProjection}
+      },
+      posts[]{
+        _key,
+        ...@->{
+          ${postCardProjection}
+        }
+      },
+      floatingActionLink{
+        ${resolvedContentLinkProjection}
+      }
   }
 `
 

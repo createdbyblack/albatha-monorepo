@@ -52,7 +52,7 @@ LOCALE_SCOPE:
 5. SECTION_NAME: Blog posts
    TARGET_NODE_URL: https://www.figma.com/design/SHmyeVzNQcnZ5cf20V3uIh/Albatha-Website?node-id=147-2382&m=dev
    NOTES: This is a grid of blog posts. That back to top component is the same know more button from hero. You will use the reusable button with arrow from Sectors section.
-   STATUS: ready
+   STATUS: awaiting-decision
 
    Important: Create first schema type for Posts before doing this section. Schema of each post should be image, title, date published, SEO, and a page builder so post content can be dynamic.
 ```
@@ -189,8 +189,8 @@ HANDOFF_SUMMARY: Agent 1 is approved and closed. The homepage schema/query/manua
 ### Inputs `(Developer-Owned)`
 
 ```md
-ACTIVE_SECTION: Companies Section
-TARGET_NODE_URL: https://www.figma.com/design/SHmyeVzNQcnZ5cf20V3uIh/Albatha-Website?node-id=139-1470&m=dev
+ACTIVE_SECTION: Blog posts
+TARGET_NODE_URL: https://www.figma.com/design/SHmyeVzNQcnZ5cf20V3uIh/Albatha-Website?node-id=147-2382&m=dev
 SECTIONS_IN_SCOPE:
 SEEDING_SCOPE:
 NOTES:
@@ -220,7 +220,7 @@ BLOCKERS:
 
 ```md
 STATUS: awaiting-decision
-CORRECTION_ROUND: 1
+CORRECTION_ROUND: 3
 LAST_ACTION: start
 NEXT_ACTION: developer-review
 HANDOFF_READY: no
@@ -230,11 +230,12 @@ NEXT_AGENT: none
 ### Decision `(Developer-Owned)`
 
 ```md
-DECISION: in-progress
+DECISION:
 DECIDED_BY:
 DECISION_DATE:
 NOTES:
-CORRECTION_ITEMS:
+
+CORRECTION_ITEMS: Home Hero section
 ```
 
 ### Outputs `(Codex-Owned)`
@@ -250,6 +251,7 @@ SECTIONS_UPDATED:
 - About Us
 - Sectors
 - Companies
+- Blog posts
 
 SCHEMA_FILES_UPDATED:
 
@@ -263,7 +265,9 @@ DATA_CONTRACT_CHANGES:
 RENDERER_CHANGES:
 
 - frontend/app/components/BlockRenderer.tsx
+- frontend/app/components/PageBuilder.tsx
 - frontend/app/components/home/CompanyFeatureLink.tsx
+- frontend/app/components/home/HomeBlogPostCard.tsx
 - frontend/app/components/home/HeroPhraseBadge.tsx
 - frontend/app/components/home/FloatingSectionAction.tsx
 - frontend/app/components/home/CountUpText.tsx
@@ -284,6 +288,8 @@ RESPONSIVE_DECISIONS:
 - The sectors section keeps the CMS row order intact, but visually promotes the featured image card above the blurred sector list on small screens and restores the Figma side-by-side layout from `lg` upward.
 - The sector-list typography steps down in size and blur based on distance from the highlighted item so the highlighted sector remains dominant while the stack still reads cleanly on mobile and desktop.
 - The companies section keeps the centered intro copy above the feature list on all breakpoints, while the company items collapse from a single six-column desktop row to a two-column mobile grid without flattening the CMS row structure.
+- The blog posts section keeps the featured story full-width above the secondary cards on all breakpoints, then collapses the supporting stories from a three-column desktop row to a single-column mobile stack without changing the curated post order.
+- The featured blog card keeps its image and editorial copy side by side from `lg` upward, but stacks the image above the story copy on smaller screens so the card stays readable without clipping the floating arrow CTA.
 
 TOKEN_USAGE_SUMMARY:
 
@@ -291,36 +297,53 @@ TOKEN_USAGE_SUMMARY:
 - Reused `bg-albatha-midnight`, `bg-albatha-blue`, `text-albatha-blue`, `bg-background`, and the existing spacing scale for the About section and stat cards.
 - Reused `bg-background`, `bg-albatha-midnight`, `bg-albatha-orange`, `text-albatha-blue`, and the existing spacing utilities for the sectors fade mask, featured card, and reusable arrow button instead of introducing new tokens.
 - Reused `max-w-wide`, `bg-albatha-midnight`, `text-albatha-blue`, and the existing white opacity utilities for the companies background treatment and reusable company-feature links instead of creating new homepage-specific tokens.
+- Reused `bg-albatha-midnight`, `bg-albatha-orange`, `text-albatha-blue`, existing white/black opacity utilities, and the shared `FloatingSectionAction` plus `SectionArrowIconButton` components for the blog posts section instead of introducing another CTA treatment.
 
 ARBITRARY_VALUE_JUSTIFICATIONS:
 
+- `text-[4.75rem]`, `text-[6rem]`, `text-[8.75rem]`, `max-w-[8.2ch]`, `max-w-[32.3125rem]`, `text-[1.875rem]`, `min-h-[2.8125rem]`, and `rounded-[0.85rem]` keep the hero headline, supporting copy, and floating phrase badges aligned to the Figma typography and badge proportions without expanding Agent 4 into token work.
 - `rounded-r-[1.875rem]` preserves the Figma image corner treatment on the About image without introducing a new token during Agent 4 work.
 - `min-h-[4.8125rem]`, `w-[4.8125rem]`, and `tracking-[0.18em]` on the reusable split CTA preserve the Figma button proportions that will be reused in later sections.
 - `lg:[&_h2]:text-[2.5rem]`, `rounded-[1.75rem]`, `min-h-[22rem]`, `min-h-[26rem]`, `min-h-[36rem]`, `max-w-[12rem]`, and `tracking-[0.24em]` keep the sectors heading and featured-card proportions close to the Figma composition without expanding Agent 4 into token work.
 - `lg:[&_p]:text-[2.1875rem]`, `lg:[&_p]:leading-[1.2857142857]`, `lg:text-[1.75rem]`, and `lg:space-y-[3.75rem]` keep the companies intro copy, item titles, and section spacing aligned to the Figma proportions without turning this pass into token work.
+- `rounded-[1.875rem]`, `rounded-[1.5rem]`, `lg:min-h-[31.5rem]`, `text-[1.875rem]`, and `lg:text-[1.625rem]` keep the featured blog card radius, image depth, supporting-card typography, and editorial text proportions aligned to the Figma composition without expanding Agent 4 into token work.
 
 DRAG_AND_DROP_NOTES:
 
+- Homepage nested content blocks now bypass the default `BlockSlot` surface styling while they are rendered inside the homepage custom sections, so headings, paragraphs, buttons, lists, and other nested builder blocks keep the intended section styling instead of inheriting the generic bordered card chrome.
+- The homepage hero, about, sectors, and companies section renderers now hand their top-level `contents[]` rows back to `BlockRenderer`, so each row is rendered as its own `cbColumns` block and keeps its layout styling when reordered in Visual Editing.
 - The hero section, `phrases[]`, top-level `contents[]` rows, and nested `columns[]` all render keyed `data-sanity` paths so Presentation drag-and-drop can target the Agent 1 schema shape directly.
 - The hero still renders the CMS-managed `contents[] -> columns[] -> contents[]` structure through the existing page-builder recursion rather than flattening the section into hardcoded JSX content.
 - The About section keeps the Agent 1 structure intact: top-level `contents[]` rows, row `columns[]`, and nested `homeAboutImageBlock`, `cbParagraph`, `cbHeading`, `cbButton`, and `homeAboutStatsBlock` items all resolve keyed `data-sanity` paths.
 - The reusable CTA intercepts the seeded `cbButton` only inside the About section render path; the underlying Sanity content shape remains unchanged for Visual Editing.
 - The sectors section keeps the Agent 1 structure intact: the section reads `contents[]` row 1 for the heading and row 2 for the split layout, while `homeSectorListBlock.items[]` and the featured `homeSectorItem` each resolve keyed `data-sanity` paths for Visual Editing.
 - The companies section keeps the Agent 1 structure intact: the section reads row 1 for the centered paragraph and row 2 for the `homeCompanyItemsBlock`, and each `items[]` entry resolves its own keyed `data-sanity` path through the reusable company-feature component.
+- The blog posts section now preserves each `posts[]` reference array `_key` in the homepage projection so the featured post card and supporting cards can resolve stable `data-sanity` item paths instead of falling back to index-only targeting.
+- The page-builder shell now exposes `id="top"` on the array wrapper so the reused floating back-to-top control resolves a real in-page anchor while keeping the Visual Editing `pageBuilder` path on the same DOM node.
+
+VERIFICATION:
+
+- `npm.cmd run type-check --workspace=frontend` -> passed
+- `npm.cmd exec --workspace=frontend -- eslint app/components/BlockRenderer.tsx app/components/home/HeroPhraseBadge.tsx` -> passed
+- `npm.cmd exec --workspace=frontend -- eslint app/components/BlockRenderer.tsx app/components/PageBuilder.tsx app/components/home/HomeBlogPostCard.tsx sanity/lib/queries.ts sanity/lib/types.ts` -> passed
+- `npm.cmd run lint --workspace=frontend` -> fails on pre-existing issues outside the Blog posts scope in `frontend/app/[...segments]/page.tsx`, `frontend/app/components/Header.tsx`, and `frontend/app/lib/resolve-page-metadata.ts`; existing `@next/next/no-img-element` warnings in `frontend/app/components/atoms/image/index.tsx`, `frontend/app/components/atoms/site-logo/index.tsx`, and `frontend/app/components/organisms/cover/index.tsx` remain unchanged
 
 OPEN_DECISIONS:
 
+- The hero heading and supporting copy now bypass the generic atom typography inside homepage custom sections, so the section-owned Figma typography classes control the rendered sizes, line-height, and widths directly.
 - The companies section now renders the corrected Agent 1 schema shape; no additional schema, query, or manual-type changes were required for this start pass.
+- The blog cards only resolve clickable destinations when a curated post provides `seo.canonicalUrl`; the repository still has no approved frontend route contract for `post` documents, so Agent 4 did not invent one during this homepage section pass.
 - Workspace-wide `npm run lint --workspace=frontend` still fails on pre-existing issues outside the Agent 4 scope in `frontend/app/[...segments]/page.tsx`, `frontend/app/components/Header.tsx`, and `frontend/app/lib/resolve-page-metadata.ts`. The existing `@next/next/no-img-element` warnings in `frontend/app/components/atoms/image/index.tsx`, `frontend/app/components/atoms/site-logo/index.tsx`, and `frontend/app/components/organisms/cover/index.tsx` also remain unchanged.
 ```
 
 ### Handoff `(Codex-Owned)`
 
 ```md
-HANDOFF_SUMMARY: Agent 4 `start` has now implemented the homepage hero, about, sectors, and companies renderers, added reusable homepage helpers for the floating CTA, split CTA button, corner arrow button, company feature link, phrase reveal, and stat count-up behavior, and updated the homepage builder layout so the negative header overlays the hero instead of rendering above a generic page title shell.
+HANDOFF_SUMMARY: Agent 4 `start` has now implemented the homepage hero, about, sectors, companies, and blog posts renderers, added reusable homepage helpers for the floating CTA, split CTA button, corner arrow button, company feature link, phrase reveal, stat count-up behavior, and blog post cards, updated the homepage builder layout so the negative header overlays the hero instead of rendering above a generic page title shell, and added a page-builder `top` anchor for the reused back-to-top CTA.
 REQUIRED_NEXT_STEPS:
 
-- Developer should review the hero, about, sectors, and companies sections against desktop/mobile expectations and confirm the fixed CTA target path, About image crop, stat-card composition, sectors list blur hierarchy, featured-card crop, the reusable orange arrow-button treatment, and the companies background overlay plus item wrapping behavior.
+- Developer should review the hero, about, sectors, companies, and blog posts sections against desktop/mobile expectations and confirm the fixed CTA target path, About image crop, stat-card composition, sectors list blur hierarchy, featured-card crop, the reusable orange arrow-button treatment, the companies background overlay plus item wrapping behavior, and the blog featured-card image/editorial balance plus supporting-card spacing.
+- Developer should confirm the desired destination contract for curated posts. This pass only uses `seo.canonicalUrl` when present and does not invent a `/news`, `/blog`, or slug-based post route.
 - If approved, prompt `Agent 4 do /jobs/homepage/tasks.md approve`. If changes are needed, record them in `Review` and prompt `Agent 4 do /jobs/homepage/tasks.md correction`.
 
 CONSTRAINTS_FOR_NEXT_AGENT:
@@ -333,6 +356,8 @@ CONSTRAINTS_FOR_NEXT_AGENT:
 - Reuse `CompanyFeatureLink` for later homepage company or brand link rows instead of recreating item markup inside section renderers.
 - Reuse `CountUpText` for additional numeric stat cards rather than duplicating count-up logic.
 - Preserve the `homeSectorListBlock.items[]` plus featured `homeSectorItem` schema shape when extending the homepage sectors or blog card patterns.
+- Preserve the `homeBlogPostsSection.posts[]` projection `_key` values so Visual Editing card targeting stays stable if the curated post layout is refined later.
+- Do not invent a frontend `post` route during review or correction without an explicit URL contract from the developer or task file.
 ```
 
 ## Execution Log `(Codex-Owned)`
@@ -349,4 +374,8 @@ CONSTRAINTS_FOR_NEXT_AGENT:
 - 2026-03-27: Agent 4 `start` continued for Sectors after the developer updated `ACTIVE_SECTION`. Added the `homeSectorsSection`, `homeSectorListBlock`, and `homeSectorItem` render paths, created the reusable `SectionArrowIconButton` helper for the standalone orange arrow CTA, ran `npm.cmd run type-check --workspace=frontend` successfully, confirmed the changed files pass targeted ESLint, and verified that workspace-wide frontend lint still fails only on pre-existing issues outside the Agent 4 scope.
 - 2026-03-27: Agent 4 `correction` updated the Sectors data contract only as requested. `homeSectorListBlock` now requires its own image so the bottom row schema can represent two image-backed columns, and the frontend query/manual types were synced to the new field; `npm.cmd run type-check --workspace=studio`, `npm.cmd run type-check --workspace=frontend`, and targeted ESLint for `frontend/sanity/lib/queries.ts` plus `frontend/sanity/lib/types.ts` all passed.
 - 2026-03-27: Agent 4 `start` continued for Companies after the developer set `ACTIVE_SECTION` to the companies scope. Added the `homeCompaniesSection` and `homeCompanyItemsBlock` render paths, created the reusable `CompanyFeatureLink` helper for company rows, ran `npm.cmd run type-check --workspace=frontend` successfully, confirmed `frontend/app/components/BlockRenderer.tsx` plus `frontend/app/components/home/CompanyFeatureLink.tsx` pass targeted ESLint, and verified that workspace-wide frontend lint still fails only on pre-existing issues outside the Agent 4 scope.
+- 2026-03-30: Agent 4 `correction` completed for the homepage section renderers. Moved hero, about, sectors, and companies top-level `contents[]` row rendering back onto `BlockRenderer`/`cbColumns`, resolved row and column layout classes from block signatures instead of row indexes so reordered rows keep their styling, preserved the About split CTA override through the block renderer path, and verified with `npm.cmd run type-check --workspace=frontend` plus `npm.cmd exec --workspace=frontend -- eslint app/components/BlockRenderer.tsx`.
+- 2026-03-30: Agent 4 `correction` completed for homepage nested block styling. Removed the default `BlockSlot` card chrome from nested homepage builder blocks so text and other child content render with the section-owned Figma styling instead of inheriting the generic bordered background, and re-verified with `npm.cmd run type-check --workspace=frontend` plus `npm.cmd exec --workspace=frontend -- eslint app/components/BlockRenderer.tsx`.
+- 2026-03-30: Agent 4 `correction` completed for homepage hero typography. Removed the generic heading and paragraph atom typography from homepage custom-section rendering, tightened the hero headline and supporting-copy dimensions to the Figma spec, refined the floating phrase badge text treatment, and verified with `npm.cmd run type-check --workspace=frontend` plus `npm.cmd exec --workspace=frontend -- eslint app/components/BlockRenderer.tsx app/components/home/HeroPhraseBadge.tsx`.
+- 2026-03-30: Agent 4 `start` continued for Blog posts after the developer set `ACTIVE_SECTION` to the blog scope. Added the `homeBlogPostsSection` renderer plus reusable `HomeBlogPostCard` variants, reused `FloatingSectionAction` for the back-to-top CTA, added `id="top"` on the page-builder shell so the CTA resolves an in-page anchor, preserved `posts[]` reference `_key` values in the homepage query/manual types for stable `data-sanity` targeting, ran `npm.cmd run type-check --workspace=frontend` successfully, confirmed the changed files pass targeted ESLint, and verified that workspace-wide frontend lint still fails only on pre-existing issues outside the Agent 4 scope.
 ```

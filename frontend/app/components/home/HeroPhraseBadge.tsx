@@ -33,12 +33,13 @@ export default function HeroPhraseBadge({
     <div
       data-sanity={dataSanity}
       className={cn(
-        'inline-flex items-center rounded-full border border-white/35 bg-white/8 px-4 py-3 text-xs font-medium uppercase tracking-widest text-white shadow-lg shadow-black/10 backdrop-blur-sm transition-all duration-700 ease-out sm:px-5 sm:text-sm',
+        'relative inline-flex min-h-[2.8125rem] items-center justify-center px-4 py-[0.9375rem] text-[1rem] font-medium uppercase tracking-[0.02em] text-white transition-all duration-700 ease-out lg:text-[1.25rem]',
+        'before:absolute before:inset-0 before:-skew-x-12 before:rounded-[0.85rem] before:border before:border-white/70 before:bg-white/[0.04] before:content-[\"\"] before:backdrop-blur-[2px]',
         isVisible ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0',
         className,
       )}
     >
-      {text}
+      <span className="relative z-10 leading-[1.1]">{text}</span>
     </div>
   )
 }

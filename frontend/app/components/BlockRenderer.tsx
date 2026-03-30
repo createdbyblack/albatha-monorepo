@@ -1,11 +1,13 @@
 'use client'
 
 import Link from 'next/link'
+import {createContext, useContext} from 'react'
 import {stegaClean} from '@sanity/client/stega'
 
 import CTA from '@/app/components/Cta'
 import SanityImage from '@/app/components/SanityImage'
 import CompanyFeatureLink from '@/app/components/home/CompanyFeatureLink'
+import HomeBlogPostCard from '@/app/components/home/HomeBlogPostCard'
 import CountUpText from '@/app/components/home/CountUpText'
 import FloatingSectionAction from '@/app/components/home/FloatingSectionAction'
 import HeroPhraseBadge from '@/app/components/home/HeroPhraseBadge'
@@ -39,6 +41,7 @@ import {
   type CbBlock,
   type CbButton,
   type CbColumn,
+  type CbColumns,
   type CbCover,
   type CbGroup,
   type CbLink,
@@ -47,6 +50,7 @@ import {
   type HomeCompanyItem,
   type HomeCompanyItemsBlock,
   type HomeAboutStat,
+  type PostPreview,
   type HomeHeroPhrase,
   type HomeSectorItem,
   type HomeSectorListBlock,
@@ -72,11 +76,37 @@ type RenderableListItem = {
   path: string
 }
 
+type HomeSectionRenderContextValue = 'hero' | 'about' | 'sectors' | 'companies' | 'blog-posts' | null
+
+type HomeColumnVariant =
+  | 'hero-heading'
+  | 'hero-copy'
+  | 'about-image'
+  | 'about-copy'
+  | 'about-stats'
+  | 'sectors-heading'
+  | 'sectors-list'
+  | 'sectors-featured'
+  | 'companies-copy'
+  | 'companies-grid'
+  | 'blog-heading'
+  | 'blog-copy'
+  | null
+
+const HomeSectionRenderContext = createContext<HomeSectionRenderContextValue>(null)
+const HomeColumnVariantContext = createContext<HomeColumnVariant>(null)
+
 function resolveNestedArray(
-  block: {contents?: PageBuilderBlock[] | null; children?: PageBuilderBlock[] | null; content?: PageBuilderBlock[] | null},
+  block: {
+    contents?: PageBuilderBlock[] | null
+    children?: PageBuilderBlock[] | null
+    content?: PageBuilderBlock[] | null
+  },
   preferredField: NestedArrayFieldName,
 ): {items: PageBuilderBlock[]; fieldName: NestedArrayFieldName} {
-  const arraysByField: Partial<Record<NestedArrayFieldName, PageBuilderBlock[] | null | undefined>> = {
+  const arraysByField: Partial<
+    Record<NestedArrayFieldName, PageBuilderBlock[] | null | undefined>
+  > = {
     contents: block.contents,
     children: block.children,
     content: block.content,
@@ -95,6 +125,218 @@ function resolveNestedArray(
   }
 
   return {items: preferredItems || [], fieldName: preferredField}
+}
+
+function resolveColumnItems(column: CbColumn) {
+  return resolveNestedArray(column, 'contents').items
+}
+
+function columnIncludesBlockType(column: CbColumn, ...blockTypes: string[]) {
+  const columnItems = resolveColumnItems(column)
+  return columnItems.some((item) => blockTypes.includes(item._type))
+}
+
+function rowIncludesColumnBlockType(row: CbColumns, ...blockTypes: string[]) {
+  return (row.columns || []).some((column) => columnIncludesBlockType(column, ...blockTypes))
+}
+
+function resolveHomeSectionRowClassName(
+  section: HomeSectionRenderContextValue,
+  row: CbColumns,
+) {
+  switch (section) {
+    case 'hero':
+      return rowIncludesColumnBlockType(row, 'cbHeading', 'cbParagraph') ? 'justify-between' : undefined
+    case 'about':
+      return rowIncludesColumnBlockType(row, 'homeAboutImageBlock')
+        ? 'items-center gap-10 lg:gap-16'
+        : undefined
+    case 'sectors':
+      if (rowIncludesColumnBlockType(row, 'homeSectorListBlock', 'homeSectorItem')) {
+        return 'items-end gap-8 lg:gap-16 xl:gap-24'
+      }
+
+      return rowIncludesColumnBlockType(row, 'cbHeading', 'cbParagraph')
+        ? 'max-w-4xl gap-6'
+        : undefined
+    case 'companies':
+      if (rowIncludesColumnBlockType(row, 'homeCompanyItemsBlock')) {
+        return 'gap-6'
+      }
+
+      return rowIncludesColumnBlockType(row, 'cbParagraph')
+        ? 'mx-auto max-w-6xl justify-center'
+        : undefined
+    case 'blog-posts':
+      if (rowIncludesColumnBlockType(row, 'cbHeading', 'cbParagraph', 'cbButton')) {
+        return 'items-end gap-8 lg:gap-16'
+      }
+
+      return undefined
+    default:
+      return undefined
+  }
+}
+
+function resolveHomeSectionColumnVariant(
+  section: HomeSectionRenderContextValue,
+  column: CbColumn,
+): HomeColumnVariant {
+  if (columnIncludesBlockType(column, 'cbHeading')) {
+    if (section === 'hero') {
+      return 'hero-heading'
+    }
+
+    if (section === 'sectors') {
+      return 'sectors-heading'
+    }
+  }
+
+  if (columnIncludesBlockType(column, 'homeAboutImageBlock')) {
+    return 'about-image'
+  }
+
+  if (columnIncludesBlockType(column, 'homeAboutStatsBlock')) {
+    return 'about-stats'
+  }
+
+  if (columnIncludesBlockType(column, 'homeSectorListBlock')) {
+    return 'sectors-list'
+  }
+
+  if (columnIncludesBlockType(column, 'homeSectorItem')) {
+    return 'sectors-featured'
+  }
+
+  if (columnIncludesBlockType(column, 'homeCompanyItemsBlock')) {
+    return 'companies-grid'
+  }
+
+  if (columnIncludesBlockType(column, 'cbButton', 'cbParagraph')) {
+    if (section === 'hero') {
+      return 'hero-copy'
+    }
+
+    if (section === 'about') {
+      return 'about-copy'
+    }
+
+    if (section === 'companies') {
+      return 'companies-copy'
+    }
+
+    if (section === 'blog-posts') {
+      return 'blog-copy'
+    }
+  }
+
+  if (section === 'blog-posts' && columnIncludesBlockType(column, 'cbHeading')) {
+    return 'blog-heading'
+  }
+
+  return null
+}
+
+function resolveHomeSectionColumnClassName(columnVariant: HomeColumnVariant) {
+  switch (columnVariant) {
+    case 'hero-heading':
+      return 'max-w-[54rem] [&_h1]:text-[4.75rem] [&_h1]:font-normal [&_h1]:leading-[0.92] [&_h1]:tracking-[-0.03em] sm:[&_h1]:text-[6rem] lg:[&_h1]:max-w-[8.2ch] lg:[&_h1]:text-[8.75rem]'
+    case 'hero-copy':
+      return 'max-w-xl lg:ml-auto lg:max-w-[32.3125rem] lg:pb-2 [&_p]:mt-0 [&_p]:text-lg [&_p]:leading-[1.35] [&_p]:text-white sm:[&_p]:text-xl lg:[&_p]:text-[1.875rem] lg:[&_p]:leading-[1.3]'
+    case 'about-image':
+      return 'lg:-ml-24 xl:-ml-40'
+    case 'about-copy':
+      return 'max-w-3xl space-y-6 [&_h2]:text-4xl [&_h2]:font-normal [&_h2]:leading-snug [&_h2]:text-albatha-midnight sm:[&_h2]:text-5xl [&_p]:mt-0 [&_p]:text-lg [&_p]:leading-snug [&_p]:text-albatha-midnight/90 sm:[&_p]:text-xl lg:[&_p]:text-2xl'
+    case 'sectors-heading':
+      return 'space-y-4 [&_h2]:text-4xl [&_h2]:font-normal [&_h2]:leading-tight [&_h2]:text-albatha-midnight sm:[&_h2]:text-5xl lg:[&_h2]:text-[2.5rem]'
+    case 'sectors-list':
+      return 'order-2 lg:order-1'
+    case 'sectors-featured':
+      return 'order-1 mx-auto w-full max-w-md lg:order-2 lg:max-w-none'
+    case 'companies-copy':
+      return 'space-y-4 [&_p]:mt-0 [&_p]:text-center [&_p]:text-xl [&_p]:leading-snug [&_p]:text-white sm:[&_p]:text-2xl lg:[&_p]:text-[2.1875rem] lg:[&_p]:leading-[1.2857142857]'
+    case 'blog-heading':
+      return 'max-w-3xl [&_h2]:text-4xl [&_h2]:font-normal [&_h2]:leading-tight [&_h2]:text-white sm:[&_h2]:text-5xl lg:[&_h2]:text-[2.5rem]'
+    case 'blog-copy':
+      return 'max-w-2xl lg:ml-auto [&_p]:mt-0 [&_p]:text-lg [&_p]:leading-snug [&_p]:text-white/80 sm:[&_p]:text-xl lg:[&_p]:text-[1.625rem]'
+    default:
+      return undefined
+  }
+}
+
+function resolveHomeSectionRowVerticalAlignment(
+  section: HomeSectionRenderContextValue,
+  row: CbColumns,
+) {
+  if (row.verticalAlignment) {
+    return row.verticalAlignment
+  }
+
+  switch (section) {
+    case 'hero':
+      return 'bottom'
+    case 'about':
+      return rowIncludesColumnBlockType(row, 'homeAboutImageBlock') ? 'center' : 'top'
+    case 'sectors':
+      return rowIncludesColumnBlockType(row, 'homeSectorListBlock', 'homeSectorItem')
+        ? 'bottom'
+        : 'top'
+    case 'companies':
+      return rowIncludesColumnBlockType(row, 'homeCompanyItemsBlock') ? 'bottom' : 'center'
+    case 'blog-posts':
+      return rowIncludesColumnBlockType(row, 'cbHeading', 'cbParagraph', 'cbButton')
+        ? 'bottom'
+        : 'top'
+    default:
+      return 'top'
+  }
+}
+
+function resolveHomeSectionColumnVerticalAlignment(
+  section: HomeSectionRenderContextValue,
+  columnVariant: HomeColumnVariant,
+  column: CbColumn,
+) {
+  if (column.verticalAlignment) {
+    return column.verticalAlignment
+  }
+
+  switch (section) {
+    case 'hero':
+      return 'bottom'
+    case 'about':
+      return columnVariant === 'about-image' || columnVariant === 'about-copy' ? 'center' : 'top'
+    case 'sectors':
+      return columnVariant === 'sectors-list' || columnVariant === 'sectors-featured'
+        ? 'bottom'
+        : 'top'
+    case 'companies':
+      return columnVariant === 'companies-copy' ? 'center' : 'bottom'
+    case 'blog-posts':
+      return columnVariant === 'blog-copy' ? 'bottom' : 'top'
+    default:
+      return 'top'
+  }
+}
+
+function renderBlockArray(
+  blocks: PageBuilderBlock[],
+  blockPath: string,
+  pageId: string,
+  pageType: string,
+  isDraftMode: boolean,
+) {
+  return blocks.map((child, childIndex) => (
+    <BlockRenderer
+      key={child._key || `${child._type}-${childIndex}`}
+      block={child}
+      index={childIndex}
+      pageId={pageId}
+      pageType={pageType}
+      blockPath={toArrayItemPath(blockPath, child._key, childIndex)}
+      isDraftMode={isDraftMode}
+    />
+  ))
 }
 
 function resolveLinkHref(link?: CbLink | null, fallbackUrl?: string | null): string | null {
@@ -175,7 +417,9 @@ function imageAssetRefToUrl(ref?: string | null): string | null {
   return `https://cdn.sanity.io/images/${projectId}/${dataset}/${match[1]}.${match[2]}`
 }
 
-function imageAssetToUrl(asset?: {url?: string | null; _ref?: string | null; _id?: string | null} | null) {
+function imageAssetToUrl(
+  asset?: {url?: string | null; _ref?: string | null; _id?: string | null} | null,
+) {
   if (asset?.url) {
     return asset.url
   }
@@ -202,7 +446,9 @@ function fileAssetRefToUrl(ref?: string | null): string | null {
   return `https://cdn.sanity.io/files/${projectId}/${dataset}/${match[1]}.${match[2]}`
 }
 
-function fileAssetToUrl(asset?: {url?: string | null; _ref?: string | null; _id?: string | null} | null) {
+function fileAssetToUrl(
+  asset?: {url?: string | null; _ref?: string | null; _id?: string | null} | null,
+) {
   if (asset?.url) {
     return asset.url
   }
@@ -219,7 +465,7 @@ function resolveMediaUrls(media?: CbMedia | null) {
   }
 }
 
-function resolveImageAssetId(asset?: { _ref?: string | null; _id?: string | null } | null) {
+function resolveImageAssetId(asset?: {_ref?: string | null; _id?: string | null} | null) {
   return asset?._ref || asset?._id || null
 }
 
@@ -233,6 +479,37 @@ function resolveHeroPhrasePlacement(placement?: HomeHeroPhrase['placement'] | nu
     default:
       return 'left-4 top-28 sm:left-8 sm:top-36 lg:left-12 lg:top-44 xl:left-80 xl:top-56'
   }
+}
+
+function formatPostDate(publishedAt?: string | null) {
+  if (!publishedAt) {
+    return 'No date'
+  }
+
+  const parsedDate = new Date(publishedAt)
+  if (Number.isNaN(parsedDate.getTime())) {
+    return 'No date'
+  }
+
+  return new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(parsedDate)
+}
+
+function resolvePostHref(post: PostPreview) {
+  return post.seo?.canonicalUrl || null
+}
+
+function resolvePostExcerpt(post: PostPreview) {
+  const summary = post.seo?.metaDescription || post.seo?.ogDescription || null
+  if (!summary) {
+    return null
+  }
+
+  return stegaClean(summary) || summary
 }
 
 function renderHomeHeroSection(
@@ -280,86 +557,49 @@ function renderHomeHeroSection(
         )}
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/30 to-black/65" aria-hidden="true" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/80" aria-hidden="true" />
+      <div
+        className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/30 to-black/65"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/80"
+        aria-hidden="true"
+      />
 
       {(block.phrases || []).map((phrase, phraseIndex) => (
         <div
           key={phrase._key || `hero-phrase-${phraseIndex}`}
-          className={cn('pointer-events-none absolute z-10 hidden lg:block', resolveHeroPhrasePlacement(phrase.placement))}
+          className={cn(
+            'pointer-events-none absolute z-10 hidden lg:block',
+            resolveHeroPhrasePlacement(phrase.placement),
+          )}
         >
           <HeroPhraseBadge
             text={phrase.text || 'Hero phrase'}
             delayMs={phraseIndex * 1000}
-            data-sanity={
-              getSanityDataAttribute(
-                isDraftMode,
-                {id: pageId, type: pageType},
-                toArrayItemPath(`${blockPath}.phrases`, phrase._key, phraseIndex),
-              )
-            }
+            data-sanity={getSanityDataAttribute(
+              isDraftMode,
+              {id: pageId, type: pageType},
+              toArrayItemPath(`${blockPath}.phrases`, phrase._key, phraseIndex),
+            )}
           />
         </div>
       ))}
 
       <div className="relative z-10 flex min-h-screen items-end px-4 pb-20 pt-32 sm:px-8 sm:pb-24 sm:pt-36 lg:px-10 lg:pb-28 lg:pt-40 xl:px-20">
         <div className="mx-auto w-full max-w-wide">
-          <div
-            className="space-y-8 lg:space-y-12"
-            data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, contentPath)}
-          >
-            {(block.contents || []).map((row, rowIndex) => (
-              (() => {
-                const rowPath = toArrayItemPath(contentPath, row._key, rowIndex)
-
-                return (
-                  <Columns
-                    key={row._key || `hero-row-${rowIndex}`}
-                    gap={row.gap || 'lg'}
-                    verticalAlignment={row.verticalAlignment || 'bottom'}
-                    isStackedOnMobile={row.isStackedOnMobile ?? true}
-                    className="justify-between"
-                    data-sanity={
-                      getSanityDataAttribute(
-                        isDraftMode,
-                        {id: pageId, type: pageType},
-                        rowPath,
-                      )
-                    }
-                  >
-                    {(row.columns || []).map((column, columnIndex) => {
-                      const columnPath = toArrayItemPath(`${rowPath}.columns`, column._key, columnIndex)
-
-                      return (
-                        <Column
-                          key={column._key || `hero-column-${columnIndex}`}
-                          className={cn(
-                            'space-y-gutenberg-gap-md',
-                            isDraftMode && 'min-h-4 m-1 p-1',
-                            columnIndex === 0 &&
-                              'max-w-4xl [&_h1]:text-6xl [&_h1]:font-normal [&_h1]:leading-none [&_h1]:tracking-tight sm:[&_h1]:text-7xl lg:[&_h1]:text-8xl xl:[&_h1]:text-9xl',
-                            columnIndex === 1 &&
-                              'max-w-xl lg:ml-auto lg:pb-2 [&_p]:text-lg [&_p]:leading-snug [&_p]:text-white/90 sm:[&_p]:text-xl lg:[&_p]:text-3xl',
-                          )}
-                          width={column.width || 'auto'}
-                          verticalAlignment={column.verticalAlignment || 'bottom'}
-                          data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, columnPath)}
-                        >
-                          {renderColumnContent(
-                            column,
-                            pageId,
-                            pageType,
-                            columnPath,
-                            isDraftMode,
-                          )}
-                        </Column>
-                      )
-                    })}
-                  </Columns>
-                )
-              })()
-            ))}
-          </div>
+          <HomeSectionRenderContext.Provider value="hero">
+            <div
+              className="space-y-8 lg:space-y-12"
+              data-sanity={getSanityDataAttribute(
+                isDraftMode,
+                {id: pageId, type: pageType},
+                contentPath,
+              )}
+            >
+              {renderBlockArray(block.contents || [], contentPath, pageId, pageType, isDraftMode)}
+            </div>
+          </HomeSectionRenderContext.Provider>
         </div>
       </div>
 
@@ -367,13 +607,13 @@ function renderHomeHeroSection(
         label={block.floatingActionLabel || 'Know More'}
         href={floatingActionHref}
         sectionId={sectionId}
-        data-sanity={
-          getSanityDataAttribute(
-            isDraftMode,
-            {id: pageId, type: pageType},
-            block.floatingActionLink ? `${blockPath}.floatingActionLink` : `${blockPath}.floatingActionLabel`,
-          )
-        }
+        data-sanity={getSanityDataAttribute(
+          isDraftMode,
+          {id: pageId, type: pageType},
+          block.floatingActionLink
+            ? `${blockPath}.floatingActionLink`
+            : `${blockPath}.floatingActionLabel`,
+        )}
       />
     </section>
   )
@@ -439,57 +679,6 @@ function renderAboutStatCard(
   )
 }
 
-function renderAboutColumnContent(
-  column: CbColumn,
-  pageId: string,
-  pageType: string,
-  columnPath: string,
-  isDraftMode: boolean,
-) {
-  const {items, fieldName} = resolveNestedArray(column, 'contents')
-  const contentsPath = `${columnPath}.${fieldName}`
-
-  return (
-    <div
-      data-sanity={
-        getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, contentsPath)
-      }
-    >
-      {items.map((child, childIndex) => {
-        const childPath = toArrayItemPath(contentsPath, child._key, childIndex)
-
-        if (child._type === 'cbButton') {
-          const href = resolveLinkHref(child.link, child.url) || '#'
-          const target = resolveLinkTarget(child.linkTarget, child.link?.openInNewTab)
-
-          return (
-            <SectionArrowCta
-              key={child._key || `about-cta-${childIndex}`}
-              href={href}
-              label={child.label || child.text || 'Learn More'}
-              target={target}
-              rel={target === '_blank' ? 'noopener noreferrer' : undefined}
-              data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, childPath)}
-            />
-          )
-        }
-
-        return (
-          <BlockRenderer
-            key={child._key || `${column._key || 'column'}-${childIndex}`}
-            block={child}
-            index={childIndex}
-            pageId={pageId}
-            pageType={pageType}
-            blockPath={childPath}
-            isDraftMode={isDraftMode}
-          />
-        )
-      })}
-    </div>
-  )
-}
-
 function renderHomeAboutSection(
   block: Extract<PageBuilderBlock, {_type: 'homeAboutSection'}>,
   pageId: string,
@@ -505,87 +694,25 @@ function renderHomeAboutSection(
       className="bg-background py-20 sm:py-24 lg:py-28"
       data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, blockPath)}
     >
-      <div className="space-y-12 overflow-hidden sm:space-y-16 lg:space-y-20">
-        {(block.contents || []).map((row, rowIndex) => {
-          const rowPath = toArrayItemPath(contentPath, row._key, rowIndex)
-
-          if (rowIndex === 0) {
-            return (
-              <div key={row._key || `about-row-${rowIndex}`} className="mx-auto w-full max-w-wide px-4 sm:px-8 lg:px-10 xl:px-20">
-                <Columns
-                  gap={row.gap || 'lg'}
-                  verticalAlignment={row.verticalAlignment || 'center'}
-                  isStackedOnMobile={row.isStackedOnMobile ?? true}
-                  className="items-center gap-10 lg:gap-16"
-                  data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, rowPath)}
-                >
-                  {(row.columns || []).map((column, columnIndex) => {
-                    const columnPath = toArrayItemPath(`${rowPath}.columns`, column._key, columnIndex)
-
-                    return (
-                      <Column
-                        key={column._key || `about-column-${columnIndex}`}
-                        width={column.width || 'auto'}
-                        verticalAlignment={column.verticalAlignment || 'center'}
-                        className={cn(
-                          'min-w-0',
-                          columnIndex === 0 && 'lg:-ml-24 xl:-ml-40',
-                          columnIndex === 1 &&
-                            'max-w-3xl space-y-6 [&_h2]:text-4xl [&_h2]:font-normal [&_h2]:leading-snug [&_h2]:text-albatha-midnight sm:[&_h2]:text-5xl [&_p]:mt-0 [&_p]:text-lg [&_p]:leading-snug [&_p]:text-albatha-midnight/90 sm:[&_p]:text-xl lg:[&_p]:text-2xl',
-                        )}
-                        data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, columnPath)}
-                      >
-                        {renderAboutColumnContent(
-                          column,
-                          pageId,
-                          pageType,
-                          columnPath,
-                          isDraftMode,
-                        )}
-                      </Column>
-                    )
-                  })}
-                </Columns>
-              </div>
-            )
-          }
-
-          return (
-            <div key={row._key || `about-row-${rowIndex}`} className="mx-auto w-full max-w-wide px-4 sm:px-8 lg:px-10 xl:px-20">
-              <div data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, rowPath)}>
-                {(row.columns || []).map((column, columnIndex) => (
-                  <div
-                    key={column._key || `about-stats-column-${columnIndex}`}
-                    data-sanity={
-                      getSanityDataAttribute(
-                        isDraftMode,
-                        {id: pageId, type: pageType},
-                        toArrayItemPath(`${rowPath}.columns`, column._key, columnIndex),
-                      )
-                    }
-                  >
-                    {renderColumnContent(
-                      column,
-                      pageId,
-                      pageType,
-                      toArrayItemPath(`${rowPath}.columns`, column._key, columnIndex),
-                      isDraftMode,
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )
-        })}
-      </div>
+      <HomeSectionRenderContext.Provider value="about">
+        <div className="mx-auto w-full max-w-wide overflow-hidden px-4 sm:px-8 lg:px-10 xl:px-20">
+          <div
+            className="space-y-12 sm:space-y-16 lg:space-y-20"
+            data-sanity={getSanityDataAttribute(
+              isDraftMode,
+              {id: pageId, type: pageType},
+              contentPath,
+            )}
+          >
+            {renderBlockArray(block.contents || [], contentPath, pageId, pageType, isDraftMode)}
+          </div>
+        </div>
+      </HomeSectionRenderContext.Provider>
     </section>
   )
 }
 
-function resolveSectorListItemClasses(
-  itemIndex: number,
-  highlightedIndex: number,
-) {
+function resolveSectorListItemClasses(itemIndex: number, highlightedIndex: number) {
   const distanceFromHighlight =
     highlightedIndex >= 0 ? Math.abs(itemIndex - highlightedIndex) : itemIndex
 
@@ -661,8 +788,14 @@ function renderHomeSectorListBlock(
       className="relative overflow-hidden py-6 sm:py-8 lg:py-10"
       data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, blockPath)}
     >
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-10 bg-gradient-to-b from-background via-background/85 to-transparent sm:h-14" aria-hidden="true" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-12 bg-gradient-to-t from-background via-background/85 to-transparent sm:h-16" aria-hidden="true" />
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 z-10 h-10 bg-gradient-to-b from-background via-background/85 to-transparent sm:h-14"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-12 bg-gradient-to-t from-background via-background/85 to-transparent sm:h-16"
+        aria-hidden="true"
+      />
       <nav aria-label="Albatha sectors">
         <ul className="flex flex-col -space-y-1 sm:-space-y-2 lg:-space-y-3">
           {items.map((item, itemIndex) => {
@@ -711,10 +844,16 @@ function renderHomeSectorItem(
           className="h-full min-h-[22rem] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 sm:min-h-[26rem] lg:min-h-[36rem]"
         />
       ) : (
-        <div className="min-h-[22rem] bg-albatha-midnight sm:min-h-[26rem] lg:min-h-[36rem]" aria-hidden="true" />
+        <div
+          className="min-h-[22rem] bg-albatha-midnight sm:min-h-[26rem] lg:min-h-[36rem]"
+          aria-hidden="true"
+        />
       )}
 
-      <div className="absolute inset-0 bg-gradient-to-t from-albatha-midnight/80 via-albatha-midnight/5 to-transparent" aria-hidden="true" />
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-albatha-midnight/80 via-albatha-midnight/5 to-transparent"
+        aria-hidden="true"
+      />
       <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-4 sm:p-6">
         <div className="max-w-[12rem] space-y-2">
           <p className="text-xs font-medium uppercase tracking-[0.24em] text-white/75 sm:text-sm">
@@ -731,7 +870,9 @@ function renderHomeSectorItem(
 
   if (!href) {
     return (
-      <div data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, blockPath)}>
+      <div
+        data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, blockPath)}
+      >
         {content}
       </div>
     )
@@ -784,74 +925,20 @@ function renderHomeSectorsSection(
       className="bg-background py-20 sm:py-24 lg:py-28"
       data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, blockPath)}
     >
-      <div className="mx-auto w-full max-w-wide px-4 sm:px-8 lg:px-10 xl:px-20">
-        <div className="space-y-12 sm:space-y-16 lg:space-y-20">
-          {(block.contents || []).map((row, rowIndex) => {
-            const rowPath = toArrayItemPath(contentPath, row._key, rowIndex)
-
-            if (rowIndex === 0) {
-              return (
-                <div key={row._key || `sectors-row-${rowIndex}`} className="max-w-4xl">
-                  <Columns
-                    gap={row.gap || 'lg'}
-                    verticalAlignment={row.verticalAlignment || 'top'}
-                    isStackedOnMobile={row.isStackedOnMobile ?? true}
-                    className="gap-6"
-                    data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, rowPath)}
-                  >
-                    {(row.columns || []).map((column, columnIndex) => {
-                      const columnPath = toArrayItemPath(`${rowPath}.columns`, column._key, columnIndex)
-
-                      return (
-                        <Column
-                          key={column._key || `sectors-heading-column-${columnIndex}`}
-                          width={column.width || 'auto'}
-                          verticalAlignment={column.verticalAlignment || 'top'}
-                          className="space-y-4 [&_h2]:text-4xl [&_h2]:font-normal [&_h2]:leading-tight [&_h2]:text-albatha-midnight sm:[&_h2]:text-5xl lg:[&_h2]:text-[2.5rem]"
-                          data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, columnPath)}
-                        >
-                          {renderColumnContent(column, pageId, pageType, columnPath, isDraftMode)}
-                        </Column>
-                      )
-                    })}
-                  </Columns>
-                </div>
-              )
-            }
-
-            return (
-              <Columns
-                key={row._key || `sectors-row-${rowIndex}`}
-                gap={row.gap || 'lg'}
-                verticalAlignment={row.verticalAlignment || 'bottom'}
-                isStackedOnMobile={row.isStackedOnMobile ?? true}
-                className="items-end gap-8 lg:gap-16 xl:gap-24"
-                data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, rowPath)}
-              >
-                {(row.columns || []).map((column, columnIndex) => {
-                  const columnPath = toArrayItemPath(`${rowPath}.columns`, column._key, columnIndex)
-
-                  return (
-                    <Column
-                      key={column._key || `sectors-column-${columnIndex}`}
-                      width={column.width || 'auto'}
-                      verticalAlignment={column.verticalAlignment || 'bottom'}
-                      className={cn(
-                        'min-w-0',
-                        columnIndex === 0 && 'order-2 lg:order-1',
-                        columnIndex === 1 && 'order-1 mx-auto w-full max-w-md lg:order-2 lg:max-w-none',
-                      )}
-                      data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, columnPath)}
-                    >
-                      {renderColumnContent(column, pageId, pageType, columnPath, isDraftMode)}
-                    </Column>
-                  )
-                })}
-              </Columns>
-            )
-          })}
+      <HomeSectionRenderContext.Provider value="sectors">
+        <div className="mx-auto w-full max-w-wide px-4 sm:px-8 lg:px-10 xl:px-20">
+          <div
+            className="space-y-12 sm:space-y-16 lg:space-y-20"
+            data-sanity={getSanityDataAttribute(
+              isDraftMode,
+              {id: pageId, type: pageType},
+              contentPath,
+            )}
+          >
+            {renderBlockArray(block.contents || [], contentPath, pageId, pageType, isDraftMode)}
+          </div>
         </div>
-      </div>
+      </HomeSectionRenderContext.Provider>
     </section>
   )
 }
@@ -943,70 +1030,119 @@ function renderHomeCompaniesSection(
         aria-hidden="true"
       />
 
-      <div className="relative z-10 mx-auto w-full max-w-wide px-4 sm:px-8 lg:px-10 xl:px-20">
-        <div className="space-y-12 sm:space-y-14 lg:space-y-[3.75rem]">
-          {(block.contents || []).map((row, rowIndex) => {
-            const rowPath = toArrayItemPath(contentPath, row._key, rowIndex)
-
-            if (rowIndex === 0) {
-              return (
-                <div key={row._key || `companies-row-${rowIndex}`} className="mx-auto max-w-6xl">
-                  <Columns
-                    gap={row.gap || 'lg'}
-                    verticalAlignment={row.verticalAlignment || 'center'}
-                    isStackedOnMobile={row.isStackedOnMobile ?? true}
-                    className="justify-center"
-                    data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, rowPath)}
-                  >
-                    {(row.columns || []).map((column, columnIndex) => {
-                      const columnPath = toArrayItemPath(`${rowPath}.columns`, column._key, columnIndex)
-
-                      return (
-                        <Column
-                          key={column._key || `companies-copy-column-${columnIndex}`}
-                          width={column.width || 'auto'}
-                          verticalAlignment={column.verticalAlignment || 'center'}
-                          className="space-y-4 [&_p]:mt-0 [&_p]:text-center [&_p]:text-xl [&_p]:leading-snug [&_p]:text-white sm:[&_p]:text-2xl lg:[&_p]:text-[2.1875rem] lg:[&_p]:leading-[1.2857142857]"
-                          data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, columnPath)}
-                        >
-                          {renderColumnContent(column, pageId, pageType, columnPath, isDraftMode)}
-                        </Column>
-                      )
-                    })}
-                  </Columns>
-                </div>
-              )
-            }
-
-            return (
-              <div key={row._key || `companies-row-${rowIndex}`}>
-                <Columns
-                  gap={row.gap || 'lg'}
-                  verticalAlignment={row.verticalAlignment || 'bottom'}
-                  isStackedOnMobile={row.isStackedOnMobile ?? true}
-                  className="gap-6"
-                  data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, rowPath)}
-                >
-                  {(row.columns || []).map((column, columnIndex) => {
-                    const columnPath = toArrayItemPath(`${rowPath}.columns`, column._key, columnIndex)
-
-                    return (
-                      <Column
-                        key={column._key || `companies-column-${columnIndex}`}
-                        width={column.width || 'auto'}
-                        verticalAlignment={column.verticalAlignment || 'bottom'}
-                        data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, columnPath)}
-                      >
-                        {renderColumnContent(column, pageId, pageType, columnPath, isDraftMode)}
-                      </Column>
-                    )
-                  })}
-                </Columns>
-              </div>
-            )
-          })}
+      <HomeSectionRenderContext.Provider value="companies">
+        <div className="relative z-10 mx-auto w-full max-w-wide px-4 sm:px-8 lg:px-10 xl:px-20">
+          <div
+            className="space-y-12 sm:space-y-14 lg:space-y-[3.75rem]"
+            data-sanity={getSanityDataAttribute(
+              isDraftMode,
+              {id: pageId, type: pageType},
+              contentPath,
+            )}
+          >
+            {renderBlockArray(block.contents || [], contentPath, pageId, pageType, isDraftMode)}
+          </div>
         </div>
-      </div>
+      </HomeSectionRenderContext.Provider>
+    </section>
+  )
+}
+
+function renderHomeBlogPostsSection(
+  block: Extract<PageBuilderBlock, {_type: 'homeBlogPostsSection'}>,
+  pageId: string,
+  pageType: string,
+  blockPath: string,
+  isDraftMode: boolean,
+) {
+  const sectionId = 'blog-posts'
+  const contentPath = `${blockPath}.contents`
+  const postsPath = `${blockPath}.posts`
+  const floatingActionHref = resolveLinkHref(block.floatingActionLink) || '/#top'
+  const posts = block.posts || []
+  const featuredPost = posts[0]
+  const supportingPosts = posts.slice(1, 4)
+
+  return (
+    <section
+      id={sectionId}
+      className="relative isolate bg-albatha-midnight pb-20 pt-10 text-white sm:pb-24 sm:pt-12 lg:pb-[7.5rem] lg:pt-10"
+      data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, blockPath)}
+    >
+      <HomeSectionRenderContext.Provider value="blog-posts">
+        <div className="mx-auto w-full max-w-wide px-4 sm:px-8 lg:px-10 xl:px-20">
+          <div className="space-y-8 sm:space-y-10 lg:space-y-12">
+            {block.contents?.length ? (
+              <div
+                className="space-y-6 lg:space-y-8"
+                data-sanity={getSanityDataAttribute(
+                  isDraftMode,
+                  {id: pageId, type: pageType},
+                  contentPath,
+                )}
+              >
+                {renderBlockArray(block.contents, contentPath, pageId, pageType, isDraftMode)}
+              </div>
+            ) : null}
+
+            {featuredPost ? (
+              <div
+                className="space-y-7 sm:space-y-8"
+                data-sanity={getSanityDataAttribute(
+                  isDraftMode,
+                  {id: pageId, type: pageType},
+                  postsPath,
+                )}
+              >
+                <HomeBlogPostCard
+                  variant="featured"
+                  title={stegaClean(featuredPost.title) || featuredPost.title || 'Featured post'}
+                  publishedLabel={formatPostDate(featuredPost.publishedAt)}
+                  excerpt={resolvePostExcerpt(featuredPost)}
+                  href={resolvePostHref(featuredPost)}
+                  imageAssetId={resolveImageAssetId(featuredPost.image?.asset)}
+                  imageAlt={featuredPost.image?.alt || featuredPost.title || 'Featured post'}
+                  data-sanity={getSanityDataAttribute(
+                    isDraftMode,
+                    {id: pageId, type: pageType},
+                    toArrayItemPath(postsPath, featuredPost._key, 0),
+                  )}
+                />
+
+                {supportingPosts.length ? (
+                  <div className="grid gap-6 lg:grid-cols-3">
+                    {supportingPosts.map((post, postIndex) => (
+                      <HomeBlogPostCard
+                        key={post._key || post._id || `blog-post-${postIndex + 1}`}
+                        title={stegaClean(post.title) || post.title || 'Post'}
+                        publishedLabel={formatPostDate(post.publishedAt)}
+                        href={resolvePostHref(post)}
+                        data-sanity={getSanityDataAttribute(
+                          isDraftMode,
+                          {id: pageId, type: pageType},
+                          toArrayItemPath(postsPath, post._key, postIndex + 1),
+                        )}
+                      />
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </HomeSectionRenderContext.Provider>
+
+      <FloatingSectionAction
+        label={block.floatingActionLabel || 'Back to Top'}
+        href={floatingActionHref}
+        direction="up"
+        sectionId={sectionId}
+        data-sanity={getSanityDataAttribute(
+          isDraftMode,
+          {id: pageId, type: pageType},
+          block.floatingActionLink ? `${blockPath}.floatingActionLink` : `${blockPath}.floatingActionLabel`,
+        )}
+      />
     </section>
   )
 }
@@ -1056,9 +1192,7 @@ function renderColumnContent(
 
   return (
     <div
-      data-sanity={
-        getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, contentsPath)
-      }
+      data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, contentsPath)}
     >
       {items.map((child, childIndex) => (
         <BlockRenderer
@@ -1087,9 +1221,7 @@ function renderGroupContent(
 
   return (
     <div
-      data-sanity={
-        getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, contentsPath)
-      }
+      data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, contentsPath)}
     >
       {items.map((child, childIndex) => (
         <BlockRenderer
@@ -1118,9 +1250,7 @@ function renderCoverContent(
 
   return (
     <div
-      data-sanity={
-        getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, contentsPath)
-      }
+      data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, contentsPath)}
     >
       {items.map((child, childIndex) => (
         <BlockRenderer
@@ -1146,6 +1276,9 @@ export default function BlockRenderer({
   isDraftMode,
 }: BlockRendererProps) {
   const layoutSettings = useLayoutSettings()
+  const homeSection = useContext(HomeSectionRenderContext)
+  const homeColumnVariant = useContext(HomeColumnVariantContext)
+  const shouldUseUnstyledBlockSlot = homeSection !== null
   const key = block._key || `${block._type}-${index}`
   const blockDataAttr = isDraftMode
     ? getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, blockPath)
@@ -1154,7 +1287,12 @@ export default function BlockRenderer({
   switch (block._type) {
     case 'cbBlock':
       return (
-        <BlockSlot refId={key} data-page-id={pageId} data-page-type={pageType} data-sanity={blockDataAttr}>
+        <BlockSlot
+          refId={key}
+          data-page-id={pageId}
+          data-page-type={pageType}
+          data-sanity={blockDataAttr}
+        >
           <ReusablePattern patternRef={(block as CbBlock).ref} />
         </BlockSlot>
       )
@@ -1166,9 +1304,14 @@ export default function BlockRenderer({
           data-page-id={pageId}
           data-page-type={pageType}
           data-sanity={blockDataAttr}
+          unstyled={shouldUseUnstyledBlockSlot}
           data-placeholder={block.placeholder || undefined}
         >
-          <Heading as={as} textAlign={block.textAlign || 'left'}>
+          <Heading
+            as={as}
+            textAlign={block.textAlign || 'left'}
+            unstyled={shouldUseUnstyledBlockSlot}
+          >
             {block.content || ''}
           </Heading>
         </BlockSlot>
@@ -1181,6 +1324,7 @@ export default function BlockRenderer({
           data-page-id={pageId}
           data-page-type={pageType}
           data-sanity={blockDataAttr}
+          unstyled={shouldUseUnstyledBlockSlot}
           data-placeholder={block.placeholder || undefined}
         >
           <Paragraph
@@ -1188,6 +1332,7 @@ export default function BlockRenderer({
             dropCap={block.dropCap || false}
             textAlign={block.textAlign || 'left'}
             fontSize={block.fontSize || 'md'}
+            unstyled={shouldUseUnstyledBlockSlot}
           />
         </BlockSlot>
       )
@@ -1198,6 +1343,7 @@ export default function BlockRenderer({
           data-page-id={pageId}
           data-page-type={pageType}
           data-sanity={blockDataAttr}
+          unstyled={shouldUseUnstyledBlockSlot}
         >
           <div className="prose">
             <CustomPortableText
@@ -1213,6 +1359,7 @@ export default function BlockRenderer({
           data-page-id={pageId}
           data-page-type={pageType}
           data-sanity={blockDataAttr}
+          unstyled={shouldUseUnstyledBlockSlot}
         >
           <Html html={block.content || ''} />
         </BlockSlot>
@@ -1225,6 +1372,7 @@ export default function BlockRenderer({
           data-page-id={pageId}
           data-page-type={pageType}
           data-sanity={blockDataAttr}
+          unstyled={shouldUseUnstyledBlockSlot}
         >
           <Image
             src={resolvedImage.imageUrl || block.url || ''}
@@ -1239,12 +1387,28 @@ export default function BlockRenderer({
       )
     }
     case 'cbButton':
+      if (homeSection === 'about' && homeColumnVariant === 'about-copy') {
+        const href = resolveLinkHref(block.link, block.url) || '#'
+        const target = resolveLinkTarget(block.linkTarget, block.link?.openInNewTab)
+
+        return (
+          <SectionArrowCta
+            href={href}
+            label={block.label || block.text || 'Learn More'}
+            target={target}
+            rel={target === '_blank' ? 'noopener noreferrer' : undefined}
+            data-sanity={blockDataAttr}
+          />
+        )
+      }
+
       return (
         <BlockSlot
           refId={key}
           data-page-id={pageId}
           data-page-type={pageType}
           data-sanity={blockDataAttr}
+          unstyled={shouldUseUnstyledBlockSlot}
         >
           {renderButton(block)}
         </BlockSlot>
@@ -1256,18 +1420,17 @@ export default function BlockRenderer({
           data-page-id={pageId}
           data-page-type={pageType}
           data-sanity={blockDataAttr}
+          unstyled={shouldUseUnstyledBlockSlot}
         >
           <Buttons align={block.align || 'left'} orientation={block.orientation || 'horizontal'}>
             {(block.items || []).map((item, i) => (
               <span
                 key={item._key || `${key}-${i}`}
-                data-sanity={
-                  getSanityDataAttribute(
-                    isDraftMode,
-                    {id: pageId, type: pageType},
-                    toArrayItemPath(`${blockPath}.items`, item._key, i),
-                  )
-                }
+                data-sanity={getSanityDataAttribute(
+                  isDraftMode,
+                  {id: pageId, type: pageType},
+                  toArrayItemPath(`${blockPath}.items`, item._key, i),
+                )}
               >
                 {renderButton(item, item._key || `${key}-${i}`)}
               </span>
@@ -1294,6 +1457,7 @@ export default function BlockRenderer({
           data-page-id={pageId}
           data-page-type={pageType}
           data-sanity={blockDataAttr}
+          unstyled={shouldUseUnstyledBlockSlot}
         >
           <List
             kind={block.ordered ? 'ordered' : 'unordered'}
@@ -1303,13 +1467,11 @@ export default function BlockRenderer({
             {listItems.map((item, i) => (
               <ListItem
                 key={item._key || `${key}-${i}`}
-                data-sanity={
-                  getSanityDataAttribute(
-                    isDraftMode,
-                    {id: pageId, type: pageType},
-                    item.path,
-                  )
-                }
+                data-sanity={getSanityDataAttribute(
+                  isDraftMode,
+                  {id: pageId, type: pageType},
+                  item.path,
+                )}
               >
                 {item.content || ''}
               </ListItem>
@@ -1325,6 +1487,7 @@ export default function BlockRenderer({
           data-page-id={pageId}
           data-page-type={pageType}
           data-sanity={blockDataAttr}
+          unstyled={shouldUseUnstyledBlockSlot}
         >
           <Navigation
             overlayMenu={block.overlayMenu || 'mobile'}
@@ -1335,16 +1498,18 @@ export default function BlockRenderer({
               {(block.links || []).map((link, i) => (
                 <NavigationLink
                   key={link._key || `${key}-${i}`}
-                  data-sanity={
-                    getSanityDataAttribute(
-                      isDraftMode,
-                      {id: pageId, type: pageType},
-                      toArrayItemPath(`${blockPath}.links`, link._key, i),
-                    )
-                  }
+                  data-sanity={getSanityDataAttribute(
+                    isDraftMode,
+                    {id: pageId, type: pageType},
+                    toArrayItemPath(`${blockPath}.links`, link._key, i),
+                  )}
                   href={resolveLinkHref(link.link, link.url) || '#'}
                   target={resolveNavigationLinkTarget(link)}
-                  rel={resolveNavigationLinkTarget(link) === '_blank' ? 'noopener noreferrer' : undefined}
+                  rel={
+                    resolveNavigationLinkTarget(link) === '_blank'
+                      ? 'noopener noreferrer'
+                      : undefined
+                  }
                   title={link.description || undefined}
                   className="inline-flex items-center"
                 >
@@ -1362,6 +1527,7 @@ export default function BlockRenderer({
           data-page-id={pageId}
           data-page-type={pageType}
           data-sanity={blockDataAttr}
+          unstyled={shouldUseUnstyledBlockSlot}
         >
           <Group
             as={block.tagName || 'div'}
@@ -1379,6 +1545,7 @@ export default function BlockRenderer({
           data-page-id={pageId}
           data-page-type={pageType}
           data-sanity={blockDataAttr}
+          unstyled={shouldUseUnstyledBlockSlot}
         >
           <Column
             className={cn('space-y-gutenberg-gap-md', isDraftMode && 'min-h-4 p-1')}
@@ -1389,46 +1556,59 @@ export default function BlockRenderer({
           </Column>
         </BlockSlot>
       )
-    case 'cbColumns':
+    case 'cbColumns': {
+      const rowClassName = resolveHomeSectionRowClassName(homeSection, block)
       return (
         <BlockSlot
           refId={key}
           data-page-id={pageId}
           data-page-type={pageType}
           data-sanity={blockDataAttr}
+          unstyled={homeSection !== null}
         >
           <Columns
-            gap={block.gap || 'md'}
-            verticalAlignment={block.verticalAlignment || 'top'}
+            gap={block.gap || (homeSection ? 'lg' : 'md')}
+            verticalAlignment={resolveHomeSectionRowVerticalAlignment(homeSection, block)}
             isStackedOnMobile={block.isStackedOnMobile ?? true}
+            className={rowClassName}
           >
-            {(block.columns || []).map((column, i) => (
-              <Column
-                key={column._key || `${key}-${i}`}
-                className={cn('space-y-gutenberg-gap-md', isDraftMode && 'min-h-4 m-1 p-1')}
-                width={column.width || 'auto'}
-                verticalAlignment={column.verticalAlignment || 'top'}
-                stackedOnMobile={block.isStackedOnMobile ?? true}
-                data-sanity={
-                  getSanityDataAttribute(
-                    isDraftMode,
-                    {id: pageId, type: pageType},
-                    toArrayItemPath(`${blockPath}.columns`, column._key, i),
-                  )
-                }
-              >
-                {renderColumnContent(
-                  column,
-                  pageId,
-                  pageType,
-                  toArrayItemPath(`${blockPath}.columns`, column._key, i),
-                  isDraftMode,
-                )}
-              </Column>
-            ))}
+            {(block.columns || []).map((column, i) => {
+              const columnPath = toArrayItemPath(`${blockPath}.columns`, column._key, i)
+              const columnVariant = resolveHomeSectionColumnVariant(homeSection, column)
+
+              return (
+                <HomeColumnVariantContext.Provider
+                  key={column._key || `${key}-${i}`}
+                  value={columnVariant}
+                >
+                  <Column
+                    className={cn(
+                      'space-y-gutenberg-gap-md',
+                      isDraftMode && 'min-h-4 m-1 p-1',
+                      resolveHomeSectionColumnClassName(columnVariant),
+                    )}
+                    width={column.width || 'auto'}
+                    verticalAlignment={resolveHomeSectionColumnVerticalAlignment(
+                      homeSection,
+                      columnVariant,
+                      column,
+                    )}
+                    stackedOnMobile={block.isStackedOnMobile ?? true}
+                    data-sanity={getSanityDataAttribute(
+                      isDraftMode,
+                      {id: pageId, type: pageType},
+                      columnPath,
+                    )}
+                  >
+                    {renderColumnContent(column, pageId, pageType, columnPath, isDraftMode)}
+                  </Column>
+                </HomeColumnVariantContext.Provider>
+              )
+            })}
           </Columns>
         </BlockSlot>
       )
+    }
     case 'cbCover': {
       const coverMedia = resolveMediaUrls(block.backgroundMedia)
       return (
@@ -1437,6 +1617,7 @@ export default function BlockRenderer({
           data-page-id={pageId}
           data-page-type={pageType}
           data-sanity={blockDataAttr}
+          unstyled={shouldUseUnstyledBlockSlot}
         >
           <Cover
             backgroundMedia={
@@ -1464,7 +1645,13 @@ export default function BlockRenderer({
     }
     case 'cbShortcode':
       return (
-        <BlockSlot refId={key} data-page-id={pageId} data-page-type={pageType} data-sanity={blockDataAttr}>
+        <BlockSlot
+          refId={key}
+          data-page-id={pageId}
+          data-page-type={pageType}
+          data-sanity={blockDataAttr}
+          unstyled={shouldUseUnstyledBlockSlot}
+        >
           <Shortcode value={block.text || ''} />
         </BlockSlot>
       )
@@ -1472,7 +1659,13 @@ export default function BlockRenderer({
       const logoRef = layoutSettings?.logo?.asset?._ref
       const logoSrc = imageAssetRefToUrl(logoRef)
       return (
-        <BlockSlot refId={key} data-page-id={pageId} data-page-type={pageType} data-sanity={blockDataAttr}>
+        <BlockSlot
+          refId={key}
+          data-page-id={pageId}
+          data-page-type={pageType}
+          data-sanity={blockDataAttr}
+          unstyled={shouldUseUnstyledBlockSlot}
+        >
           <SiteLogo
             src={logoSrc || undefined}
             alt={layoutSettings?.logo?.alt || layoutSettings?.title || 'Site logo'}
@@ -1487,7 +1680,13 @@ export default function BlockRenderer({
     }
     case 'cbVideo':
       return (
-        <BlockSlot refId={key} data-page-id={pageId} data-page-type={pageType} data-sanity={blockDataAttr}>
+        <BlockSlot
+          refId={key}
+          data-page-id={pageId}
+          data-page-type={pageType}
+          data-sanity={blockDataAttr}
+          unstyled={shouldUseUnstyledBlockSlot}
+        >
           <Video
             src={block.src || undefined}
             poster={block.poster || undefined}
@@ -1507,6 +1706,7 @@ export default function BlockRenderer({
           data-page-id={pageId}
           data-page-type={pageType}
           data-sanity={blockDataAttr}
+          unstyled={shouldUseUnstyledBlockSlot}
         >
           <CTA block={block as never} index={index} pageId={pageId} pageType={pageType} />
         </BlockSlot>
@@ -1543,11 +1743,9 @@ export default function BlockRenderer({
     }
     case 'homeAboutStatsBlock': {
       const stats = block.stats || []
-      const statPairs = [
-        stats.slice(0, 2),
-        stats.slice(2, 4),
-        stats.slice(4, 6),
-      ].filter((pair) => pair.length > 0)
+      const statPairs = [stats.slice(0, 2), stats.slice(2, 4), stats.slice(4, 6)].filter(
+        (pair) => pair.length > 0,
+      )
 
       return (
         <div data-sanity={blockDataAttr}>
@@ -1564,7 +1762,10 @@ export default function BlockRenderer({
           </div>
           <div className="hidden gap-5 lg:grid lg:grid-cols-3">
             {statPairs.map((pair, pairIndex) => (
-              <div key={`about-stat-pair-${pairIndex}`} className={cn('flex flex-col gap-5', pairIndex === 1 && 'pt-20')}>
+              <div
+                key={`about-stat-pair-${pairIndex}`}
+                className={cn('flex flex-col gap-5', pairIndex === 1 && 'pt-20')}
+              >
                 {pair.map((stat) => {
                   const statIndex = stats.findIndex((item) => item._key === stat._key)
 
@@ -1596,6 +1797,8 @@ export default function BlockRenderer({
       return renderHomeSectorsSection(block, pageId, pageType, blockPath, isDraftMode)
     case 'homeCompaniesSection':
       return renderHomeCompaniesSection(block, pageId, pageType, blockPath, isDraftMode)
+    case 'homeBlogPostsSection':
+      return renderHomeBlogPostsSection(block, pageId, pageType, blockPath, isDraftMode)
     default:
       return null
   }

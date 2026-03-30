@@ -60,9 +60,10 @@
   /* === Typography === */
   --font-brand: var(--font-suse);
   --font-brand-rtl: var(--font-suse), var(--font-arabic);
-  --font-mono: ui-monospace, 'Cascadia Code', monospace --color-albatha-blue: #0daee4;
+  --font-mono: ui-monospace, 'Cascadia Code', monospace;
 
   /* === Colors: Primitives === */
+  --color-albatha-blue: #0daee4;
   --color-albatha-orange: #f25e03;
   --color-albatha-midnight: #151d28;
   --color-albatha-ink: #11161f;

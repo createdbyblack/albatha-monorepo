@@ -83,6 +83,7 @@ function RenderSections({
   }
   return (
     <div
+      id="top"
       data-sanity={
         getSanityDataAttribute(isDraftMode, {id: page._id, type: page._type}, 'pageBuilder')
       }
