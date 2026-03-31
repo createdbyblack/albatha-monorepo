@@ -65,6 +65,8 @@ export default defineConfig({
           enable: '/api/draft-mode/enable',
         },
       },
+      allowOrigins: [`${SANITY_STUDIO_PREVIEW_URL}/*`],
+
       resolve: {
         // The Main Document Resolver API provides a method of resolving a main document from a given route or route pattern. https://www.sanity.io/docs/visual-editing/presentation-resolver-api#57720a5678d9
         mainDocuments: defineDocuments([
@@ -82,8 +84,7 @@ export default defineConfig({
           },
           {
             route: '/:language/:slug',
-            filter:
-              `_type == "page" && (slug.current == $slug || _id == $slug) && coalesce(language, "en") == $language`,
+            filter: `_type == "page" && (slug.current == $slug || _id == $slug) && coalesce(language, "en") == $language`,
           },
           {
             route: '/privacy-policy',
@@ -99,8 +100,7 @@ export default defineConfig({
           },
           {
             route: '/:language/terms-and-conditions',
-            filter:
-              `_type == "legalPage" && slug == "terms-and-conditions" && coalesce(language, "en") == $language`,
+            filter: `_type == "legalPage" && slug == "terms-and-conditions" && coalesce(language, "en") == $language`,
           },
         ]),
         // Locations Resolver API allows you to define where data is being used in your application. https://www.sanity.io/docs/visual-editing/presentation-resolver-api#8d8bca7bfcd7
@@ -177,7 +177,9 @@ export default defineConfig({
   document: {
     // Hide base templates so editors use the language-aware creation options from i18n.
     newDocumentOptions: (prev) =>
-      prev.filter((templateItem) => !['page', 'legalPage', 'homePage'].includes(templateItem.templateId)),
+      prev.filter(
+        (templateItem) => !['page', 'legalPage', 'homePage'].includes(templateItem.templateId),
+      ),
   },
 
   // Schema configuration, imported from ./src/schemaTypes/index.ts
