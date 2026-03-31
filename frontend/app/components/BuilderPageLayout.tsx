@@ -1,3 +1,5 @@
+import {draftMode} from 'next/headers'
+
 import Footer from '@/app/components/Footer'
 import Header from '@/app/components/Header'
 import StructuredDataScript from '@/app/components/StructuredDataScript'
@@ -5,9 +7,10 @@ import type {BuilderPageData} from '@/app/lib/page-types'
 import PageBuilderPage from '@/app/components/PageBuilder'
 import {parseJsonObject} from '@/sanity/lib/utils'
 
-export default function BuilderPageLayout({page}: {page: BuilderPageData}) {
+export default async function BuilderPageLayout({page}: {page: BuilderPageData}) {
   const customStructuredData = parseJsonObject(page.structuredData)
   const isHomePage = page._type === 'homePage'
+  const isDraftMode = (await draftMode()).isEnabled
 
   if (isHomePage) {
     return (
@@ -17,7 +20,7 @@ export default function BuilderPageLayout({page}: {page: BuilderPageData}) {
           <div className="absolute inset-x-0 top-0 z-50">
             <Header variant={page.headerAppearance?.variant ?? null} />
           </div>
-          <PageBuilderPage page={page} />
+          <PageBuilderPage page={page} initialIsDraftMode={isDraftMode} />
         </div>
         <Footer variant={page.footerAppearance?.variant ?? null} />
       </>
@@ -36,7 +39,7 @@ export default function BuilderPageLayout({page}: {page: BuilderPageData}) {
             </div>
           </div>
         </div>
-        <PageBuilderPage page={page} />
+        <PageBuilderPage page={page} initialIsDraftMode={isDraftMode} />
       </div>
       <Footer variant={page.footerAppearance?.variant ?? null} />
     </>

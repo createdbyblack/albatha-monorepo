@@ -25,6 +25,18 @@ const dataset = process.env.SANITY_STUDIO_DATASET || 'production'
 // URL for preview functionality, defaults to localhost:3000 if not set
 const SANITY_STUDIO_PREVIEW_URL = process.env.SANITY_STUDIO_PREVIEW_URL || 'http://localhost:3000'
 
+function getAllowedPresentationOrigins(previewUrl: string): string[] {
+  const origins = ['http://localhost:*', 'http://127.0.0.1:*']
+
+  try {
+    origins.unshift(new URL(previewUrl).origin)
+  } catch {
+    origins.unshift(previewUrl)
+  }
+
+  return Array.from(new Set(origins))
+}
+
 // Define the home location for the presentation tool
 const homeLocation = {
   title: 'Home',
@@ -65,7 +77,7 @@ export default defineConfig({
           enable: '/api/draft-mode/enable',
         },
       },
-      allowOrigins: [`${SANITY_STUDIO_PREVIEW_URL}/*`],
+      allowOrigins: getAllowedPresentationOrigins(SANITY_STUDIO_PREVIEW_URL),
 
       resolve: {
         // The Main Document Resolver API provides a method of resolving a main document from a given route or route pattern. https://www.sanity.io/docs/visual-editing/presentation-resolver-api#57720a5678d9

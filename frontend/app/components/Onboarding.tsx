@@ -9,6 +9,7 @@ import Link from 'next/link'
 import {useIsPresentationTool} from 'next-sanity/hooks'
 import {createDataAttribute} from 'next-sanity'
 import {uuid} from '@sanity/uuid'
+import {useEffect, useState} from 'react'
 
 import {studioUrl} from '@/sanity/lib/api'
 
@@ -28,6 +29,13 @@ type OnboardingMessageProps = {
 
 const OnboardingMessage = ({message, link, type, path}: OnboardingMessageProps) => {
   const isPresentation = useIsPresentationTool()
+  const [isPresentationReady, setIsPresentationReady] = useState(false)
+
+  useEffect(() => {
+    if (isPresentation === true) {
+      setIsPresentationReady(true)
+    }
+  }, [isPresentation])
 
   return (
     <>
@@ -37,7 +45,7 @@ const OnboardingMessage = ({message, link, type, path}: OnboardingMessageProps) 
       </div>
 
       <div>
-        {!isPresentation ? (
+        {!isPresentationReady ? (
           <Link
             className="inline-flex rounded-full gap-2 items-center bg-white text-brand hover:bg-brand focus:bg-brand hover:text-white focus:text-white py-3 px-6 transition-colors duration-200"
             href={link.href}

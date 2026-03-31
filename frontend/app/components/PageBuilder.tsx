@@ -2,6 +2,7 @@
 
 import {SanityDocument} from 'next-sanity'
 import {useDraftModeEnvironment, useOptimistic} from 'next-sanity/hooks'
+import {useEffect, useState} from 'react'
 
 import BlockRenderer from '@/app/components/BlockRenderer'
 import type {OptimisticPageDocument} from '@/app/lib/page-types'
@@ -10,6 +11,7 @@ import {getSanityDataAttribute, toArrayItemPath} from '@/sanity/lib/visual-editi
 
 type PageBuilderPageProps = {
   page: PageDocumentForBuilder
+  initialIsDraftMode: boolean
 }
 
 type KeyedRecord = {
@@ -123,7 +125,7 @@ function RenderEmptyState({page, isDraftMode}: {page: PageDocumentForBuilder; is
   )
 }
 
-export default function PageBuilder({page}: PageBuilderPageProps) {
+export default function PageBuilder({page, initialIsDraftMode}: PageBuilderPageProps) {
   const pageBuilderSections = useOptimistic<
     PageBuilderSection[] | undefined,
     SanityDocument<OptimisticPageDocument>
@@ -150,10 +152,20 @@ export default function PageBuilder({page}: PageBuilderPageProps) {
   })
 
   const draftModeEnvironment = useDraftModeEnvironment()
-  const isDraftMode =
-    draftModeEnvironment === 'live' ||
-    draftModeEnvironment === 'presentation-iframe' ||
-    draftModeEnvironment === 'presentation-window'
+  const [isDraftMode, setIsDraftMode] = useState(initialIsDraftMode)
+
+  useEffect(() => {
+    if (draftModeEnvironment === 'checking') {
+      return
+    }
+
+    const hasLivePreviewEnvironment =
+      draftModeEnvironment === 'live' ||
+      draftModeEnvironment === 'presentation-iframe' ||
+      draftModeEnvironment === 'presentation-window'
+
+    setIsDraftMode(initialIsDraftMode || hasLivePreviewEnvironment)
+  }, [draftModeEnvironment, initialIsDraftMode])
 
   return pageBuilderSections && pageBuilderSections.length > 0 ? (
     <>
