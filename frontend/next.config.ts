@@ -1,5 +1,20 @@
 import type {NextConfig} from 'next'
 
+function getFrameAncestors(): string {
+  const ancestors = ["'self'", 'http://localhost:3333']
+  const studioUrl = process.env.NEXT_PUBLIC_SANITY_STUDIO_URL
+
+  if (studioUrl) {
+    try {
+      ancestors.push(new URL(studioUrl).origin)
+    } catch {
+      // Ignore invalid Studio URLs and keep the default localhost fallback.
+    }
+  }
+
+  return Array.from(new Set(ancestors)).join(' ')
+}
+
 const nextConfig: NextConfig = {
   env: {
     // Matches the behavior of `sanity dev` which sets styled-components to use the fastest way of inserting CSS rules in both dev and production. It's default behavior is to disable it in dev mode.
@@ -14,12 +29,8 @@ const nextConfig: NextConfig = {
         source: '/:path*',
         headers: [
           {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
-          },
-          {
             key: 'Content-Security-Policy',
-            value: `frame-ancestors 'self' https://sanity-test-v4-studio.vercel.app/* http://localhost:3333/*`,
+            value: `frame-ancestors ${getFrameAncestors()}`,
           },
         ],
       },
