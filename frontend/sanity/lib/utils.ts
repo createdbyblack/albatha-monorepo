@@ -1,3 +1,4 @@
+import {stegaClean} from '@sanity/client/stega'
 import {dataset, projectId, studioUrl} from '@/sanity/lib/api'
 import {createDataAttribute, CreateDataAttributeProps} from 'next-sanity'
 import imageUrlBuilder from '@sanity/image-url'
@@ -10,6 +11,10 @@ const builder = imageUrlBuilder({
   projectId: projectId || '',
   dataset: dataset || '',
 })
+
+function cleanSanityString(value?: string | null): string | null | undefined {
+  return typeof value === 'string' ? (stegaClean(value) || value) : value
+}
 
 // Create an image URL builder using the client
 // Export a function that can be used to get image URLs
@@ -39,17 +44,21 @@ type LinkValue = {
 export function linkResolver(link: LinkValue | DereferencedLink | undefined) {
   if (!link) return null
 
+  const linkType = cleanSanityString(link.linkType)
+  const href = cleanSanityString(link.href)
+  const page = cleanSanityString(link.page)
+
   // If linkType is not set but href is, lets set linkType to "href".  This comes into play when pasting links into the portable text editor because a link type is not assumed.
-  if (!link.linkType && link.href) {
+  if (!linkType && href) {
     link.linkType = 'href'
   }
 
-  switch (link.linkType) {
+  switch (linkType) {
     case 'href':
-      return link.href || null
+      return href || null
     case 'page':
-      if (link?.page && typeof link.page === 'string') {
-        return `/${link.page}`
+      if (page && typeof page === 'string') {
+        return `/${page}`
       }
     default:
       return null
@@ -72,20 +81,26 @@ export function resolveContentLinkHref(link?: ContentLink): string | null {
     return null
   }
 
+  const linkType = cleanSanityString(link.linkType)
+  const internalTargetType = cleanSanityString(link.internalTargetType)
+  const internalPageSlug = cleanSanityString(link.internalPageSlug)
+  const internalPath = cleanSanityString(link.internalPath)
+  const externalUrl = cleanSanityString(link.externalUrl)
+
   if (
-    link.linkType === 'internal' &&
-    (link.internalTargetType === 'page' || link.internalTargetType == null) &&
-    link.internalPageSlug
+    linkType === 'internal' &&
+    (internalTargetType === 'page' || internalTargetType == null) &&
+    internalPageSlug
   ) {
-    return `/${link.internalPageSlug}`
+    return `/${internalPageSlug}`
   }
 
-  if (link.linkType === 'internal' && link.internalPath) {
-    return link.internalPath.startsWith('/') ? link.internalPath : `/${link.internalPath}`
+  if (linkType === 'internal' && internalPath) {
+    return internalPath.startsWith('/') ? internalPath : `/${internalPath}`
   }
 
-  if (link.linkType === 'external' && link.externalUrl) {
-    return link.externalUrl
+  if (linkType === 'external' && externalUrl) {
+    return externalUrl
   }
 
   return null
@@ -95,27 +110,29 @@ export function localizeHref(
   href: string | null,
   locale: SupportedLanguage = DEFAULT_LANGUAGE,
 ): string | null {
-  if (!href || !href.startsWith('/')) {
-    return href
+  const cleanedHref = cleanSanityString(href)
+
+  if (!cleanedHref || !cleanedHref.startsWith('/')) {
+    return cleanedHref || null
   }
 
   if (locale === DEFAULT_LANGUAGE) {
-    return href
+    return cleanedHref
   }
 
-  if (href === '/') {
+  if (cleanedHref === '/') {
     return `/${locale}`
   }
 
-  if (href === `/${locale}` || href.startsWith(`/${locale}/`)) {
-    return href
+  if (cleanedHref === `/${locale}` || cleanedHref.startsWith(`/${locale}/`)) {
+    return cleanedHref
   }
 
-  return `/${locale}${href}`
+  return `/${locale}${cleanedHref}`
 }
 
 export function isExternalContentLink(link?: ContentLink): boolean {
-  return link?.linkType === 'external'
+  return cleanSanityString(link?.linkType) === 'external'
 }
 
 export function normalizeInlineScript(script?: string | null): string | null {

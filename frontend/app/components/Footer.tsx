@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import {usePathname} from 'next/navigation'
+import {stegaClean} from '@sanity/client/stega'
 
 import {useLayoutSettings} from '@/app/components/LayoutSettingsProvider'
 import Image from '@/app/components/SanityImage'
@@ -25,6 +26,11 @@ type FooterConfig = NonNullable<LayoutSettings['footer']>
 
 type FooterSettings = LayoutSettings & {
   footer?: FooterConfig | null
+}
+
+function cleanVariant(value?: string | null): 'positive' | 'negative' | null {
+  const cleaned = typeof value === 'string' ? (stegaClean(value) || value) : value
+  return cleaned === 'negative' ? 'negative' : cleaned === 'positive' ? 'positive' : null
 }
 
 function resolveMenuItemKey(item: MenuLink, index: number, prefix = 'footer-link') {
@@ -212,7 +218,7 @@ export default function Footer({variant}: {variant?: FooterVariant | null}) {
   const locale = getLocaleFromPath(pathname)
   const layoutSettings = useLayoutSettings() as FooterSettings | null
   const footerConfig = layoutSettings?.footer || null
-  const resolvedVariant: FooterVariant = variant === 'negative' ? 'negative' : 'positive'
+  const resolvedVariant: FooterVariant = cleanVariant(variant) === 'negative' ? 'negative' : 'positive'
   const tone = getFooterTone(resolvedVariant)
   const navigationGroups = buildFallbackNavigationGroups(footerConfig)
   const navigationColumns = buildNavigationColumns(navigationGroups)

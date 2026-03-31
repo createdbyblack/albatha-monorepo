@@ -14,21 +14,31 @@ export type HomeSectionRendererProps<TBlock extends PageBuilderBlock> = {
   renderBlocks: RenderBlocks
 }
 
+function cleanSanityString(value?: string | null): string | null | undefined {
+  return typeof value === 'string' ? (stegaClean(value) || value) : value
+}
+
 export function resolveLinkHref(link?: CbLink | null, fallbackUrl?: string | null): string | null {
+  const linkType = cleanSanityString(link?.linkType)
+  const internalTargetType = cleanSanityString(link?.internalTargetType)
+  const internalPageSlug = cleanSanityString(link?.internalPageSlug)
+  const internalPath = cleanSanityString(link?.internalPath)
+  const externalUrl = cleanSanityString(link?.externalUrl)
+
   if (
-    link?.linkType === 'internal' &&
-    (link.internalTargetType === 'page' || link.internalTargetType == null) &&
-    link.internalPageSlug
+    linkType === 'internal' &&
+    (internalTargetType === 'page' || internalTargetType == null) &&
+    internalPageSlug
   ) {
-    return `/${link.internalPageSlug}`
+    return `/${internalPageSlug}`
   }
 
-  if (link?.linkType === 'internal' && link.internalPath) {
-    return link.internalPath.startsWith('/') ? link.internalPath : `/${link.internalPath}`
+  if (linkType === 'internal' && internalPath) {
+    return internalPath.startsWith('/') ? internalPath : `/${internalPath}`
   }
 
-  if (link?.linkType === 'external' && link.externalUrl) {
-    return link.externalUrl
+  if (linkType === 'external' && externalUrl) {
+    return externalUrl
   }
 
   return fallbackUrl || null
@@ -38,7 +48,9 @@ export function resolveLinkTarget(
   explicitTarget?: '_self' | '_blank' | string | null,
   openInNewTab?: boolean | null,
 ): '_self' | '_blank' | undefined {
-  if (explicitTarget === '_blank') {
+  const cleanedTarget = cleanSanityString(explicitTarget)
+
+  if (cleanedTarget === '_blank') {
     return '_blank'
   }
 
@@ -46,7 +58,7 @@ export function resolveLinkTarget(
     return '_blank'
   }
 
-  return explicitTarget === '_self' ? '_self' : undefined
+  return cleanedTarget === '_self' ? '_self' : undefined
 }
 
 export function imageAssetRefToUrl(ref?: string | null): string | null {
@@ -133,11 +145,13 @@ export function resolveHeroPhrasePlacement(placement?: HomeHeroPhrase['placement
 }
 
 export function formatPostDate(publishedAt?: string | null) {
-  if (!publishedAt) {
+  const cleanedPublishedAt = cleanSanityString(publishedAt)
+
+  if (!cleanedPublishedAt) {
     return 'No date'
   }
 
-  const parsedDate = new Date(publishedAt)
+  const parsedDate = new Date(cleanedPublishedAt)
   if (Number.isNaN(parsedDate.getTime())) {
     return 'No date'
   }
@@ -151,7 +165,7 @@ export function formatPostDate(publishedAt?: string | null) {
 }
 
 export function resolvePostHref(post: PostPreview) {
-  return post.seo?.canonicalUrl || null
+  return cleanSanityString(post.seo?.canonicalUrl) || null
 }
 
 export function resolvePostExcerpt(post: PostPreview) {

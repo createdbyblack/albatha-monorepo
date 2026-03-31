@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import {usePathname} from 'next/navigation'
 import {useEffect, useMemo, useState} from 'react'
+import {stegaClean} from '@sanity/client/stega'
 
 import Image from '@/app/components/SanityImage'
 import {useLayoutSettings} from '@/app/components/LayoutSettingsProvider'
@@ -50,6 +51,11 @@ type HeaderConfig = NonNullable<LayoutSettings['header']> & {
 
 type HeaderSettings = LayoutSettings & {
   header?: HeaderConfig | null
+}
+
+function cleanVariant(value?: string | null): 'positive' | 'negative' | null {
+  const cleaned = typeof value === 'string' ? (stegaClean(value) || value) : value
+  return cleaned === 'negative' ? 'negative' : cleaned === 'positive' ? 'positive' : null
 }
 
 function resolveMenuItemKey(item: MenuLink, index: number, prefix = 'nav-item') {
@@ -575,7 +581,7 @@ export default function Header({variant}: {variant?: HeaderVariant | null}) {
   const [expandedMobileItem, setExpandedMobileItem] = useState<string | null>(null)
   const [desktopMenuId, setDesktopMenuId] = useState<string | null>(null)
 
-  const resolvedVariant: HeaderVariant = variant === 'negative' ? 'negative' : 'positive'
+  const resolvedVariant: HeaderVariant = cleanVariant(variant) === 'negative' ? 'negative' : 'positive'
   const resolvedSettings = layoutSettings as HeaderSettings | null
   const headerConfig = resolvedSettings?.header
   const primaryMenu = headerConfig?.primaryMenu
