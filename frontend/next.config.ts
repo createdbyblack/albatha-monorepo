@@ -8,6 +8,23 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [new URL('https://cdn.sanity.io/**')],
   },
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: `frame-ancestors 'self' https://sanity-test-v4-studio.vercel.app`,
+          },
+        ],
+      },
+    ]
+  },
 }
 
 export default nextConfig
