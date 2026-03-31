@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: `frame-ancestors 'self' https://sanity-test-v4-studio.vercel.app http://localhost:3333`,
+            value: `frame-ancestors 'self' https://sanity-test-v4-studio.vercel.app/* http://localhost:3333/*`,
           },
         ],
       },
