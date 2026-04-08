@@ -616,9 +616,6 @@ export default function Header({variant}: {variant?: HeaderVariant | null}) {
     )
   }, [desktopMenuId, primaryLinks])
 
-  useEffect(() => {
-    setDesktopMenuId('nav-business-units')
-  }, [])
   return (
     <header
       className={cn(
