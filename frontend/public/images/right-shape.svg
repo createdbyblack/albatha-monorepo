@@ -1,0 +1,11 @@
+<svg width="120" height="366" viewBox="0 0 120 366" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M108.487 0.5H120V365.5H20.0112C7.16008 365.5 -2.17731 353.286 1.19385 340.885L89.8198 14.8848C92.1294 6.38933 99.692 0.500177 108.487 0.5Z" fill="#0099A8" stroke="none"/>
+  <!-- top border -->
+  <line x1="108.487" y1="0.5" x2="120" y2="0.5" stroke="white" stroke-width="1"/>
+  <!-- right border -->
+  <line x1="120" y1="0.5" x2="120" y2="365.5" stroke="white" stroke-width="1"/>
+  <!-- bottom border -->
+  <line x1="120" y1="365.5" x2="20.0112" y2="365.5" stroke="white" stroke-width="1"/>
+  <!-- left curved edge -->
+  <path d="M20.0112 365.5C7.16008 365.5 -2.17731 353.286 1.19385 340.885L89.8198 14.8848C92.1294 6.38933 99.692 0.500177 108.487 0.5" stroke="white" stroke-width="1" fill="none"/>
+</svg>

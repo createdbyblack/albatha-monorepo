@@ -54,7 +54,7 @@ type HeaderSettings = LayoutSettings & {
 }
 
 function cleanVariant(value?: string | null): 'positive' | 'negative' | null {
-  const cleaned = typeof value === 'string' ? (stegaClean(value) || value) : value
+  const cleaned = typeof value === 'string' ? stegaClean(value) || value : value
   return cleaned === 'negative' ? 'negative' : cleaned === 'positive' ? 'positive' : null
 }
 
@@ -63,7 +63,9 @@ function resolveMenuItemKey(item: MenuLink, index: number, prefix = 'nav-item') 
 }
 
 function hasMegaMenu(item: HeaderMenuLink) {
-  return Boolean(item.megaMenu?.groups?.some((group) => group.columns?.some((column) => column.links?.length)))
+  return Boolean(
+    item.megaMenu?.groups?.some((group) => group.columns?.some((column) => column.links?.length)),
+  )
 }
 
 function hasSubLinks(item: HeaderMenuLink) {
@@ -116,35 +118,9 @@ function filterMegaMenuGroups(item: HeaderMenuLink) {
     item.megaMenu?.groups
       ?.map((group) => ({
         ...group,
-        columns:
-          group.columns?.filter((column) => column.links?.length) || [],
+        columns: group.columns?.filter((column) => column.links?.length) || [],
       }))
       .filter((group) => group.columns.length) || []
-  )
-}
-
-function ChevronDownIcon({className}: {className?: string}) {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 16 16"
-      className={cn('h-3.5 w-3.5 fill-none stroke-current stroke-[1.6]', className)}
-    >
-      <path d="M3.25 5.75 8 10.25l4.75-4.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
-
-function GlobeIcon({className}: {className?: string}) {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 16 16"
-      className={cn('h-4 w-4 fill-none stroke-current stroke-[1.2]', className)}
-    >
-      <circle cx="8" cy="8" r="6.25" />
-      <path d="M1.75 8h12.5M8 1.75c1.9 1.7 2.9 3.79 2.9 6.25S9.9 12.55 8 14.25C6.1 12.55 5.1 10.46 5.1 8S6.1 3.45 8 1.75Z" />
-    </svg>
   )
 }
 
@@ -193,8 +169,8 @@ function MenuItemLink({
   const isExternal = isExternalContentLink(item.link) && item.link?.openInNewTab
 
   return (
-      <Link
-        href={localizeHref(href, locale) || href}
+    <Link
+      href={localizeHref(href, locale) || href}
       className={className}
       target={isExternal ? '_blank' : undefined}
       rel={isExternal ? 'noopener noreferrer' : undefined}
@@ -239,16 +215,16 @@ function HeaderLogo({
           className={cn(mobile ? 'h-8 w-auto sm:h-10' : 'h-9 w-auto lg:h-11 xl:h-[3.75rem]')}
           mode="contain"
         />
-        ) : (
-          <span
-            className={cn(
-              'font-brand text-[1.9rem] leading-none tracking-[-0.04em]',
-              variant === 'negative' ? 'text-header-negative-foreground' : 'text-header-brand',
-            )}
-          >
-            {settings?.title || 'Albatha'}
-          </span>
-        )}
+      ) : (
+        <span
+          className={cn(
+            'font-brand text-[1.9rem] leading-none tracking-[-0.04em]',
+            variant === 'negative' ? 'text-header-negative-foreground' : 'text-header-brand',
+          )}
+        >
+          {settings?.title || 'Albatha'}
+        </span>
+      )}
     </Link>
   )
 }
@@ -279,7 +255,7 @@ function LanguageToggle({
       aria-label={`Switch language to ${targetLabel}`}
       onClick={onClick}
     >
-      <GlobeIcon />
+      <img id="globe-icon" src={'icons/globe.svg'} alt={targetLabel} width={16} height={16} />
       <span className="text-base uppercase">{targetLabel}</span>
     </Link>
   )
@@ -320,24 +296,33 @@ function DesktopMenuItem({
     >
       <div
         className={cn(
-          'flex items-center gap-1 rounded-[8px] px-[10px] py-[10px] text-[1.25rem] leading-none transition-colors',
+          'flex items-center gap-1.5 rounded-lg px-2.5 py-2.5 text-xl leading-none transition-colors hover:cursor-pointer',
           tone.text,
           tone.hoverBg,
           isActive && tone.activeBg,
         )}
       >
-          {href ? (
-            <MenuItemLink
-              item={item}
-              className={cn('block whitespace-nowrap', tone.hoverText)}
-              locale={locale}
-            />
-          ) : (
+        {href ? (
+          <MenuItemLink
+            item={item}
+            className={cn('block whitespace-nowrap', tone.hoverText)}
+            locale={locale}
+          />
+        ) : (
           <button type="button" className="block whitespace-nowrap text-left">
             {item.label || 'Link'}
           </button>
         )}
-        {nested ? <ChevronDownIcon className={cn('mt-0.5', tone.icon)} /> : null}
+        {nested ? (
+          <img
+            id="chevron-down"
+            src={'icons/chevron-down.svg'}
+            alt="Chevron down"
+            width={13}
+            height={14}
+            className={cn('transition-transform', isActive && 'rotate-180')}
+          />
+        ) : null}
       </div>
     </li>
   )
@@ -366,7 +351,7 @@ function DesktopMenuRail({
 
   return (
     <nav aria-label={label} data-menu-group-id={menuId || undefined} className="hidden lg:block">
-      <ul role="list" className="flex items-center gap-[0.625rem]">
+      <ul role="list" className="flex items-center gap-5">
         {items.map((item, index) => {
           const itemKey = resolveMenuItemKey(item, index, label)
 
@@ -398,45 +383,50 @@ function DesktopMegaMenuPanels({
 
   if (groups.length) {
     return (
-      <div className="flex flex-wrap gap-2">
+      <div className="inline-flex">
         {groups.map((group, groupIndex) => {
           const columnCount = Math.max(group.columns.length, 1)
-          const cardWidth =
-            columnCount > 1
-              ? 'w-full max-w-[26rem] xl:max-w-[26.125rem]'
-              : 'w-full max-w-[15.625rem]'
+          const cardWidth = columnCount > 1 ? 'w-full w-max' : 'w-full w-max'
 
           return (
             <section
               key={group._key || `${item.label || 'mega-group'}-${groupIndex}`}
               className={cn(
-                'min-h-[15rem] bg-header-dropdown-background px-7 pb-8 pt-7 text-header-brand-foreground',
+                'min-h-60 bg-header-dropdown-background py-10 text-header-brand-foreground  pl-[2.188rem] ',
                 cardWidth,
                 groupIndex === 0
-                  ? '[clip-path:polygon(0_0,100%_0,calc(100%-1.7rem)_100%,0_100%)]'
-                  : '[clip-path:polygon(1.7rem_0,100%_0,100%_100%,0_100%)]',
+                  ? 'mega-menu-panel-first pr-[2.188rem] '
+                  : 'mega-menu-panel-last pr-[6em]',
               )}
             >
               <p className="mb-6 text-[1.5rem] leading-none text-header-dropdown-muted">
                 {group.title || 'Menu group'}
               </p>
-              <div className={cn('grid gap-x-[3.1875rem] gap-y-[1.875rem]', columnCount > 1 && 'grid-cols-2')}>
+              <div
+                className={cn(
+                  'grid gap-x-[3.1875rem] gap-y-[1.875rem]',
+                  columnCount === 1 && 'grid-cols-1',
+                  columnCount === 2 && 'grid-cols-2',
+                  columnCount === 3 && 'grid-cols-3',
+                  columnCount === 4 && 'grid-cols-4',
+                )}
+              >
                 {group.columns.map((column, columnIndex) => (
                   <ul
                     key={column._key || `${group.title || 'column'}-${columnIndex}`}
                     role="list"
-                    className="space-y-[1.875rem]"
+                    className="space-y-[1.875rem] w-max"
                   >
-                         {column.links?.map((link, linkIndex) => (
-                            <li key={resolveMenuItemKey(link, linkIndex, 'mega-link')}>
-                              <MenuItemLink
-                                item={link}
-                                className="block text-[1.25rem] leading-none text-header-brand-foreground transition-opacity hover:opacity-75"
-                                locale={locale}
-                              />
-                            </li>
-                          ))}
-                        </ul>
+                    {column.links?.map((link, linkIndex) => (
+                      <li key={resolveMenuItemKey(link, linkIndex, 'mega-link')}>
+                        <MenuItemLink
+                          item={link}
+                          className="block text-xl leading-none text-header-brand-foreground transition-opacity hover:opacity-75 whitespace-nowrap"
+                          locale={locale}
+                        />
+                      </li>
+                    ))}
+                  </ul>
                 ))}
               </div>
             </section>
@@ -453,15 +443,15 @@ function DesktopMegaMenuPanels({
   return (
     <section className="w-full max-w-[20rem] rounded-b-[16px] bg-header-dropdown-background px-7 pb-8 pt-7 text-header-brand-foreground">
       <ul role="list" className="space-y-6">
-             {item.subLinks.map((subLink, subIndex) => (
-              <li key={resolveMenuItemKey(subLink, subIndex, 'sub-link')}>
-                <MenuItemLink
-                  item={subLink}
-                  className="block text-[1.25rem] leading-none text-header-brand-foreground transition-opacity hover:opacity-75"
-                  locale={locale}
-                />
-              </li>
-            ))}
+        {item.subLinks.map((subLink, subIndex) => (
+          <li key={resolveMenuItemKey(subLink, subIndex, 'sub-link')}>
+            <MenuItemLink
+              item={subLink}
+              className="block text-[1.25rem] leading-none text-header-brand-foreground transition-opacity hover:opacity-75"
+              locale={locale}
+            />
+          </li>
+        ))}
       </ul>
     </section>
   )
@@ -489,7 +479,13 @@ function MobileNestedPanel({
 
   return (
     <li data-menu-item-id={item.itemId || undefined}>
-      <div className={cn('rounded-[14px] border px-4 py-4', tone.mutedBorder, expanded && tone.activeBg)}>
+      <div
+        className={cn(
+          'rounded-[14px] border px-4 py-4',
+          tone.mutedBorder,
+          expanded && tone.activeBg,
+        )}
+      >
         <div className="flex items-center gap-3">
           {href ? (
             <MenuItemLink
@@ -514,7 +510,15 @@ function MobileNestedPanel({
               aria-expanded={expanded}
               onClick={onToggle}
             >
-              <ChevronDownIcon className={cn('transition-transform', expanded && 'rotate-180')} />
+              <img
+                id="chevron-down"
+                src={'icons/chevron-down.svg'}
+                alt="Chevron down"
+                width={13}
+                height={14}
+              />
+
+              {/* <ChevronDownIcon className={cn('transition-transform', expanded && 'rotate-180')} /> */}
             </button>
           ) : null}
         </div>
@@ -527,7 +531,9 @@ function MobileNestedPanel({
                     key={group._key || `${item.label || 'mobile-group'}-${groupIndex}`}
                     className="rounded-[14px] bg-header-dropdown-background px-5 py-5 text-header-brand-foreground"
                   >
-                    <p className="mb-4 text-lg leading-none text-header-dropdown-muted">{group.title || 'Menu group'}</p>
+                    <p className="mb-4 text-lg leading-none text-header-dropdown-muted">
+                      {group.title || 'Menu group'}
+                    </p>
                     <div className={cn('grid gap-5', group.columns.length > 1 && 'sm:grid-cols-2')}>
                       {group.columns.map((column, columnIndex) => (
                         <ul
@@ -581,7 +587,8 @@ export default function Header({variant}: {variant?: HeaderVariant | null}) {
   const [expandedMobileItem, setExpandedMobileItem] = useState<string | null>(null)
   const [desktopMenuId, setDesktopMenuId] = useState<string | null>(null)
 
-  const resolvedVariant: HeaderVariant = cleanVariant(variant) === 'negative' ? 'negative' : 'positive'
+  const resolvedVariant: HeaderVariant =
+    cleanVariant(variant) === 'negative' ? 'negative' : 'positive'
   const resolvedSettings = layoutSettings as HeaderSettings | null
   const headerConfig = resolvedSettings?.header
   const primaryMenu = headerConfig?.primaryMenu
@@ -603,11 +610,15 @@ export default function Header({variant}: {variant?: HeaderVariant | null}) {
     }
 
     return (
-      primaryLinks.find((item, index) => resolveMenuItemKey(item, index, 'Primary navigation') === desktopMenuId) ||
-      null
+      primaryLinks.find(
+        (item, index) => resolveMenuItemKey(item, index, 'Primary navigation') === desktopMenuId,
+      ) || null
     )
   }, [desktopMenuId, primaryLinks])
 
+  useEffect(() => {
+    setDesktopMenuId('nav-business-units')
+  }, [])
   return (
     <header
       className={cn(
@@ -619,7 +630,7 @@ export default function Header({variant}: {variant?: HeaderVariant | null}) {
       onMouseLeave={() => setDesktopMenuId(null)}
     >
       <div className={cn('border-b', tone.border)}>
-        <div className="relative mx-auto hidden max-w-wide items-center justify-between gap-8 px-4 py-5 lg:flex xl:px-8">
+        <div className="relative mx-auto hidden max-w-wide items-center justify-between gap-8 px-40 py-10 lg:flex xl:px-8">
           <div className="min-w-0 flex-1">
             <DesktopMenuRail
               label="Primary navigation"
@@ -653,7 +664,12 @@ export default function Header({variant}: {variant?: HeaderVariant | null}) {
 
         <div className="relative flex items-center justify-end px-4 py-4 lg:hidden">
           <div className="absolute left-1/2 top-1/2 w-fit -translate-x-1/2 -translate-y-1/2">
-            <HeaderLogo settings={resolvedSettings} variant={resolvedVariant} mobile locale={locale} />
+            <HeaderLogo
+              settings={resolvedSettings}
+              variant={resolvedVariant}
+              mobile
+              locale={locale}
+            />
           </div>
           <button
             type="button"
@@ -666,7 +682,9 @@ export default function Header({variant}: {variant?: HeaderVariant | null}) {
             aria-controls="mobile-site-menu"
             onClick={() => setMobileMenuOpen((current) => !current)}
           >
-            <span className="sr-only">{mobileMenuOpen ? 'Close site navigation' : 'Open site navigation'}</span>
+            <span className="sr-only">
+              {mobileMenuOpen ? 'Close site navigation' : 'Open site navigation'}
+            </span>
             {mobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
           </button>
         </div>
@@ -692,7 +710,10 @@ export default function Header({variant}: {variant?: HeaderVariant | null}) {
             </div>
 
             {secondaryLinks.length ? (
-              <nav aria-label="Mobile secondary navigation" data-menu-group-id={secondaryMenu?.menuId || undefined}>
+              <nav
+                aria-label="Mobile secondary navigation"
+                data-menu-group-id={secondaryMenu?.menuId || undefined}
+              >
                 <ul role="list" className="flex flex-wrap gap-2">
                   {secondaryLinks.map((item, index) => (
                     <li key={resolveMenuItemKey(item, index, 'mobile-secondary')}>
@@ -713,7 +734,10 @@ export default function Header({variant}: {variant?: HeaderVariant | null}) {
               </nav>
             ) : null}
 
-            <nav aria-label="Mobile primary navigation" data-menu-group-id={primaryMenu?.menuId || undefined}>
+            <nav
+              aria-label="Mobile primary navigation"
+              data-menu-group-id={primaryMenu?.menuId || undefined}
+            >
               <ul role="list" className="space-y-3">
                 {primaryLinks.map((item, index) => {
                   const itemKey = resolveMenuItemKey(item, index, 'mobile-primary')

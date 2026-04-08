@@ -1,0 +1,9 @@
+<svg width="120" height="366" viewBox="533 0 120 366" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M632.35 0.500061C645.255 0.500237 654.41 12.8174 650.926 25.2589L559.628 351.259C557.27 359.679 549.595 365.5 540.851 365.5H533V0.500061H632.35Z" fill="#0099A8" stroke="none"/>
+  <!-- top border -->
+  <line x1="533" y1="0.5" x2="632.35" y2="0.5" stroke="white" stroke-width="1"/>
+  <!-- bottom border -->
+  <line x1="533" y1="365.5" x2="540.851" y2="365.5" stroke="white" stroke-width="1"/>
+  <!-- right border (diagonal edge) -->
+  <path d="M632.35 0.500061C645.255 0.500237 654.41 12.8174 650.926 25.2589L559.628 351.259C557.27 359.679 549.595 365.5 540.851 365.5" stroke="white" stroke-width="1" fill="none"/>
+</svg>
