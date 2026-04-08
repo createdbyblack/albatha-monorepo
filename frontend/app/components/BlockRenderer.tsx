@@ -120,7 +120,6 @@ function resolveNestedArray(
   return {items: preferredItems || [], fieldName: preferredField}
 }
 
-
 function renderBlockArray(
   blocks: PageBuilderBlock[],
   blockPath: string,

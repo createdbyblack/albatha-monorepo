@@ -3,30 +3,20 @@ import Link from 'next/link'
 import {cn} from '@/app/lib/cn'
 
 type CompanyFeatureLinkProps = {
-  name: string
-  category?: string | null
-  href?: string | null
-  target?: '_self' | '_blank'
-  rel?: string
-  className?: string
+  'name': string
+  'category'?: string | null
+  'href'?: string | null
+  'target'?: '_self' | '_blank'
+  'rel'?: string
+  'className'?: string
   'data-sanity'?: string
 }
 
-function CompanyFeatureContent({
-  name,
-  category,
-}: {
-  name: string
-  category?: string | null
-}) {
+function CompanyFeatureContent({name, category}: {name: string; category?: string | null}) {
   return (
-    <div className="flex min-h-22 flex-col justify-between gap-3 border-b border-white/70 pb-4 pt-2">
-      <p className="text-2xl leading-none tracking-tight text-white lg:text-[1.75rem]">
-        {name}
-      </p>
-      <p className="text-sm leading-snug text-albatha-blue sm:text-base">
-        {category || ''}
-      </p>
+    <div className="flex min-h-22 flex-col justify-between gap-2 border-b border-white/70 pb-4 pt-2">
+      <p className="text-2xl leading-none tracking-tight text-white lg:text-[1.75rem]">{name}</p>
+      <p className="text-sm leading-snug text-albatha-blue sm:text-base">{category || ''}</p>
     </div>
   )
 }

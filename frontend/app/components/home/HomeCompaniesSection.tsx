@@ -27,17 +27,17 @@ export default function HomeCompaniesSection({
   return (
     <section
       id="companies"
-      className="relative isolate overflow-hidden bg-albatha-midnight pb-10 pt-24 text-white sm:pb-12 sm:pt-28 lg:pb-10 lg:pt-32"
+      className="relative isolate overflow-hidden bg-albatha-midnight text-white min-h-[67.813rem] "
       data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, blockPath)}
     >
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 -top-32">
         {backgroundImageAssetId ? (
           <SanityImage
             id={backgroundImageAssetId}
             alt=""
             width={1920}
             height={1085}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover min-h-[67.813rem]"
           />
         ) : (
           <div className="h-full w-full bg-albatha-midnight" aria-hidden="true" />
@@ -50,9 +50,9 @@ export default function HomeCompaniesSection({
       />
 
       <HomeSectionRenderContext.Provider value="companies">
-        <div className="relative z-10 mx-auto w-full max-w-wide px-4 sm:px-8 lg:px-10 xl:px-20">
+        <div className="absolute bottom-10 z-10 w-full px-4 sm:px-8 lg:px-10 xl:px-20">
           <div
-            className="space-y-12 sm:space-y-14 lg:space-y-[3.75rem]"
+            className="mx-auto max-w-wide space-y-12 sm:space-y-14 lg:space-y-[3.75rem]"
             data-sanity={getSanityDataAttribute(
               isDraftMode,
               {id: pageId, type: pageType},
