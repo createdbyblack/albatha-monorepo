@@ -1,7 +1,13 @@
 import {stegaClean} from '@sanity/client/stega'
 import type {ReactNode} from 'react'
 
-import type {CbLink, CbMedia, HomeHeroPhrase, PageBuilderBlock, PostPreview} from '@/sanity/lib/types'
+import type {
+  CbLink,
+  CbMedia,
+  HomeHeroPhrase,
+  PageBuilderBlock,
+  PostPreview,
+} from '@/sanity/lib/types'
 
 export type RenderBlocks = (blocks: PageBuilderBlock[], blockPath: string) => ReactNode
 
@@ -15,7 +21,7 @@ export type HomeSectionRendererProps<TBlock extends PageBuilderBlock> = {
 }
 
 function cleanSanityString(value?: string | null): string | null | undefined {
-  return typeof value === 'string' ? (stegaClean(value) || value) : value
+  return typeof value === 'string' ? stegaClean(value) || value : value
 }
 
 export function resolveLinkHref(link?: CbLink | null, fallbackUrl?: string | null): string | null {
@@ -135,12 +141,13 @@ export function resolveImageAssetId(asset?: {_ref?: string | null; _id?: string 
 export function resolveHeroPhrasePlacement(placement?: HomeHeroPhrase['placement'] | null) {
   switch (stegaClean(placement) || placement) {
     case 'middleRight':
-      return 'right-4 top-72 sm:right-8 sm:top-80 lg:right-10 lg:top-80 xl:right-32 xl:top-64'
+      return 'right-4 top-72 sm:right-8 sm:top-80 lg:right-45 lg:top-[28rem] 2xl:right-[25rem] 2xl:top-[33.75rem]'
     case 'lowerLeft':
-      return 'left-4 bottom-28 sm:left-8 sm:bottom-36 lg:left-12 xl:left-32'
+      return 'left-4 bottom-16 sm:left-8 sm:bottom-36 lg:left-30 2xl:left-44'
     case 'upperLeft':
+      return 'left-4 top-20 sm:left-8 sm:top-10 lg:left-50 lg:top-60 2xl:left-[28rem] 2xl:top-72'
     default:
-      return 'left-4 top-28 sm:left-8 sm:top-36 lg:left-12 lg:top-44 xl:left-80 xl:top-56'
+      return 'left-4 top-20 sm:left-8 sm:top-20 lg:left-50 lg:top-60 2xl:left-[28rem] 2xl:top-72'
   }
 }
 

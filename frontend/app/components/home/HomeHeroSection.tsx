@@ -66,13 +66,17 @@ export default function HomeHeroSection({
       </div>
 
       <div
-        className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/30 to-black/65"
+        className="absolute inset-0 opacity-80"
+        style={{
+          background:
+            'linear-gradient(0deg, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.20) 25%, rgba(0,0,0,0.20) 70%, rgba(0,0,0,0.80) 100%)',
+        }}
         aria-hidden="true"
       />
-      <div
+      {/* <div
         className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/80"
         aria-hidden="true"
-      />
+      /> */}
 
       {(block.phrases || []).map((phrase, phraseIndex) => (
         <div
@@ -84,7 +88,7 @@ export default function HomeHeroSection({
         >
           <HeroPhraseBadge
             text={phrase.text || 'Hero phrase'}
-            delayMs={phraseIndex * 1000}
+            delayMs={600 + 800 * phraseIndex}
             data-sanity={getSanityDataAttribute(
               isDraftMode,
               {id: pageId, type: pageType},
@@ -94,7 +98,7 @@ export default function HomeHeroSection({
         </div>
       ))}
 
-      <div className="relative z-10 flex min-h-screen items-end px-4 pb-20 pt-32 sm:px-8 sm:pb-24 sm:pt-36 lg:px-10 lg:pb-28 lg:pt-40 xl:px-20">
+      <div className="relative z-10 flex min-h-screen items-end px-4 pb-20 pt-32 sm:px-8 sm:pb-24 sm:pt-36 lg:px-10 lg:pb-60 lg:pt-40 xl:px-20">
         <div className="mx-auto w-full max-w-wide">
           <HomeSectionRenderContext.Provider value="hero">
             <div
@@ -118,7 +122,9 @@ export default function HomeHeroSection({
         data-sanity={getSanityDataAttribute(
           isDraftMode,
           {id: pageId, type: pageType},
-          block.floatingActionLink ? `${blockPath}.floatingActionLink` : `${blockPath}.floatingActionLabel`,
+          block.floatingActionLink
+            ? `${blockPath}.floatingActionLink`
+            : `${blockPath}.floatingActionLabel`,
         )}
       />
     </section>

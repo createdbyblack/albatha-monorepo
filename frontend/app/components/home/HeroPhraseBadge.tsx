@@ -5,9 +5,9 @@ import {useEffect, useState} from 'react'
 import {cn} from '@/app/lib/cn'
 
 type HeroPhraseBadgeProps = {
-  text: string
-  delayMs?: number
-  className?: string
+  'text': string
+  'delayMs'?: number
+  'className'?: string
   'data-sanity'?: string
 }
 
@@ -33,7 +33,7 @@ export default function HeroPhraseBadge({
     <div
       data-sanity={dataSanity}
       className={cn(
-        'relative inline-flex min-h-[2.8125rem] items-center justify-center px-4 py-[0.9375rem] text-[1rem] font-medium uppercase tracking-[0.02em] text-white transition-all duration-700 ease-out lg:text-[1.25rem]',
+        'relative inline-flex min-h-[2.8125rem] items-center justify-center px-4 py-[0.9375rem] text-xl font-medium uppercase tracking-wide text-white transition-all duration-700 ease-out ',
         'before:absolute before:inset-0 before:-skew-x-12 before:rounded-[0.85rem] before:border before:border-white/70 before:bg-white/[0.04] before:content-[\"\"] before:backdrop-blur-[2px]',
         isVisible ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0',
         className,
