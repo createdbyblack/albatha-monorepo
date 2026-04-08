@@ -9,11 +9,7 @@ import Image from '@/app/components/SanityImage'
 import {cn} from '@/app/lib/cn'
 import {getLocaleFromPath} from '@/app/lib/locale-path'
 import {DEFAULT_LANGUAGE, type SupportedLanguage} from '@/sanity/lib/i18n'
-import type {
-  FooterNavigationGroup,
-  LayoutSettings,
-  MenuLink,
-} from '@/sanity/lib/settings-types'
+import type {FooterNavigationGroup, LayoutSettings, MenuLink} from '@/sanity/lib/settings-types'
 import type {FooterVariant} from '@/sanity/lib/types'
 import {isExternalContentLink, localizeHref, resolveContentLinkHref} from '@/sanity/lib/utils'
 
@@ -29,7 +25,7 @@ type FooterSettings = LayoutSettings & {
 }
 
 function cleanVariant(value?: string | null): 'positive' | 'negative' | null {
-  const cleaned = typeof value === 'string' ? (stegaClean(value) || value) : value
+  const cleaned = typeof value === 'string' ? stegaClean(value) || value : value
   return cleaned === 'negative' ? 'negative' : cleaned === 'positive' ? 'positive' : null
 }
 
@@ -168,18 +164,24 @@ function FooterLogo({
   const homeHref = localizeHref('/', locale) || '/'
 
   return (
-    <Link href={homeHref} className="inline-flex w-fit max-w-[15rem] items-center" aria-label="Go to homepage">
+    <Link
+      href={homeHref}
+      className="inline-flex w-fit max-w-[15rem] items-center"
+      aria-label="Go to homepage"
+    >
       {logoAssetRef ? (
         <Image
           id={logoAssetRef}
           alt={activeLogo?.alt || settings?.companyName || settings?.title || 'Site logo'}
-          width={280}
-          height={48}
-          className="h-10 w-auto sm:h-11"
+          width={260}
+          height={60}
+          className="h-10 w-auto sm:h-16"
           mode="contain"
         />
       ) : (
-        <span className={cn('font-brand text-[2rem] leading-none tracking-[-0.04em]', tone.logoText)}>
+        <span
+          className={cn('font-brand text-[2rem] leading-none tracking-[-0.04em]', tone.logoText)}
+        >
           {settings?.companyName || settings?.title || 'Albatha'}
         </span>
       )}
@@ -203,11 +205,11 @@ function FooterContactRow({
   return (
     <div>
       {href ? (
-        <a href={href} className={cn('text-[30px] leading-[1.4] underline-offset-4', valueClassName)}>
+        <a href={href} className={cn('text-3xl leading-[1.4] underline-offset-4', valueClassName)}>
           {value}
         </a>
       ) : (
-        <p className={cn('text-[30px] leading-[1.4]', valueClassName)}>{value}</p>
+        <p className={cn('text-3xl leading-[1.4]', valueClassName)}>{value}</p>
       )}
     </div>
   )
@@ -218,54 +220,68 @@ export default function Footer({variant}: {variant?: FooterVariant | null}) {
   const locale = getLocaleFromPath(pathname)
   const layoutSettings = useLayoutSettings() as FooterSettings | null
   const footerConfig = layoutSettings?.footer || null
-  const resolvedVariant: FooterVariant = cleanVariant(variant) === 'negative' ? 'negative' : 'positive'
+  const resolvedVariant: FooterVariant =
+    cleanVariant(variant) === 'negative' ? 'negative' : 'positive'
   const tone = getFooterTone(resolvedVariant)
   const navigationGroups = buildFallbackNavigationGroups(footerConfig)
   const navigationColumns = buildNavigationColumns(navigationGroups)
   const legalLinks = footerConfig?.legalMenu?.links || []
   const showDefaultLegalLinks = footerConfig?.showDefaultLegalLinks ?? true
   const companyName = layoutSettings?.companyName || layoutSettings?.title || 'Albatha Holding'
-  const officeLocations = layoutSettings?.officeLocations?.filter((location) => location?.address) || []
+  const officeLocations =
+    layoutSettings?.officeLocations?.filter((location) => location?.address) || []
   const creditHref = resolveContentLinkHref(footerConfig?.creditLink)
   const creditLabel = footerConfig?.creditLabel || undefined
-  const creditIsExternal = isExternalContentLink(footerConfig?.creditLink) && footerConfig?.creditLink?.openInNewTab
+  const creditIsExternal =
+    isExternalContentLink(footerConfig?.creditLink) && footerConfig?.creditLink?.openInNewTab
 
   return (
     <footer
       className={cn('relative overflow-hidden', tone.root)}
       data-menu-group-id={footerConfig?.menu?.menuId || undefined}
     >
-      <div className="relative mx-auto max-w-wide px-4 py-12 sm:px-6 md:py-14 lg:min-h-[600px] lg:px-8 lg:py-20">
+      <div className="relative mx-auto max-w-wide px-4 py-12 sm:px-6 md:py-14 lg:min-h-[37.5rem] lg:px-8 lg:py-20">
         <div className="flex min-h-full flex-col lg:justify-between">
           <div className="grid gap-12 lg:grid-cols-[515px_1fr] lg:gap-[calc(50%-527px)]">
             <div className="flex flex-col gap-10">
               <FooterLogo settings={layoutSettings} variant={resolvedVariant} locale={locale} />
 
-              <div className="flex flex-col gap-6 text-[18px] leading-[1.4] lg:flex-row lg:items-end">
+              <div className="flex flex-col gap-6 text-lg leading-[1.4] lg:flex-row lg:items-end">
                 {officeLocations.map((location, index) => (
-                  <section key={location._key || `${location.title || 'office'}-${index}`} className="max-w-[248px]">
+                  <section
+                    key={location._key || `${location.title || 'office'}-${index}`}
+                    className="max-w-[248px]"
+                  >
                     {index === 0 ? (
-                      <p className="mb-5 text-[20px] font-medium leading-[1.4]">{companyName}</p>
+                      <p className="mb-5 text-xl font-medium leading-[1.4]">{companyName}</p>
                     ) : null}
                     <p className="whitespace-pre-line">{location.address}</p>
                   </section>
                 ))}
                 {!officeLocations.length ? (
                   <section className="max-w-[248px]">
-                    <p className="mb-5 text-[20px] font-medium leading-[1.4]">{companyName}</p>
+                    <p className="mb-5 text-lg font-medium leading-[1.4]">{companyName}</p>
                   </section>
                 ) : null}
               </div>
 
-              <div className="flex flex-col gap-[10px]">
+              <div className="flex flex-col gap-2.5">
                 <FooterContactRow
                   value={layoutSettings?.contactPhone}
-                  href={layoutSettings?.contactPhone ? `tel:${layoutSettings.contactPhone.replace(/\s+/g, '')}` : undefined}
+                  href={
+                    layoutSettings?.contactPhone
+                      ? `tel:${layoutSettings.contactPhone.replace(/\s+/g, '')}`
+                      : undefined
+                  }
                   valueClassName={tone.contactLink}
                 />
                 <FooterContactRow
                   value={layoutSettings?.contactEmail}
-                  href={layoutSettings?.contactEmail ? `mailto:${layoutSettings.contactEmail}` : undefined}
+                  href={
+                    layoutSettings?.contactEmail
+                      ? `mailto:${layoutSettings.contactEmail}`
+                      : undefined
+                  }
                   valueClassName={tone.contactLink}
                 />
               </div>
@@ -277,21 +293,24 @@ export default function Footer({variant}: {variant?: FooterVariant | null}) {
                   key={column._key || `footer-column-${columnIndex}`}
                   className={cn(
                     'flex flex-col items-start',
-                    column.title ? 'gap-7 pt-[10px]' : 'gap-5 pt-[62px]',
+                    column.title ? 'gap-7 pt-2.5' : 'gap-5 pt-[62px]',
                     columnIndex < 2 ? 'lg:w-[247px]' : 'lg:w-[254px]',
                   )}
                 >
                   {column.title ? (
-                    <p className={cn('text-[24px] leading-none', tone.heading)}>{column.title}</p>
+                    <p className={cn('text-2xl leading-none', tone.heading)}>{column.title}</p>
                   ) : null}
                   <ul role="list" className="flex flex-col items-start gap-5">
                     {column.links.map((item, itemIndex) =>
                       item ? (
-                        <li key={resolveMenuItemKey(item, itemIndex, 'footer-column-link')} className="py-[10px]">
+                        <li
+                          key={resolveMenuItemKey(item, itemIndex, 'footer-column-link')}
+                          className="py-2.5"
+                        >
                           <FooterNavLink
                             item={item}
                             locale={locale}
-                            className={cn('inline-flex text-[20px] leading-none', tone.link)}
+                            className={cn('inline-flex text-xl leading-none', tone.link)}
                           />
                         </li>
                       ) : null,
@@ -302,13 +321,16 @@ export default function Footer({variant}: {variant?: FooterVariant | null}) {
             </div>
           </div>
 
-          <div className={cn('mt-12 border-t pt-5 lg:mt-0 lg:pt-[18px]', tone.divider)}>
+          <div className={cn('mt-12 border-t pt-7 lg:mt-18', tone.divider)}>
             <div
               className={cn(
-                'flex flex-col gap-4 text-[16px] leading-[1.75] sm:text-[18px] lg:flex-row lg:items-center lg:justify-between lg:text-[20px]',
+                'flex flex-col gap-4 text-base leading-[1.75] sm:text-lg lg:flex-row lg:items-center lg:justify-between',
               )}
             >
-              <div className="flex flex-wrap items-center gap-x-10 gap-y-3" data-menu-group-id={footerConfig?.legalMenu?.menuId || undefined}>
+              <div
+                className="flex flex-wrap items-center gap-x-10 gap-y-3"
+                data-menu-group-id={footerConfig?.legalMenu?.menuId || undefined}
+              >
                 {legalLinks.map((item, index) => (
                   <FooterNavLink
                     key={resolveMenuItemKey(item, index, 'legal-link')}
@@ -327,7 +349,9 @@ export default function Footer({variant}: {variant?: FooterVariant | null}) {
                       Privacy Policy
                     </Link>
                     <Link
-                      href={localizeHref('/terms-and-conditions', locale) || '/terms-and-conditions'}
+                      href={
+                        localizeHref('/terms-and-conditions', locale) || '/terms-and-conditions'
+                      }
                       className={cn('inline-flex underline underline-offset-[3px]', tone.legalLink)}
                     >
                       Terms & Conditions
@@ -336,21 +360,21 @@ export default function Footer({variant}: {variant?: FooterVariant | null}) {
                 ) : null}
               </div>
 
-              <div className="flex flex-wrap items-center gap-0 lg:justify-end">
-                <p className={cn('text-left lg:text-right', tone.creditText)}>
+              <div className="flex flex-wrap items-center gap-x-1 lg:justify-end">
+                <p className={cn('text-left lg:text-right')}>
                   {footerConfig?.copyrightText || `Copyright ${companyName}. Created by `}
                 </p>
                 {creditHref && creditLabel ? (
                   <Link
                     href={localizeHref(creditHref, locale) || creditHref}
-                    className={cn('underline underline-offset-[3px]', tone.creditLink)}
+                    className={cn('')}
                     target={creditIsExternal ? '_blank' : undefined}
                     rel={creditIsExternal ? 'noopener noreferrer' : undefined}
                   >
-                    {creditLabel}
+                    {`\u0020 ${creditLabel}`}
                   </Link>
                 ) : creditLabel ? (
-                  <span className={cn('underline underline-offset-[3px]', tone.creditLink)}>{creditLabel}</span>
+                  <span className={cn('')}>{` ${creditLabel}`}</span>
                 ) : null}
               </div>
             </div>
