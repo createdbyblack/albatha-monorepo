@@ -43,7 +43,7 @@ export default function HomeBlogPostsSection({
       data-sanity={getSanityDataAttribute(isDraftMode, {id: pageId, type: pageType}, blockPath)}
     >
       <HomeSectionRenderContext.Provider value="blog-posts">
-        <div className="mx-auto w-full max-w-wide px-4 sm:px-8 lg:px-10 xl:px-20">
+        <div className="mx-auto w-full max-w-wide ">
           <div className="space-y-8 sm:space-y-10 lg:space-y-12">
             {block.contents?.length ? (
               <div
@@ -113,7 +113,9 @@ export default function HomeBlogPostsSection({
         data-sanity={getSanityDataAttribute(
           isDraftMode,
           {id: pageId, type: pageType},
-          block.floatingActionLink ? `${blockPath}.floatingActionLink` : `${blockPath}.floatingActionLabel`,
+          block.floatingActionLink
+            ? `${blockPath}.floatingActionLink`
+            : `${blockPath}.floatingActionLabel`,
         )}
       />
     </section>

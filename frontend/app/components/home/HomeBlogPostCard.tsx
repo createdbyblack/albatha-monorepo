@@ -5,16 +5,16 @@ import SectionArrowIconButton from '@/app/components/home/SectionArrowIconButton
 import {cn} from '@/app/lib/cn'
 
 type HomeBlogPostCardProps = {
-  variant?: 'featured' | 'compact'
-  title: string
-  publishedLabel: string
-  excerpt?: string | null
-  href?: string | null
-  target?: '_self' | '_blank'
-  rel?: string
-  imageAssetId?: string | null
-  imageAlt?: string | null
-  className?: string
+  'variant'?: 'featured' | 'compact'
+  'title': string
+  'publishedLabel': string
+  'excerpt'?: string | null
+  'href'?: string | null
+  'target'?: '_self' | '_blank'
+  'rel'?: string
+  'imageAssetId'?: string | null
+  'imageAlt'?: string | null
+  'className'?: string
   'data-sanity'?: string
 }
 
@@ -35,15 +35,15 @@ function FeaturedBlogPostCard({
 }) {
   return (
     <article className="relative overflow-visible rounded-[1.875rem] bg-white p-3 shadow-xl shadow-black/10 sm:p-4 lg:p-5">
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center">
-        <div className="relative overflow-hidden rounded-[1.5rem] bg-albatha-blue/10">
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-center">
+        <div className="relative overflow-hidden rounded-[1.5rem] bg-albatha-blue/10 min-w-[38rem]">
           {imageAssetId ? (
             <SanityImage
               id={imageAssetId}
               alt={imageAlt || title}
-              width={1216}
-              height={1066}
-              className="h-full min-h-[18rem] w-full object-cover sm:min-h-[22rem] lg:min-h-[31.5rem]"
+              width={608}
+              height={533}
+              className="h-full min-h-[18rem]  object-cover sm:min-h-[22rem] lg:min-h-[33rem]"
             />
           ) : (
             <div
@@ -58,11 +58,11 @@ function FeaturedBlogPostCard({
             {publishedLabel}
           </p>
           <div className="space-y-4">
-            <h3 className="max-w-[18ch] text-3xl leading-[1.2] tracking-tight text-albatha-midnight sm:text-4xl lg:text-[2.5rem]">
+            <h2 className=" text-3xl leading-[1.2]  text-albatha-midnight sm:text-4xl lg:text-[2.5rem]">
               {title}
-            </h3>
+            </h2>
             {excerpt ? (
-              <p className="max-w-2xl text-base leading-relaxed text-albatha-midnight/90 sm:text-lg lg:text-[1.625rem] lg:leading-[1.35]">
+              <p className=" text-base leading-relaxed w-full text-albatha-midnight/90 sm:text-lg lg:text-[1.625rem] lg:leading-[1.35]">
                 {excerpt}
               </p>
             ) : null}
@@ -97,7 +97,7 @@ function CompactBlogPostCard({
           <p className="text-lg leading-snug text-albatha-midnight/50 sm:text-xl lg:text-[1.625rem]">
             {publishedLabel}
           </p>
-          <h3 className="text-[1.875rem] leading-[1.3] text-albatha-midnight">{title}</h3>
+          <h2 className="text-[1.875rem] leading-[1.3] text-albatha-midnight">{title}</h2>
         </div>
 
         <span className="text-sm font-medium uppercase tracking-[0.16em] text-albatha-blue underline decoration-current underline-offset-4">
